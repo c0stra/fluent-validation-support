@@ -135,8 +135,13 @@ public final class Conditions {
     }
 
 
-    public static <D> Condition<D> oneOf(Iterable<Condition<? super D>> operands) {
+    public static <D> Condition<D> anyOf(Iterable<Condition<? super D>> operands) {
         return new Operator<>(operands, true);
+    }
+
+    @SafeVarargs
+    public static <D> Condition<D> anyOf(Condition<? super D>... operands) {
+        return anyOf(asList(operands));
     }
 
     public static <D> Condition<D> allOf(Iterable<Condition<? super D>> operands) {
