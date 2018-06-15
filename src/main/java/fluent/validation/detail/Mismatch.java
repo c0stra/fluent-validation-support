@@ -47,8 +47,8 @@ public final class Mismatch implements EvaluationLogger {
             builder.append("Expected: ")
                     .append(desc)
                     .append(expectationDescription)
-                    .append(" but actual: ")
-                    .append(actualData);
+                    .append(", actual: <")
+                    .append(actualData).append('>');
         }
     }
 

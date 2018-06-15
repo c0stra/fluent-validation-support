@@ -65,7 +65,7 @@ public final class Conditions {
     private Conditions() {}
 
     private static final Double DEFAULT_TOLERANCE = 0.0000001;
-    private static final Condition<Object> IS_NULL = nullableCondition(Objects::isNull, "is null");
+    private static final Condition<Object> IS_NULL = equalTo((Object) null);
     private static final Condition<Object> NOT_NULL = not(IS_NULL);
     private static final Condition<Object> ANYTHING = nullableCondition(data -> true, "anything");
 
@@ -87,7 +87,7 @@ public final class Conditions {
     }
 
     public static <D> Condition<D> require(Condition<? super D> requirement, Condition<? super D> condition) {
-        return new RequireNotNull<D>(requirement, condition);
+        return new RequireNotNull<>(requirement, condition);
     }
 
     public static <D> Condition<D> requireNotNull(Condition<D> condition) {
@@ -145,7 +145,7 @@ public final class Conditions {
 
     @SafeVarargs
     public static <D> Condition<D> allOf(Condition<? super D>... operands) {
-        return Conditions.<D>allOf(asList(operands));
+        return allOf(asList(operands));
     }
 
     /* ------------------------------------------------------------------------------------------------------
@@ -154,7 +154,7 @@ public final class Conditions {
      */
 
     public static <D> Condition<D> equalTo(D expectedValue) {
-        return nullableCondition(Predicate.isEqual(expectedValue), "" + expectedValue);
+        return nullableCondition(Predicate.isEqual(expectedValue), "<" + expectedValue + ">");
     }
 
     public static <D> Condition<D> is(D expectedValue) {
@@ -181,7 +181,19 @@ public final class Conditions {
         return nullableCondition(expectedClass::isInstance, "instance of " + expectedClass);
     }
 
-    public static Condition<Object> is(Class<?> expectedClass) {
+    public static Condition<Object> isA(Class<?> expectedClass) {
+        return instanceOf(expectedClass);
+    }
+
+    public static Condition<Object> isAn(Class<?> expectedClass) {
+        return instanceOf(expectedClass);
+    }
+
+    public static Condition<Object> a(Class<?> expectedClass) {
+        return instanceOf(expectedClass);
+    }
+
+    public static Condition<Object> an(Class<?> expectedClass) {
         return instanceOf(expectedClass);
     }
 
@@ -479,7 +491,7 @@ public final class Conditions {
      */
 
     public static Condition<Double> closeTo(double operand, double precision) {
-        return condition(data -> abs(operand - data) < precision, operand + " ±" + precision);
+        return condition(data -> abs(operand - data) < precision, "<" + operand + " ±" + precision + ">");
     }
 
     public static Condition<Float> closeTo(float operand, float precision) {
@@ -500,6 +512,14 @@ public final class Conditions {
 
     public static Condition<BigDecimal> equalTo(BigDecimal expectedValue) {
         return closeTo(expectedValue, BigDecimal.valueOf(DEFAULT_TOLERANCE));
+    }
+
+    public static ThrowingCondition throwing(Condition<? super Throwable> condition) {
+        return new ThrowingCondition(condition);
+    }
+
+    public static ThrowingCondition throwing(Class<? extends Throwable> condition) {
+        return throwing(a(condition));
     }
 
     public static <D> ConditionBuilder<D> createBuilder() {
@@ -533,15 +553,15 @@ public final class Conditions {
         ConditionChainBuilder(Condition<? super D> condition) {
             this.condition = condition;
         }
-
         @Override public Condition<? super D> get() {
             return condition;
         }
-
         @Override public <E extends D> ConditionBuilder<E> and(Condition<? super E> condition) {
             return new ConditionChainBuilder<>(new LinkedCondition<>(get(), condition));
         }
-
+        @Override public String toString() {
+            return condition.toString();
+        }
     }
 
     final static class LinkedCondition<D> implements Condition<D> {
@@ -553,11 +573,12 @@ public final class Conditions {
             this.previous = previous;
             this.condition = condition;
         }
-
         @Override public boolean test(D data, EvaluationLogger evaluationLogger) {
             return previous.test(data, evaluationLogger) & condition.test(data, evaluationLogger);
         }
-
+        @Override public String toString() {
+            return previous.toString() + " and " + condition;
+        }
     }
 
 }

@@ -23,41 +23,17 @@
  * SUCH DAMAGE.
  */
 
-package fluent.validation;
+package fluent.validation.utils;
 
-import fluent.validation.detail.EvaluationLogger;
+import org.testng.annotations.BeforeMethod;
 
-import java.util.StringJoiner;
+import static org.mockito.MockitoAnnotations.initMocks;
 
-import static fluent.validation.Condition.trace;
+public class Mocks {
 
-final class Operator<D> implements Condition<D> {
-
-    private final Iterable<Condition<? super D>> operands;
-    private final boolean end;
-
-    Operator(Iterable<Condition<? super D>> operands, boolean end) {
-        this.operands = operands;
-        this.end = end;
-    }
-
-    @Override
-    public boolean test(D data, EvaluationLogger evaluationLogger) {
-        EvaluationLogger.Node node = evaluationLogger.node(end ? "any of" : "all of");
-        boolean result = !end;
-        for(Condition<? super D> operand : operands) {
-            if(end == operand.test(data, node.detailFailingOn(false))) {
-                result = end;
-            }
-        }
-        return trace(node, "", result);
-    }
-
-    @Override
-    public String toString() {
-        StringJoiner joiner = new StringJoiner(end ? " or " : " and ");
-        operands.forEach(operand -> joiner.add(operand.toString()));
-        return joiner.toString();
+    @BeforeMethod
+    public void mocks() {
+        initMocks(this);
     }
 
 }

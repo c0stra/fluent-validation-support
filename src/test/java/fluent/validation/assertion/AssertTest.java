@@ -23,41 +23,48 @@
  * SUCH DAMAGE.
  */
 
-package fluent.validation;
+package fluent.validation.assertion;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.Condition;
+import test.Failure;
+import fluent.validation.utils.Mocks;
+import org.mockito.Mock;
+import org.testng.annotations.Test;
 
-import java.util.StringJoiner;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 
-import static fluent.validation.Condition.trace;
+public class AssertTest extends Mocks {
 
-final class Operator<D> implements Condition<D> {
+    @Mock
+    private Condition<Object> condition;
 
-    private final Iterable<Condition<? super D>> operands;
-    private final boolean end;
+    @Mock
+    private Object data;
 
-    Operator(Iterable<Condition<? super D>> operands, boolean end) {
-        this.operands = operands;
-        this.end = end;
+    @Test
+    public void testData() {
+        given(condition.test(eq(data), any())).willReturn(true);
+        Assert.assertion().assertThat(data).satisfy(condition);
     }
 
-    @Override
-    public boolean test(D data, EvaluationLogger evaluationLogger) {
-        EvaluationLogger.Node node = evaluationLogger.node(end ? "any of" : "all of");
-        boolean result = !end;
-        for(Condition<? super D> operand : operands) {
-            if(end == operand.test(data, node.detailFailingOn(false))) {
-                result = end;
-            }
-        }
-        return trace(node, "", result);
+    @Test(expectedExceptions = Failure.class)
+    public void testDataNegative() {
+        given(condition.test(eq(data), any())).willReturn(false);
+        Assert.assertion().assertThat(data).satisfy(condition);
     }
 
-    @Override
-    public String toString() {
-        StringJoiner joiner = new StringJoiner(end ? " or " : " and ");
-        operands.forEach(operand -> joiner.add(operand.toString()));
-        return joiner.toString();
+    @Test
+    public void testThat() {
+        given(condition.test(eq(data), any())).willReturn(true);
+        Assert.that(data, condition);
+    }
+
+    @Test(expectedExceptions = Failure.class)
+    public void testThatNegative() {
+        given(condition.test(eq(data), any())).willReturn(false);
+        Assert.that(data, condition);
     }
 
 }
