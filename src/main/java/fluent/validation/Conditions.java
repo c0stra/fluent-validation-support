@@ -182,24 +182,28 @@ public final class Conditions {
         return nullableCondition(expectedInstance == null ? Objects::isNull : data -> data == expectedInstance, "" + expectedInstance);
     }
 
+    private static Condition<Object> instanceOf(String prefix, Class<?> expectedClass) {
+        return nullableCondition(expectedClass::isInstance, prefix + " " + expectedClass);
+    }
+
     public static Condition<Object> instanceOf(Class<?> expectedClass) {
-        return nullableCondition(expectedClass::isInstance, "instance of " + expectedClass);
+        return instanceOf("instance of", expectedClass);
     }
 
     public static Condition<Object> isA(Class<?> expectedClass) {
-        return instanceOf(expectedClass);
+        return instanceOf("is a", expectedClass);
     }
 
     public static Condition<Object> isAn(Class<?> expectedClass) {
-        return instanceOf(expectedClass);
+        return instanceOf("is an", expectedClass);
     }
 
     public static Condition<Object> a(Class<?> expectedClass) {
-        return instanceOf(expectedClass);
+        return isA(expectedClass);
     }
 
     public static Condition<Object> an(Class<?> expectedClass) {
-        return instanceOf(expectedClass);
+        return isAn(expectedClass);
     }
 
     public static Condition<Object> sameClass(Class<?> expectedClass) {
