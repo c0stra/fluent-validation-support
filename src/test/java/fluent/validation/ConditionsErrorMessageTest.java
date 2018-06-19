@@ -27,7 +27,7 @@ public class ConditionsErrorMessageTest {
     }
 
     @Test(dataProvider = "requirements")
-    public <T> void assertShould(Requirement<T, String> requirement) {
+    public <T> void test(Requirement<T, String> requirement) {
         Assert.that(
                 () -> Assert.that(requirement.data).satisfy(requirement.condition),
                 throwing(Failure.class).withMessage(requirement.expectedResult)
@@ -36,7 +36,7 @@ public class ConditionsErrorMessageTest {
 
     private static <T> Object[] requirement(T data, Condition<? super T> condition, String expectedMessage) {
         return new Object[]{new Requirement<>(data, condition, expectedMessage,
-                "fail with \"" + expectedMessage + "\" when " + condition + " applied on " + data)};
+                "assert of `" + data + "` using condition `" + condition + "` should fail with message \"" + expectedMessage + "\"")};
     }
 
     @Test

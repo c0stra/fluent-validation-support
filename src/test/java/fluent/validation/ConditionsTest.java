@@ -22,6 +22,7 @@ public class ConditionsTest {
 
                 requirement("A", equalTo("A"), true),
                 requirement("A", equalTo("B"), false),
+                requirement("A", equalTo("B"), false),
                 requirement(null, equalTo("A"), false),
                 requirement(null, equalTo((Object) null), true),
 
@@ -56,13 +57,13 @@ public class ConditionsTest {
     }
 
     @Test(dataProvider = "requirements")
-    public <T> void condition(Requirement<T, Boolean> requirement) {
+    public <T> void test(Requirement<T, Boolean> requirement) {
         assertEquals((Boolean) requirement.condition.test(requirement.data), requirement.expectedResult);
     }
 
     private static <T> Object[] requirement(T data, Condition<? super T> condition, boolean expectedResult) {
         return new Object[] {new Requirement<>(data, condition, expectedResult,
-                " `" + condition + "` should " + (expectedResult ? "pass" : "fail") + " when applied on " + data)};
+                "condition `" + condition + "` should return " + expectedResult + " when applied on `" + data + "`")};
     }
 
 }
