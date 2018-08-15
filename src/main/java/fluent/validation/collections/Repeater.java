@@ -23,7 +23,7 @@
  * SUCH DAMAGE.
  */
 
-package fluent.validation.versions;
+package fluent.validation.collections;
 
 import java.time.Duration;
 import java.util.Iterator;
