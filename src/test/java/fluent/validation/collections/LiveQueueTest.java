@@ -17,23 +17,24 @@ import static org.testng.Assert.*;
 
 public class LiveQueueTest {
 
+    @Test
+    public void testAsyncAdd() {
+        Queue<String> strings = new LiveQueue<>(Duration.ofSeconds(1));
+        synchronized (strings) {
+            async(() -> strings.add("A"));
+            assertEquals(strings.peek(), "A");
+            assertEquals(strings.poll(), "A");
+            assertNull(strings.peek());
+            assertTrue(strings.isEmpty());
+        }
+    }
+
     @DataProvider
     public static Object[][] iterableData() {
         return new Object[][] {
                 {KEEP_ALL, asList("A", "B", "C")},
                 {REMOVE_ON_NEXT, singletonList("C")}
         };
-    }
-
-    @Test
-    public void testAsyncAdd() {
-        Queue<String> strings = new LiveQueue<>(Duration.ofSeconds(1), KEEP_ALL);
-        synchronized (strings) {
-            async(() -> strings.add("A"));
-            assertEquals(strings.peek(), "A");
-            assertEquals(strings.poll(), "A");
-            assertNull(strings.peek());
-        }
     }
 
     @Test(dataProvider = "iterableData")
@@ -55,7 +56,16 @@ public class LiveQueueTest {
             assertFalse(iterator.hasNext());
             assertEquals(strings, finalState);
         }
+    }
 
+    @Test
+    public void testView() {
+        LiveQueue<String> strings = new LiveQueue<>(Duration.ofMillis(2));
+        LiveQueue<String> view = strings.withTimeout(Duration.ofMillis(1));
+        view.add("A");
+        view.add("B");
+        assertEquals(view, asList("A", "B"));
+        assertEquals(strings, asList("A", "B"));
     }
 
 }

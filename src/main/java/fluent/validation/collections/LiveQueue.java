@@ -39,18 +39,29 @@ public final class LiveQueue<E> implements Queue<E> {
 
     private final long timeout;
     private final boolean removeOnNext;
-    private final Node<E> head = new Node<>(null);
-    private final Node<E> tail = new Node<>(null);
-    private int size;
+    private final Node<E> head;
+    private final Node<E> tail;
+    private Size size;
 
     public LiveQueue(Duration timeout, Mode mode) {
-        this.timeout = timeout.toMillis();
-        this.removeOnNext = mode == Mode.REMOVE_ON_NEXT;
+        this(new Node<>(null), new Node<>(null), new Size(), timeout, mode == Mode.REMOVE_ON_NEXT);
         clear();
     }
 
     public LiveQueue(Duration timeout) {
         this(timeout, Mode.KEEP_ALL);
+    }
+
+    private LiveQueue(Node<E> head, Node<E> tail, Size size, Duration timeout, boolean removeOnNext) {
+        this.head = head;
+        this.tail = tail;
+        this.size = size;
+        this.timeout = timeout.toMillis();
+        this.removeOnNext = removeOnNext;
+    }
+
+    public LiveQueue<E> withTimeout(Duration timeout) {
+        return new LiveQueue<>(head, tail, size, timeout, removeOnNext);
     }
 
     private boolean end(Node<E> node) {
@@ -74,13 +85,13 @@ public final class LiveQueue<E> implements Queue<E> {
     }
 
     private void removeNode(Node<E> node) {
-        size--;
+        size.size--;
         to(node.prev, node.next);
     }
 
     @Override
     public int size() {
-        return size;
+        return size.size;
     }
 
     @Override
@@ -157,7 +168,7 @@ public final class LiveQueue<E> implements Queue<E> {
         Node<E> node = new Node<>(e);
         to(tail.prev, node);
         to(node, tail);
-        size++;
+        size.size++;
         notifyAll();
         return false;
     }
@@ -217,7 +228,7 @@ public final class LiveQueue<E> implements Queue<E> {
     @Override
     public synchronized void clear() {
         to(head, tail);
-        size = 0;
+        size.size = 0;
     }
 
     @Override
@@ -267,6 +278,10 @@ public final class LiveQueue<E> implements Queue<E> {
         private Node(E value) {
             this.value = value;
         }
+    }
+
+    private static final class Size {
+        private int size = 0;
     }
 
     public enum Mode {
