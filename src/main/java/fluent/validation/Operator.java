@@ -27,37 +27,48 @@ package fluent.validation;
 
 import fluent.validation.detail.EvaluationLogger;
 
-import java.util.StringJoiner;
-
 import static fluent.validation.Condition.trace;
 
 final class Operator<D> implements Condition<D> {
 
-    private final Iterable<Condition<? super D>> operands;
-    private final boolean end;
+    public enum BooleanOperator {
+        AND {
+            @Override boolean evaluate(boolean left, boolean right) {
+                return left & right;
+            }
+        }, OR {
+            @Override boolean evaluate(boolean left, boolean right) {
+                return left | right;
+            }
+        };
+        abstract boolean evaluate(boolean left, boolean right);
 
-    Operator(Iterable<Condition<? super D>> operands, boolean end) {
-        this.operands = operands;
-        this.end = end;
+        @Override
+        public String toString() {
+            return super.toString().toLowerCase();
+        }
+    }
+
+    private final Condition<? super D> left;
+    private final Condition<? super D> right;
+    private final BooleanOperator operator;
+
+    Operator(Condition<? super D> left, Condition<? super D> right, BooleanOperator operator) {
+        this.left = left;
+        this.right = right;
+        this.operator = operator;
     }
 
     @Override
     public boolean test(D data, EvaluationLogger evaluationLogger) {
-        EvaluationLogger.Node node = evaluationLogger.node(end ? "any of" : "all of");
-        boolean result = !end;
-        for(Condition<? super D> operand : operands) {
-            if(end == operand.test(data, node.detailFailingOn(false))) {
-                result = end;
-            }
-        }
+        EvaluationLogger.Node node = evaluationLogger.node(operator.toString());
+        boolean result = operator.evaluate(left.test(data, node.detailFailingOn(false)), right.test(data, node.detailFailingOn(false)));
         return trace(node, "", result);
     }
 
     @Override
     public String toString() {
-        StringJoiner joiner = new StringJoiner(end ? " or " : " and ");
-        operands.forEach(operand -> joiner.add(operand.toString()));
-        return joiner.toString();
+        return left + " " + operator + " " + right;
     }
 
 }

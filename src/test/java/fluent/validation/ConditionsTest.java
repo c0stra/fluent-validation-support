@@ -44,14 +44,14 @@ public class ConditionsTest {
 
                 requirement("A", anyOf(equalTo("A"), equalTo("B")), true),
                 requirement("C", anyOf(equalTo("A"), equalTo("B")), false),
-                requirement("A", anyOf(), false),
+//                requirement("A", anyOf(), false),
                 requirement(null, anyOf(equalTo("A"), equalTo("B")), false),
 
                 requirement("A", allOf(equalTo("A"), notNull()), true),
                 requirement("C", allOf(equalTo("A"), notNull()), false),
-                requirement("A", allOf(), true),
+//                requirement("A", allOf(), true),
                 requirement(null, allOf(equalTo("A"), notNull()), false),
-                requirement(null, allOf(), true),
+//                requirement(null, allOf(), true),
 
         };
     }

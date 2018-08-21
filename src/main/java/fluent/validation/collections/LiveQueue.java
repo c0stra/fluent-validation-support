@@ -41,7 +41,8 @@ public final class LiveQueue<E> implements Queue<E> {
     private final boolean removeOnNext;
     private final Node<E> head;
     private final Node<E> tail;
-    private Size size;
+    private final Size size;
+    private final Object lock;
 
     public LiveQueue(Duration timeout, Mode mode) {
         this(new Node<>(null), new Node<>(null), new Size(), timeout, mode == Mode.REMOVE_ON_NEXT);
@@ -58,6 +59,15 @@ public final class LiveQueue<E> implements Queue<E> {
         this.size = size;
         this.timeout = timeout.toMillis();
         this.removeOnNext = removeOnNext;
+        this.lock = head;
+    }
+
+    static Object lockOf(LiveQueue<?> queue) {
+        return queue.lock;
+    }
+
+    public static <E> Queue<E> withTimeout(Queue<E> queue, Duration timeout) {
+        return queue instanceof LiveQueue ? ((LiveQueue<E>) queue).withTimeout(timeout) : queue;
     }
 
     public LiveQueue<E> withTimeout(Duration timeout) {
@@ -68,15 +78,17 @@ public final class LiveQueue<E> implements Queue<E> {
         return node == tail;
     }
 
-    private synchronized Node<E> getNext(Node<E> node) {
-        for(long r = timeout, d = currentTimeMillis() + r; end(node.next) && r > 0; r = d - currentTimeMillis()) {
-            try {
-                wait(r);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    private Node<E> getNext(Node<E> node) {
+        synchronized (lock) {
+            for(long r = timeout, d = currentTimeMillis() + r; end(node.next) && r > 0; r = d - currentTimeMillis()) {
+                try {
+                    lock.wait(r);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
+            return node.next;
         }
-        return node.next;
     }
 
     private void to(Node<E> prev, Node<E> next) {
@@ -120,7 +132,7 @@ public final class LiveQueue<E> implements Queue<E> {
 
             @Override
             public E next() {
-                synchronized (LiveQueue.this) {
+                synchronized (lock) {
                     Node<E> next = getNext(node);
                     if (end(next)) {
                         throw new NoSuchElementException();
@@ -135,10 +147,10 @@ public final class LiveQueue<E> implements Queue<E> {
 
             @Override
             public void remove() {
-                if(node == head) {
-                    throw new IllegalStateException("next() not called yet");
-                }
-                synchronized (LiveQueue.this) {
+                synchronized (lock) {
+                    if(node == head) {
+                        throw new IllegalStateException("next() not called yet");
+                    }
                     removeNode(node);
                 }
             }
@@ -164,13 +176,15 @@ public final class LiveQueue<E> implements Queue<E> {
     }
 
     @Override
-    public synchronized boolean add(E e) {
-        Node<E> node = new Node<>(e);
-        to(tail.prev, node);
-        to(node, tail);
-        size.size++;
-        notifyAll();
-        return false;
+    public boolean add(E e) {
+        synchronized (lock) {
+            Node<E> node = new Node<>(e);
+            to(tail.prev, node);
+            to(node, tail);
+            size.size++;
+            lock.notifyAll();
+            return false;
+        }
     }
 
     @Override
@@ -226,9 +240,11 @@ public final class LiveQueue<E> implements Queue<E> {
     }
 
     @Override
-    public synchronized void clear() {
-        to(head, tail);
-        size.size = 0;
+    public void clear() {
+        synchronized (lock) {
+            to(head, tail);
+            size.size = 0;
+        }
     }
 
     @Override
@@ -236,37 +252,37 @@ public final class LiveQueue<E> implements Queue<E> {
         return add(e);
     }
 
-    @Override
-    public synchronized E remove() {
-        Node<E> node = getNext(head);
-        if(end(node)) {
+    private final E checkElement(E element) {
+        if(element == null) {
             throw new NoSuchElementException();
         }
-        removeNode(node);
-        return node.value;
+        return element;
     }
 
     @Override
-    public synchronized E poll() {
-        Node<E> node = getNext(head);
-        if(end(node)) {
-            return null;
+    public E remove() {
+        return checkElement(poll());
+    }
+
+    @Override
+    public E poll() {
+        synchronized (lock) {
+            Node<E> node = getNext(head);
+            if(end(node)) {
+                return null;
+            }
+            removeNode(node);
+            return node.value;
         }
-        removeNode(node);
-        return node.value;
     }
 
     @Override
-    public synchronized E element() {
-        Node<E> node = getNext(head);
-        if(end(node)) {
-            throw new NoSuchElementException();
-        }
-        return node.value;
+    public E element() {
+        return checkElement(peek());
     }
 
     @Override
-    public synchronized E peek() {
+    public E peek() {
         Node<E> node = getNext(head);
         return end(node) ? null : node.value;
     }

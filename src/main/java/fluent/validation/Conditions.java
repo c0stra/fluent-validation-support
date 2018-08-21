@@ -34,10 +34,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -134,9 +131,20 @@ public final class Conditions {
         return oneOf(new HashSet<>(asList(alternatives)));
     }
 
+    private static <D> Condition<D> multipleOperands(Iterable<Condition<? super D>> operands, Operator.BooleanOperator operator) {
+        Iterator<Condition<? super D>> iterator = operands.iterator();
+        if(!iterator.hasNext()) {
+            throw new IllegalArgumentException("No operand supplied to " + operator);
+        }
+        Condition<D> next = (Condition<D>) iterator.next();
+        while(iterator.hasNext()) {
+            next = new Operator<>(next, iterator.next(), operator);
+        }
+        return next;
+    }
 
     public static <D> Condition<D> anyOf(Iterable<Condition<? super D>> operands) {
-        return new Operator<>(operands, true);
+        return multipleOperands(operands, Operator.BooleanOperator.OR);
     }
 
     @SafeVarargs
@@ -145,7 +153,7 @@ public final class Conditions {
     }
 
     public static <D> Condition<D> allOf(Iterable<Condition<? super D>> operands) {
-        return new Operator<>(operands, false);
+        return multipleOperands(operands, Operator.BooleanOperator.AND);
     }
 
     @SafeVarargs

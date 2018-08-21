@@ -27,7 +27,8 @@ package fluent.validation;
 
 import fluent.validation.detail.EvaluationLogger;
 
-import java.util.function.Predicate;
+import static fluent.validation.Operator.BooleanOperator.AND;
+import static fluent.validation.Operator.BooleanOperator.OR;
 
 /**
  * Simple condition interface used in for validation of various data.
@@ -48,7 +49,7 @@ import java.util.function.Predicate;
  *
  * @param <T> Type of the data to be tested using this condition.
  */
-public interface Condition<T> extends Predicate<T> {
+public interface Condition<T> {
 
     /**
      * Simple evaluation of the condition on provided data.
@@ -71,7 +72,11 @@ public interface Condition<T> extends Predicate<T> {
     boolean test(T data, EvaluationLogger evaluationLogger);
 
     default <U extends T> Condition<U> and(Condition<? super U> operand) {
-        return Conditions.allOf(this, operand);
+        return new Operator<>(this, operand, AND);
+    }
+
+    default <U extends T> Condition<U> or(Condition<? super U> operand) {
+        return new Operator<>(this, operand, OR);
     }
 
     /**

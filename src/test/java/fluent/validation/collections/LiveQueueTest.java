@@ -6,10 +6,10 @@ import org.testng.annotations.Test;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Queue;
 
 import static fluent.validation.collections.LiveQueue.Mode.KEEP_ALL;
 import static fluent.validation.collections.LiveQueue.Mode.REMOVE_ON_NEXT;
+import static fluent.validation.collections.LiveQueue.lockOf;
 import static fluent.validation.utils.Async.async;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -19,8 +19,8 @@ public class LiveQueueTest {
 
     @Test
     public void testAsyncAdd() {
-        Queue<String> strings = new LiveQueue<>(Duration.ofSeconds(1));
-        synchronized (strings) {
+        LiveQueue<String> strings = new LiveQueue<>(Duration.ofMillis(200));
+        synchronized (lockOf(strings)) {
             async(() -> strings.add("A"));
             assertEquals(strings.peek(), "A");
             assertEquals(strings.poll(), "A");
@@ -39,8 +39,8 @@ public class LiveQueueTest {
 
     @Test(dataProvider = "iterableData")
     public void testAsyncIterable(LiveQueue.Mode mode, List<String> finalState) {
-        Queue<String> strings = new LiveQueue<>(Duration.ofSeconds(1), mode);
-        synchronized (strings) {
+        LiveQueue<String> strings = new LiveQueue<>(Duration.ofMillis(200), mode);
+        synchronized (lockOf(strings)) {
             async(() -> {
                 strings.add("A");
                 strings.add("B");
