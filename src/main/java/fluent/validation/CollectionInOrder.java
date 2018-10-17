@@ -50,7 +50,7 @@ final class CollectionInOrder<D> implements Condition<Iterable<D>> {
     public boolean test(Iterable<D> data, EvaluationLogger evaluationLogger) {
         Iterator<Condition<? super D>> c = conditions.iterator();
         Iterator<D> d = data.iterator();
-        EvaluationLogger.Node node = evaluationLogger.node("Items matching " + conditions);
+        EvaluationLogger.Node node = evaluationLogger.node(this);
         while (c.hasNext() && d.hasNext()) {
             Condition<? super D> condition = c.next();
             if(!condition.test(d.next(), node.detailFailingOn(false))) {
@@ -66,4 +66,13 @@ final class CollectionInOrder<D> implements Condition<Iterable<D>> {
         return trace(node, "Matched", true);
     }
 
+    @Override
+    public String name() {
+        return "Items matching";
+    }
+
+    @Override
+    public String toString() {
+        return "Items matching " + conditions;
+    }
 }

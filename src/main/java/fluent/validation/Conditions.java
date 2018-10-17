@@ -594,7 +594,7 @@ public final class Conditions {
             return previous.test(data, evaluationLogger) & condition.test(data, evaluationLogger);
         }
         @Override public String toString() {
-            return previous.toString() + " and " + condition;
+            return previous.toString() + ", " + condition;
         }
     }
 

@@ -25,30 +25,59 @@
 
 package fluent.validation.detail;
 
+import fluent.validation.Condition;
+
+/**
+ * Logger interface, which allows to capture full detail of any complex condition evaluation.
+ */
 public interface EvaluationLogger {
 
-    EvaluationLogger NONE = new EvaluationLogger() {
-        @Override public void trace(String expectationDescription, Object actualData, boolean result) {
-        }
-        @Override public Node node(String nodeName) {
-            return Node.NONE;
-        }
-    };
+    /**
+     * Capture simple atomic (leaf) verification with defined expectation, actual value and result of the
+     * evaluation.
+     *
+     * @param expectation Expectation description
+     * @param actualValue Actual value
+     * @param result Result of the executed evaluation.
+     */
+    void trace(String expectation, Object actualValue, boolean result);
 
-    void trace(String expectationDescription, Object actualData, boolean result);
+    /**
+     * Notify, that this is a node, that will contain a subtree of the evaluation of children.
+     *
+     * @param nodeName Name of the node.
+     * @return Interface to allow capture of the subtree evaluation.
+     */
+    Node node(Condition<?> nodeName);
 
-    Node node(String nodeName);
+    EvaluationLogger NONE = new NoLogger();
 
+    /**
+     * Interface to allow capture of the subtree evaluation.
+     */
     interface Node {
-        Node NONE = new Node() {
-            @Override public EvaluationLogger detailFailingOn(boolean indicateFailure) {
-                return EvaluationLogger.NONE;
-            }
-            @Override public void trace(Object actualData, boolean result) {
-            }
-        };
+
+        /**
+         * Capture evaluation of an item in the subtree, and give it a hint, what result value of it means
+         * failure.
+         *
+         * E.g. in not() operator, we indicate, that failure of whole condition will occur if child evaluates
+         * to `true`, hence the strange detailFailingOn(true) in Negation.
+         *
+         * @param indicateFailure What result in the child indicates failure of the parent.
+         * @return Logger to capture the evaluation of the child.
+         */
         EvaluationLogger detailFailingOn(boolean indicateFailure);
+
+        /**
+         * Capture current node result and actual data. Expectation is not present here, as it consists of the
+         * subtree items.
+         *
+         * @param actualData Actual data, which are subject to this node evaluation.
+         * @param result Result of the executed evaluation.
+         */
         void trace(Object actualData, boolean result);
+
     }
 
 }

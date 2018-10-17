@@ -42,13 +42,18 @@ final class Quantifier<D> implements Condition<Iterable<D>> {
 
     @Override
     public boolean test(Iterable<D> data, EvaluationLogger evaluationLogger) {
-        EvaluationLogger.Node node = evaluationLogger.node(end ? "exists" : "every");
+        EvaluationLogger.Node node = evaluationLogger.node(this);
         for(D item : data) {
             if(end == condition.test(item, node.detailFailingOn(false))) {
                 return trace(node, "", end);
             }
         }
         return trace(node, "", !end);
+    }
+
+    @Override
+    public String name() {
+        return end ? "exists" : "every";
     }
 
     @Override

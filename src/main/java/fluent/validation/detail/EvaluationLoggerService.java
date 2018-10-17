@@ -25,13 +25,14 @@
 
 package fluent.validation.detail;
 
-import java.util.Objects;
 import java.util.function.Supplier;
+
+import static fluent.validation.Conditions.anything;
 
 public interface EvaluationLoggerService extends Supplier<EvaluationLogger> {
 
     default Supplier<EvaluationLogger> get(Object object) {
-        EvaluationLogger evaluationLogger = get().node(Objects.toString(object)).detailFailingOn(false);
+        EvaluationLogger evaluationLogger = get().node(anything()).detailFailingOn(false);
         return () -> evaluationLogger;
     }
 

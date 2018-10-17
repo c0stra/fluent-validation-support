@@ -1,13 +1,11 @@
 package fluent.validation;
 
 import fluent.validation.assertion.Assert;
-import org.hamcrest.Matchers;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import test.Failure;
 
 import static fluent.validation.Conditions.*;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ConditionsErrorMessageTest {
 
@@ -17,6 +15,8 @@ public class ConditionsErrorMessageTest {
                 requirement("A", equalTo("B"), "Expected: <B>, actual: <A>"),
                 requirement(1.0, equalTo(2.0), "Expected: <2.0 ±1.0E-7>, actual: <1.0>"),
                 requirement("A", not("A"), "Expected: not <A>, actual: <A>"),
+                requirement("A", not(allOf(equalTo("A"), equalTo("B"))), "Expected: not <A>, actual: <A>"),
+                requirement("A", allOf(not("A"), not("B")), "Expected: not <A>, actual: <A>"),
                 requirement(null, notNull(), "Expected: not <null>, actual: <null>"),
                 requirement(null, not(anything()), "Expected: not anything, actual: <null>"),
                 requirement("A", allOf(equalTo("A"), equalTo("B")), "Expected: <A> and <B>, but:\n\tExpected: <B>, actual: <A>"),
@@ -37,11 +37,6 @@ public class ConditionsErrorMessageTest {
     private static <T> Object[] requirement(T data, Condition<? super T> condition, String expectedMessage) {
         return new Object[]{new Requirement<>(data, condition, expectedMessage,
                 "assert of `" + data + "` using condition `" + condition + "` should fail with message \"" + expectedMessage + "\"")};
-    }
-
-    @Test
-    public void testHamcrest() {
-        assertThat("A", Matchers.allOf(Matchers.not("A"), Matchers.anyOf(Matchers.equalTo("B"), Matchers.equalTo("C"))));
     }
 
 }

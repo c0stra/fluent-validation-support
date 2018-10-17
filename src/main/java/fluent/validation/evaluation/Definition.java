@@ -26,15 +26,28 @@
 package fluent.validation.evaluation;
 
 import fluent.validation.Condition;
+import fluent.validation.detail.EvaluationLogger;
 
-public abstract class Definition<T extends Context> {
+import static java.lang.Boolean.TRUE;
 
-    private T context;
+public abstract class Definition implements Conclusion {
 
-    protected Rule when(Condition<? super T> condition) {
+    private Context context;
+    private EvaluationLogger logger;
+
+    protected Rule when(Condition<? super Context> condition) {
         return consumer -> {
-            if(condition.test(context, context.logger())) consumer.conclude(true, context, context.logger());
+            if(condition.test(context, logger)) consumer.conclude(true, context, logger);
         };
+    }
+
+    @Override
+    public void conclude(Boolean value, Context context, EvaluationLogger logger) {
+        if(TRUE.equals(value)) {
+            this.context = context;
+            this.logger = logger;
+            define();
+        }
     }
 
     public interface Rule {
@@ -43,9 +56,8 @@ public abstract class Definition<T extends Context> {
 
     protected abstract void define();
 
-    public void apply(T context) {
-        this.context = context;
-        define();
+    public void apply(Context context) {
+        conclude(true, context, context.logger());
     }
 
 }

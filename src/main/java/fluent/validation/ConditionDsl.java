@@ -42,4 +42,3 @@ public interface ConditionDsl<L, D> extends Condition<D> {
     }
 
 }
-

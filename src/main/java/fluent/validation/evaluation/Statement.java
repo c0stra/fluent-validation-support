@@ -34,7 +34,7 @@ public interface Statement extends Condition<Context>, Conclusion {
 
     @Override
     default boolean test(Context data, EvaluationLogger evaluationLogger) {
-        return Condition.trace(evaluationLogger, toString(), "is valid", data.isValid(this));
+        return data.isValid(this);//Condition.trace(evaluationLogger, toString(), "is valid", data.isValid(this));
     }
 
     @Override

@@ -43,8 +43,13 @@ final class FunctionCondition<D, V> implements Condition<D> {
 
     @Override
     public boolean test(D data, EvaluationLogger evaluationLogger) {
-        EvaluationLogger.Node node = evaluationLogger.node(name);
+        EvaluationLogger.Node node = evaluationLogger.node(this);
         return Condition.trace(node, name, condition.test(function.apply(data), node.detailFailingOn(false)));
+    }
+
+    @Override
+    public String name() {
+        return name;
     }
 
     @Override

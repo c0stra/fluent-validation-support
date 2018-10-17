@@ -39,8 +39,13 @@ final class NegativeCondition<D> implements Condition<D> {
 
     @Override
     public boolean test(D data, EvaluationLogger evaluationLogger) {
-        EvaluationLogger.Node node = evaluationLogger.node("not");
+        EvaluationLogger.Node node = evaluationLogger.node(this);
         return trace(node, this, !condition.test(data, node.detailFailingOn(true)));
+    }
+
+    @Override
+    public String name() {
+        return "not";
     }
 
     @Override

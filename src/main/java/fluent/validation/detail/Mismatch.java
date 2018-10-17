@@ -25,6 +25,8 @@
 
 package fluent.validation.detail;
 
+import fluent.validation.Condition;
+
 public final class Mismatch implements EvaluationLogger {
 
     private final boolean indicateFailure;
@@ -42,33 +44,18 @@ public final class Mismatch implements EvaluationLogger {
     }
 
     @Override
-    public void trace(String expectationDescription, Object actualData, boolean result) {
+    public void trace(String expectation, Object actualValue, boolean result) {
         if(result == indicateFailure) {
-            builder.append("Expected: ")
-                    .append(desc)
-                    .append(expectationDescription)
+            builder.append(desc).append("Expected: ")
+                    .append(expectation)
                     .append(", actual: <")
-                    .append(actualData).append('>');
+                    .append(actualValue).append('>');
         }
     }
 
     @Override
-    public Node node(String name) {
-        return new Node() {
-            StringBuilder b = new StringBuilder();
-            @Override
-            public EvaluationLogger detailFailingOn(boolean newIndicateFailure) {
-                return new Mismatch(newIndicateFailure != indicateFailure, b, desc + name + " ");
-            }
-
-            @Override
-            public void trace(Object actualData, boolean result) {
-                if(result == indicateFailure) {
-                    builder.append(b);
-                }
-            }
-
-        };
+    public Node node(Condition<?> name) {
+        return new MismatchNode(name.toString());
     }
 
     @Override
@@ -76,4 +63,26 @@ public final class Mismatch implements EvaluationLogger {
         return builder.toString();
     }
 
+
+    private class MismatchNode implements Node {
+
+        StringBuilder optional;
+
+        public MismatchNode(String name) {
+            optional = new StringBuilder("Expected: ").append(name).append(", but:");
+        }
+
+        @Override
+        public EvaluationLogger detailFailingOn(boolean newIndicateFailure) {
+            return new Mismatch(newIndicateFailure != indicateFailure, optional, "\n\t");
+        }
+
+        @Override
+        public void trace(Object actualData, boolean result) {
+            if(result == indicateFailure) {
+                builder.append(optional);
+            }
+        }
+
+    }
 }

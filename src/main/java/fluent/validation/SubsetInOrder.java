@@ -42,7 +42,7 @@ final class SubsetInOrder<D> implements Condition<Iterable<D>> {
     @Override
     public boolean test(Iterable<D> data, EvaluationLogger evaluationLogger) {
         Iterator<D> d = data.iterator();
-        EvaluationLogger.Node node = evaluationLogger.node("");
+        EvaluationLogger.Node node = evaluationLogger.node(this);
         for(Condition<? super D> condition : conditions) {
             if(!evaluate(d, condition, evaluationLogger)) {
                 return trace(node, "", false);

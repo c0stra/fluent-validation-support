@@ -23,52 +23,24 @@
  * SUCH DAMAGE.
  */
 
-package fluent.validation.collections;
+package fluent.validation.detail;
 
-import java.time.Duration;
-import java.util.Iterator;
-import java.util.function.Supplier;
+import fluent.validation.Condition;
 
-public final class Repeater<D> implements Iterable<D> {
+public final class NoLogger implements EvaluationLogger, EvaluationLogger.Node {
 
-    private final Supplier<? extends D> supplier;
-    private final int maxAttempts;
-    private final Runnable update;
-
-    private Repeater(Supplier<? extends D> supplier, int maxAttempts, Runnable update) {
-        this.supplier = supplier;
-        this.maxAttempts = maxAttempts;
-        this.update = update;
-    }
-
-    public static <D> Repeater<D> repeat(Supplier<? extends D> supplier, int maxAttempts, Duration delay) {
-        return new Repeater<>(supplier, maxAttempts, () -> {
-            try {
-                Thread.sleep(delay.toMillis());
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
-    public static <D> Repeater<D> repeat(Supplier<? extends D> supplier, int maxAttempts, Runnable update) {
-        return new Repeater<>(supplier, maxAttempts, update);
-    }
+    NoLogger() {}
 
     @Override
-    public Iterator<D> iterator() {
-        return new Iterator<D>() {
-            private int i = 0;
-            @Override public boolean hasNext() {
-                return i < maxAttempts;
-            }
-            @Override public D next() {
-                if(i > 0) update.run();
-                i++;
-                return supplier.get();
-            }
-        };
-    }
+    public void trace(String expectation, Object actualValue, boolean result) { }
+
+    @Override
+    public Node node(Condition<?> nodeName) { return this; }
+
+    @Override
+    public EvaluationLogger detailFailingOn(boolean indicateFailure) { return this; }
+
+    @Override
+    public void trace(Object actualData, boolean result) { }
 
 }

@@ -56,12 +56,12 @@ final class RequireNotNull<D> implements Condition<D> {
         }
 
         @Override
-        public void trace(String expectationDescription, Object actualData, boolean result) {
-            if(!result) evaluationLogger.trace(expectationDescription, actualData, false);
+        public void trace(String expectation, Object actualValue, boolean result) {
+            if(!result) evaluationLogger.trace(expectation, actualValue, false);
         }
 
         @Override
-        public Node node(String nodeName) {
+        public Node node(Condition<?> nodeName) {
             return evaluationLogger.node(nodeName);
         }
 

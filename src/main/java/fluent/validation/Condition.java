@@ -71,6 +71,10 @@ public interface Condition<T> {
      */
     boolean test(T data, EvaluationLogger evaluationLogger);
 
+    default String name() {
+        return toString();
+    }
+
     default <U extends T> Condition<U> and(Condition<? super U> operand) {
         return new Operator<>(this, operand, AND);
     }
@@ -96,13 +100,13 @@ public interface Condition<T> {
      * Shortcut method, that traces current leaf detail, and returns result.
      *
      * @param evaluationLogger Tracer for tracing condition details.
-     * @param expectationDescription Description of the expectation.
+     * @param expectation Description of the expectation.
      * @param actualValue Actual value.
      * @param result Result of the condition.
      * @return Result of the condition.
      */
-    static boolean trace(EvaluationLogger evaluationLogger, String expectationDescription, Object actualValue, boolean result) {
-        evaluationLogger.trace(expectationDescription, actualValue, result);
+    static boolean trace(EvaluationLogger evaluationLogger, String expectation, Object actualValue, boolean result) {
+        evaluationLogger.trace(expectation, actualValue, result);
         return result;
     }
 

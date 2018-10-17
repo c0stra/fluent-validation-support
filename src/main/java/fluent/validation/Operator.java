@@ -61,9 +61,14 @@ final class Operator<D> implements Condition<D> {
 
     @Override
     public boolean test(D data, EvaluationLogger evaluationLogger) {
-        EvaluationLogger.Node node = evaluationLogger.node(operator.toString());
+        EvaluationLogger.Node node = evaluationLogger.node(this);
         boolean result = operator.evaluate(left.test(data, node.detailFailingOn(false)), right.test(data, node.detailFailingOn(false)));
         return trace(node, "", result);
+    }
+
+    @Override
+    public String name() {
+        return operator.toString();
     }
 
     @Override
