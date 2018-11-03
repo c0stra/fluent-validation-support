@@ -25,7 +25,7 @@
 
 package fluent.validation.evaluation;
 
-import fluent.validation.Condition;
+import fluent.validation.Check;
 import fluent.validation.detail.EvaluationLogger;
 
 import static java.lang.Boolean.TRUE;
@@ -35,9 +35,9 @@ public abstract class Definition implements Conclusion {
     private Context context;
     private EvaluationLogger logger;
 
-    protected Rule when(Condition<? super Context> condition) {
+    protected Rule when(Check<? super Context> check) {
         return consumer -> {
-            if(condition.test(context, logger)) consumer.conclude(true, context, logger);
+            if(check.test(context, logger)) consumer.conclude(true, context, logger);
         };
     }
 

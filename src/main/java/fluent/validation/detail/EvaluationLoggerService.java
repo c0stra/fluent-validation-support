@@ -27,7 +27,7 @@ package fluent.validation.detail;
 
 import java.util.function.Supplier;
 
-import static fluent.validation.Conditions.anything;
+import static fluent.validation.Checks.anything;
 
 public interface EvaluationLoggerService extends Supplier<EvaluationLogger> {
 

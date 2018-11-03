@@ -25,7 +25,7 @@
 
 package fluent.validation.assertion;
 
-import fluent.validation.Condition;
+import fluent.validation.Check;
 import test.Failure;
 import fluent.validation.utils.Mocks;
 import org.mockito.Mock;
@@ -38,33 +38,33 @@ import static org.mockito.BDDMockito.given;
 public class AssertTest extends Mocks {
 
     @Mock
-    private Condition<Object> condition;
+    private Check<Object> check;
 
     @Mock
     private Object data;
 
     @Test
     public void testData() {
-        given(condition.test(eq(data), any())).willReturn(true);
-        Assert.assertion().assertThat(data).satisfy(condition);
+        given(check.test(eq(data), any())).willReturn(true);
+        Assert.assertion().assertThat(data).satisfy(check);
     }
 
     @Test(expectedExceptions = Failure.class)
     public void testDataNegative() {
-        given(condition.test(eq(data), any())).willReturn(false);
-        Assert.assertion().assertThat(data).satisfy(condition);
+        given(check.test(eq(data), any())).willReturn(false);
+        Assert.assertion().assertThat(data).satisfy(check);
     }
 
     @Test
     public void testThat() {
-        given(condition.test(eq(data), any())).willReturn(true);
-        Assert.that(data, condition);
+        given(check.test(eq(data), any())).willReturn(true);
+        Assert.that(data, check);
     }
 
     @Test(expectedExceptions = Failure.class)
     public void testThatNegative() {
-        given(condition.test(eq(data), any())).willReturn(false);
-        Assert.that(data, condition);
+        given(check.test(eq(data), any())).willReturn(false);
+        Assert.that(data, check);
     }
 
 }

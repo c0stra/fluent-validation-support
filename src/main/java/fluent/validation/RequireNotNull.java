@@ -27,24 +27,24 @@ package fluent.validation;
 
 import fluent.validation.detail.EvaluationLogger;
 
-final class RequireNotNull<D> implements Condition<D> {
+final class RequireNotNull<D> implements Check<D> {
 
-    private final Condition<? super D> requirement;
-    private final Condition<? super D> condition;
+    private final Check<? super D> requirement;
+    private final Check<? super D> check;
 
-    RequireNotNull(Condition<? super D> requirement, Condition<? super D> condition) {
+    RequireNotNull(Check<? super D> requirement, Check<? super D> check) {
         this.requirement = requirement;
-        this.condition = condition;
+        this.check = check;
     }
 
     @Override
     public boolean test(D data, EvaluationLogger evaluationLogger) {
-        return requirement.test(data, new NegativeOnlyEvaluationLogger(evaluationLogger)) && condition.test(data, evaluationLogger);
+        return requirement.test(data, new NegativeOnlyEvaluationLogger(evaluationLogger)) && check.test(data, evaluationLogger);
     }
 
     @Override
     public String toString() {
-        return condition.toString();
+        return check.toString();
     }
 
     private static class NegativeOnlyEvaluationLogger implements EvaluationLogger {
@@ -61,7 +61,7 @@ final class RequireNotNull<D> implements Condition<D> {
         }
 
         @Override
-        public Node node(Condition<?> nodeName) {
+        public Node node(Check<?> nodeName) {
             return evaluationLogger.node(nodeName);
         }
 

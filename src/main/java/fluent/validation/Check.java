@@ -38,7 +38,7 @@ import static fluent.validation.Operator.BooleanOperator.OR;
  *
  * But the main purpose of this class is to provide transparency during any complex condition evaluation, similar to
  * Hamcrest Matchers.
- * If you are familiar with Hamcrest matchers, it should be easy to get familiar with Conditions too. There are only
+ * If you are familiar with Hamcrest matchers, it should be easy to get familiar with Checks too. There are only
  * following differences:
  *
  * 1. Evaluation detail is not limited to mismatch description. You can achieve full detail even for passed ones.
@@ -49,7 +49,7 @@ import static fluent.validation.Operator.BooleanOperator.OR;
  *
  * @param <T> Type of the data to be tested using this condition.
  */
-public interface Condition<T> {
+public interface Check<T> {
 
     /**
      * Simple evaluation of the condition on provided data.
@@ -75,11 +75,11 @@ public interface Condition<T> {
         return toString();
     }
 
-    default <U extends T> Condition<U> and(Condition<? super U> operand) {
+    default <U extends T> Check<U> and(Check<? super U> operand) {
         return new Operator<>(this, operand, AND);
     }
 
-    default <U extends T> Condition<U> or(Condition<? super U> operand) {
+    default <U extends T> Check<U> or(Check<? super U> operand) {
         return new Operator<>(this, operand, OR);
     }
 

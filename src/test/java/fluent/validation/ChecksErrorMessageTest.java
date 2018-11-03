@@ -5,9 +5,9 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import test.Failure;
 
-import static fluent.validation.Conditions.*;
+import static fluent.validation.Checks.*;
 
-public class ConditionsErrorMessageTest {
+public class ChecksErrorMessageTest {
 
     @DataProvider
     public static Object[][] requirements() {
@@ -29,14 +29,14 @@ public class ConditionsErrorMessageTest {
     @Test(dataProvider = "requirements")
     public <T> void test(Requirement<T, String> requirement) {
         Assert.that(
-                () -> Assert.that(requirement.data).satisfy(requirement.condition),
+                () -> Assert.that(requirement.data).satisfy(requirement.check),
                 throwing(Failure.class).withMessage(requirement.expectedResult)
         );
     }
 
-    private static <T> Object[] requirement(T data, Condition<? super T> condition, String expectedMessage) {
-        return new Object[]{new Requirement<>(data, condition, expectedMessage,
-                "assert of `" + data + "` using condition `" + condition + "` should fail with message \"" + expectedMessage + "\"")};
+    private static <T> Object[] requirement(T data, Check<? super T> check, String expectedMessage) {
+        return new Object[]{new Requirement<>(data, check, expectedMessage,
+                "assert of `" + data + "` using check `" + check + "` should fail with message \"" + expectedMessage + "\"")};
     }
 
 }

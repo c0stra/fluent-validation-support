@@ -27,28 +27,30 @@ package fluent.validation;
 
 import fluent.validation.detail.EvaluationLogger;
 
-import java.util.function.Predicate;
+import static fluent.validation.Check.trace;
 
-import static fluent.validation.Condition.trace;
+final class NegativeCheck<D> implements Check<D> {
 
-final class PredicateCondition<D> implements Condition<D> {
+    private final Check<D> check;
 
-    private final Predicate<D> predicate;
-    private final String expectationDescription;
-
-    PredicateCondition(Predicate<D> predicate, String expectationDescription) {
-        this.predicate = predicate;
-        this.expectationDescription = expectationDescription;
+    NegativeCheck(Check<D> check) {
+        this.check = check;
     }
 
     @Override
     public boolean test(D data, EvaluationLogger evaluationLogger) {
-        return trace(evaluationLogger, expectationDescription, data, predicate.test(data));
+        EvaluationLogger.Node node = evaluationLogger.node(this);
+        return trace(node, this, !check.test(data, node.detailFailingOn(true)));
+    }
+
+    @Override
+    public String name() {
+        return "not";
     }
 
     @Override
     public String toString() {
-        return expectationDescription;
+        return "not " + check;
     }
 
 }

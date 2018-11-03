@@ -25,7 +25,7 @@
 
 package fluent.validation.detail;
 
-import fluent.validation.Condition;
+import fluent.validation.Check;
 
 /**
  * Logger interface, which allows to capture full detail of any complex condition evaluation.
@@ -48,7 +48,7 @@ public interface EvaluationLogger {
      * @param nodeName Name of the node.
      * @return Interface to allow capture of the subtree evaluation.
      */
-    Node node(Condition<?> nodeName);
+    Node node(Check<?> nodeName);
 
     EvaluationLogger NONE = new NoLogger();
 

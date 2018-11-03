@@ -25,7 +25,7 @@
 
 package fluent.validation.detail;
 
-import fluent.validation.Condition;
+import fluent.validation.Check;
 
 public final class Mismatch implements EvaluationLogger {
 
@@ -54,7 +54,7 @@ public final class Mismatch implements EvaluationLogger {
     }
 
     @Override
-    public Node node(Condition<?> name) {
+    public Node node(Check<?> name) {
         return new MismatchNode(name.toString());
     }
 

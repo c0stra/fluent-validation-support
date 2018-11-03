@@ -27,30 +27,20 @@ package fluent.validation;
 
 import fluent.validation.detail.EvaluationLogger;
 
-import static fluent.validation.Condition.trace;
+public interface CheckBuilder<D> extends Check<D> {
 
-final class NegativeCondition<D> implements Condition<D> {
+    Check<? super D> get();
 
-    private final Condition<D> condition;
+    <E extends D> CheckBuilder<E> and(Check<? super E> check);
 
-    NegativeCondition(Condition<D> condition) {
-        this.condition = condition;
+    default Check<Iterable<D>> exists() {
+        return Checks.exists(get());
     }
 
     @Override
-    public boolean test(D data, EvaluationLogger evaluationLogger) {
-        EvaluationLogger.Node node = evaluationLogger.node(this);
-        return trace(node, this, !condition.test(data, node.detailFailingOn(true)));
-    }
-
-    @Override
-    public String name() {
-        return "not";
-    }
-
-    @Override
-    public String toString() {
-        return "not " + condition;
+    default boolean test(D data, EvaluationLogger evaluationLogger) {
+        return get().test(data, evaluationLogger);
     }
 
 }
+

@@ -29,32 +29,32 @@ import fluent.validation.detail.EvaluationLogger;
 
 import java.util.Iterator;
 
-import static fluent.validation.Condition.trace;
+import static fluent.validation.Check.trace;
 
 /**
- * Condition, making sure, that an actual collection meets provided conditions in exact order:
+ * Check, making sure, that an actual collection meets provided conditions in exact order:
  *   1st item matches 1st condition, 2nd item matches 2nd condition, etc. and there must not be any item missing or
  *   extra (length of actual collection needs to match length of collection of conditions).
  *
  * @param <D> Type of the items in the collection.
  */
-final class CollectionInOrder<D> implements Condition<Iterable<D>> {
+final class CollectionInOrder<D> implements Check<Iterable<D>> {
 
-    private final Iterable<Condition<? super D>> conditions;
+    private final Iterable<Check<? super D>> conditions;
 
-    CollectionInOrder(Iterable<Condition<? super D>> conditions) {
+    CollectionInOrder(Iterable<Check<? super D>> conditions) {
         this.conditions = conditions;
     }
 
     @Override
     public boolean test(Iterable<D> data, EvaluationLogger evaluationLogger) {
-        Iterator<Condition<? super D>> c = conditions.iterator();
+        Iterator<Check<? super D>> c = conditions.iterator();
         Iterator<D> d = data.iterator();
         EvaluationLogger.Node node = evaluationLogger.node(this);
         while (c.hasNext() && d.hasNext()) {
-            Condition<? super D> condition = c.next();
-            if(!condition.test(d.next(), node.detailFailingOn(false))) {
-                return trace(node, "No item matching " + condition, false);
+            Check<? super D> check = c.next();
+            if(!check.test(d.next(), node.detailFailingOn(false))) {
+                return trace(node, "No item matching " + check, false);
             }
         }
         if(c.hasNext()) {

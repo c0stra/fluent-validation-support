@@ -35,11 +35,11 @@ package fluent.validation;
 public interface Builder<V, R> {
 
     /**
-     * Set condition, that a value must match.
-     * @param condition Condition to be met.
+     * Set check, that a value must match.
+     * @param check Check to be met.
      * @return Followup of the builder.
      */
-    R matching(Condition<? super V> condition);
+    R matching(Check<? super V> check);
 
     /**
      * Set expected value, to which the actual one needs to be equal.
@@ -47,7 +47,7 @@ public interface Builder<V, R> {
      * @return Followup of the builder.
      */
     default R equalTo(V expectedValue) {
-        return matching(Conditions.equalTo(expectedValue));
+        return matching(Checks.equalTo(expectedValue));
     }
 
 }

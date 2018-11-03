@@ -27,34 +27,28 @@ package fluent.validation;
 
 import fluent.validation.detail.EvaluationLogger;
 
-import java.util.function.Function;
+import java.util.function.Predicate;
 
-final class FunctionCondition<D, V> implements Condition<D> {
+import static fluent.validation.Check.trace;
 
-    private final String name;
-    private final Function<? super D, V> function;
-    private final Condition<? super V> condition;
+final class PredicateCheck<D> implements Check<D> {
 
-    FunctionCondition(String name, Function<? super D, V> function, Condition<? super V> condition) {
-        this.name = name;
-        this.function = function;
-        this.condition = condition;
+    private final Predicate<D> predicate;
+    private final String expectationDescription;
+
+    PredicateCheck(Predicate<D> predicate, String expectationDescription) {
+        this.predicate = predicate;
+        this.expectationDescription = expectationDescription;
     }
 
     @Override
     public boolean test(D data, EvaluationLogger evaluationLogger) {
-        EvaluationLogger.Node node = evaluationLogger.node(this);
-        return Condition.trace(node, name, condition.test(function.apply(data), node.detailFailingOn(false)));
-    }
-
-    @Override
-    public String name() {
-        return name;
+        return trace(evaluationLogger, expectationDescription, data, predicate.test(data));
     }
 
     @Override
     public String toString() {
-        return name + ": " + condition;
+        return expectationDescription;
     }
 
 }

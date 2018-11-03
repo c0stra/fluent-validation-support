@@ -25,16 +25,16 @@
 
 package fluent.validation.evaluation;
 
-import fluent.validation.Condition;
+import fluent.validation.Check;
 import fluent.validation.detail.EvaluationLogger;
 
 import java.util.Objects;
 
-public interface Statement extends Condition<Context>, Conclusion {
+public interface Statement extends Check<Context>, Conclusion {
 
     @Override
     default boolean test(Context data, EvaluationLogger evaluationLogger) {
-        return data.isValid(this);//Condition.trace(evaluationLogger, toString(), "is valid", data.isValid(this));
+        return data.isValid(this);//Check.trace(evaluationLogger, toString(), "is valid", data.isValid(this));
     }
 
     @Override

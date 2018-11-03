@@ -25,20 +25,36 @@
 
 package fluent.validation;
 
+import fluent.validation.detail.EvaluationLogger;
+
 import java.util.function.Function;
 
-import static fluent.validation.Conditions.has;
+final class FunctionCheck<D, V> implements Check<D> {
 
-public interface ConditionDsl<L, D> extends Condition<D> {
+    private final String name;
+    private final Function<? super D, V> function;
+    private final Check<? super V> check;
 
-    L with(Condition<? super D> condition);
-
-    default <V> Builder<V, L> withField(String name, Function<? super D, V> function) {
-        return condition -> with(has(name, function).matching(condition));
+    FunctionCheck(String name, Function<? super D, V> function, Check<? super V> check) {
+        this.name = name;
+        this.function = function;
+        this.check = check;
     }
 
-    default Condition<Iterable<D>> exists() {
-        return Conditions.exists(this);
+    @Override
+    public boolean test(D data, EvaluationLogger evaluationLogger) {
+        EvaluationLogger.Node node = evaluationLogger.node(this);
+        return Check.trace(node, name, check.test(function.apply(data), node.detailFailingOn(false)));
+    }
+
+    @Override
+    public String name() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return name + ": " + check;
     }
 
 }

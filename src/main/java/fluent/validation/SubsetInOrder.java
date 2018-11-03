@@ -29,13 +29,13 @@ import fluent.validation.detail.EvaluationLogger;
 
 import java.util.Iterator;
 
-import static fluent.validation.Condition.trace;
+import static fluent.validation.Check.trace;
 
-final class SubsetInOrder<D> implements Condition<Iterable<D>> {
+final class SubsetInOrder<D> implements Check<Iterable<D>> {
 
-    private final Iterable<Condition<? super D>> conditions;
+    private final Iterable<Check<? super D>> conditions;
 
-    SubsetInOrder(Iterable<Condition<? super D>> conditions) {
+    SubsetInOrder(Iterable<Check<? super D>> conditions) {
         this.conditions = conditions;
     }
 
@@ -43,17 +43,17 @@ final class SubsetInOrder<D> implements Condition<Iterable<D>> {
     public boolean test(Iterable<D> data, EvaluationLogger evaluationLogger) {
         Iterator<D> d = data.iterator();
         EvaluationLogger.Node node = evaluationLogger.node(this);
-        for(Condition<? super D> condition : conditions) {
-            if(!evaluate(d, condition, evaluationLogger)) {
+        for(Check<? super D> check : conditions) {
+            if(!evaluate(d, check, evaluationLogger)) {
                 return trace(node, "", false);
             }
         }
         return trace(node, "", true);
     }
 
-    private boolean evaluate(Iterator<D> data, Condition<? super D> condition, EvaluationLogger evaluationLogger) {
+    private boolean evaluate(Iterator<D> data, Check<? super D> check, EvaluationLogger evaluationLogger) {
         while(data.hasNext()) {
-            if(condition.test(data.next(), evaluationLogger)) {
+            if(check.test(data.next(), evaluationLogger)) {
                 return true;
             }
         }

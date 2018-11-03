@@ -25,7 +25,7 @@
 
 package fluent.validation.assertion;
 
-import fluent.validation.Condition;
+import fluent.validation.Check;
 
 /**
  * Interface represents value to be tested by condition.
@@ -35,10 +35,10 @@ import fluent.validation.Condition;
 public interface AssertionSubject<V> {
 
     /**
-     * Perform the assert, that value represented by this interface satisfy supplied condition.
-     * @param condition Condition to test the value with.
-     * @throws AssertionError Throw assertion error in case, that value do not satisfy the condition.
+     * Perform the assert, that value represented by this interface satisfy supplied check.
+     * @param check Check to test the value with.
+     * @throws AssertionError Throw assertion error in case, that value do not satisfy the check.
      */
-    void satisfy(Condition<? super V> condition);
+    void satisfy(Check<? super V> check);
 
 }

@@ -27,9 +27,9 @@ package fluent.validation;
 
 import fluent.validation.detail.EvaluationLogger;
 
-import static fluent.validation.Condition.trace;
+import static fluent.validation.Check.trace;
 
-final class Operator<D> implements Condition<D> {
+final class Operator<D> implements Check<D> {
 
     public enum BooleanOperator {
         AND {
@@ -49,11 +49,11 @@ final class Operator<D> implements Condition<D> {
         }
     }
 
-    private final Condition<? super D> left;
-    private final Condition<? super D> right;
+    private final Check<? super D> left;
+    private final Check<? super D> right;
     private final BooleanOperator operator;
 
-    Operator(Condition<? super D> left, Condition<? super D> right, BooleanOperator operator) {
+    Operator(Check<? super D> left, Check<? super D> right, BooleanOperator operator) {
         this.left = left;
         this.right = right;
         this.operator = operator;

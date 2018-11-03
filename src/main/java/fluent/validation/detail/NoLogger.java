@@ -25,7 +25,7 @@
 
 package fluent.validation.detail;
 
-import fluent.validation.Condition;
+import fluent.validation.Check;
 
 public final class NoLogger implements EvaluationLogger, EvaluationLogger.Node {
 
@@ -35,7 +35,7 @@ public final class NoLogger implements EvaluationLogger, EvaluationLogger.Node {
     public void trace(String expectation, Object actualValue, boolean result) { }
 
     @Override
-    public Node node(Condition<?> nodeName) { return this; }
+    public Node node(Check<?> nodeName) { return this; }
 
     @Override
     public EvaluationLogger detailFailingOn(boolean indicateFailure) { return this; }

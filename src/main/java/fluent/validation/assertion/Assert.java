@@ -25,7 +25,7 @@
 
 package fluent.validation.assertion;
 
-import fluent.validation.Condition;
+import fluent.validation.Check;
 import test.Failure;
 import fluent.validation.detail.EvaluationLogger;
 import fluent.validation.detail.EvaluationLoggerService;
@@ -42,7 +42,7 @@ import static java.util.ServiceLoader.load;
  * Assertion in general in "focus" framework has following actors:
  *
  * Value to be tested
- * Condition used to perform the test
+ * Check used to perform the test
  * Supplier of test detail interceptor.
  *
  * This class allows following DSL to deal with assertions:
@@ -113,7 +113,7 @@ public final class Assert {
     }
 
     /**
-     * Simplest way to assert that a value satisfies the condition with default detail service.
+     * Simplest way to assert that a value satisfies the check with default detail service.
      *
      * {@code
      *
@@ -122,11 +122,11 @@ public final class Assert {
      * }
      *
      * @param value Tested value
-     * @param condition Condition used to test the value.
+     * @param check Check used to test the value.
      * @param <V> Type of the value to be tested.
      */
-    public static <V> void that(V value, Condition<? super V> condition) {
-        that(value).satisfy(condition);
+    public static <V> void that(V value, Check<? super V> check) {
+        that(value).satisfy(check);
     }
 
     /**
@@ -185,9 +185,9 @@ public final class Assert {
         }
 
         @Override
-        public void satisfy(Condition<? super V> condition) {
+        public void satisfy(Check<? super V> check) {
             EvaluationLogger detail = loggerSupplier.get();
-            if(!condition.test(value, detail)) {
+            if(!check.test(value, detail)) {
                 throw new Failure(detail);
             }
         }
