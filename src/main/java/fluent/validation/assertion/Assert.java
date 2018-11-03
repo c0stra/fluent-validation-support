@@ -26,7 +26,6 @@
 package fluent.validation.assertion;
 
 import fluent.validation.Check;
-import test.Failure;
 import fluent.validation.detail.EvaluationLogger;
 import fluent.validation.detail.EvaluationLoggerService;
 import fluent.validation.detail.Mismatch;
@@ -188,7 +187,7 @@ public final class Assert {
         public void satisfy(Check<? super V> check) {
             EvaluationLogger detail = loggerSupplier.get();
             if(!check.test(value, detail)) {
-                throw new Failure(detail);
+                throw new AssertionFailure(detail);
             }
         }
 

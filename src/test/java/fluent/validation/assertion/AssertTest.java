@@ -26,7 +26,6 @@
 package fluent.validation.assertion;
 
 import fluent.validation.Check;
-import test.Failure;
 import fluent.validation.utils.Mocks;
 import org.mockito.Mock;
 import org.testng.annotations.Test;
@@ -49,7 +48,7 @@ public class AssertTest extends Mocks {
         Assert.assertion().assertThat(data).satisfy(check);
     }
 
-    @Test(expectedExceptions = Failure.class)
+    @Test(expectedExceptions = AssertionFailure.class)
     public void testDataNegative() {
         given(check.test(eq(data), any())).willReturn(false);
         Assert.assertion().assertThat(data).satisfy(check);
@@ -61,7 +60,7 @@ public class AssertTest extends Mocks {
         Assert.that(data, check);
     }
 
-    @Test(expectedExceptions = Failure.class)
+    @Test(expectedExceptions = AssertionFailure.class)
     public void testThatNegative() {
         given(check.test(eq(data), any())).willReturn(false);
         Assert.that(data, check);

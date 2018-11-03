@@ -3,7 +3,7 @@ package fluent.validation;
 import fluent.validation.assertion.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import test.Failure;
+import fluent.validation.assertion.AssertionFailure;
 
 import static fluent.validation.Checks.*;
 
@@ -12,7 +12,7 @@ public class ChecksErrorMessageTest {
     @DataProvider
     public static Object[][] requirements() {
         return new Object[][]{
-                requirement("A", equalTo("B"), "Expected: <B>, actual: <A>"),
+                requirement("A", equalTo("B"), "Expected: <B>, but: <A>"),
                 requirement(1.0, equalTo(2.0), "Expected: <2.0 ±1.0E-7>, actual: <1.0>"),
                 requirement("A", not("A"), "Expected: not <A>, actual: <A>"),
                 requirement("A", not(allOf(equalTo("A"), equalTo("B"))), "Expected: not <A>, actual: <A>"),
@@ -30,7 +30,7 @@ public class ChecksErrorMessageTest {
     public <T> void test(Requirement<T, String> requirement) {
         Assert.that(
                 () -> Assert.that(requirement.data).satisfy(requirement.check),
-                throwing(Failure.class).withMessage(requirement.expectedResult)
+                throwing(AssertionFailure.class).withMessage(requirement.expectedResult)
         );
     }
 

@@ -44,7 +44,12 @@ final class FunctionCheck<D, V> implements Check<D> {
     @Override
     public boolean test(D data, EvaluationLogger evaluationLogger) {
         EvaluationLogger.Node node = evaluationLogger.node(this);
-        return Check.trace(node, name, check.test(function.apply(data), node.detailFailingOn(false)));
+        try {
+            return Check.trace(node, name, check.test(function.apply(data), node.detailFailingOn(false)));
+        } catch (Throwable throwable) {
+            node.detailFailingOn(false).trace("get " + name, throwable, false);
+            return Check.trace(node, name, false);
+        }
     }
 
     @Override

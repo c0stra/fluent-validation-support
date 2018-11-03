@@ -75,10 +75,24 @@ public interface Check<T> {
         return toString();
     }
 
+    /**
+     * Compose this check with another one using logical AND operator.
+     *
+     * @param operand Another check.
+     * @param <U> Type of the data tested by other check. It may cause up-cast.
+     * @return Composed check.
+     */
     default <U extends T> Check<U> and(Check<? super U> operand) {
         return new Operator<>(this, operand, AND);
     }
 
+    /**
+     * Compose this check with another one using logical OR operator.
+     *
+     * @param operand Another check.
+     * @param <U> Type of the data tested by other check. It may cause up-cast.
+     * @return Composed check.
+     */
     default <U extends T> Check<U> or(Check<? super U> operand) {
         return new Operator<>(this, operand, OR);
     }
