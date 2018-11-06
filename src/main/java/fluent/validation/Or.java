@@ -23,47 +23,44 @@
  * SUCH DAMAGE.
  */
 
-package fluent.validation.assertion;
+package fluent.validation;
 
-import fluent.validation.Check;
-import fluent.validation.utils.Mocks;
-import org.mockito.Mock;
-import org.testng.annotations.Test;
+import fluent.validation.detail.CheckDetail;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
+import static fluent.validation.Check.trace;
 
-public class AssertTest extends Mocks {
+final class Or<D> implements Check<D> {
 
-    @Mock
-    private Check<Object> check;
+    private final Check<? super D> left;
+    private final Check<? super D> right;
 
-    @Mock
-    private Object data;
-
-    @Test
-    public void testData() {
-        given(check.test(eq(data), any())).willReturn(true);
-        Assert.assertion().assertThat(data).satisfy(check);
+    Or(Check<? super D> left, Check<? super D> right) {
+        this.left = left;
+        this.right = right;
     }
 
-    @Test(expectedExceptions = AssertionFailure.class)
-    public void testDataNegative() {
-        given(check.test(eq(data), any())).willReturn(false);
-        Assert.assertion().assertThat(data).satisfy(check);
+    @Override
+    public boolean test(D data, CheckDetail checkDetail) {
+        CheckDetail.Node node = checkDetail.node(this);
+        boolean result = left.test(data, node.detailFailingOn(false)) | right.test(data, node.detailFailingOn(false));
+        return trace(node, "", result);
     }
 
-    @Test
-    public void testThat() {
-        given(check.test(eq(data), any())).willReturn(true);
-        Assert.that(data, check);
+    @Override
+    public String name() {
+        return "or";
     }
 
-    @Test(expectedExceptions = AssertionFailure.class)
-    public void testThatNegative() {
-        given(check.test(eq(data), any())).willReturn(false);
-        Assert.that(data, check);
+    @Override
+    public String toString() {
+        return left + " or " + right;
+    }
+
+    @Override
+    public <U extends D> Check<U> and(Check<? super U> operand) {
+        // Building the expression tree with operator priority reflected:
+        // A or B and C => A or (B and C)
+        return left.or(right.and(operand));
     }
 
 }

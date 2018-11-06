@@ -25,9 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
-
-import static fluent.validation.Check.trace;
+import fluent.validation.detail.CheckDetail;
 
 final class NegativeCheck<D> implements Check<D> {
 
@@ -38,9 +36,8 @@ final class NegativeCheck<D> implements Check<D> {
     }
 
     @Override
-    public boolean test(D data, EvaluationLogger evaluationLogger) {
-        EvaluationLogger.Node node = evaluationLogger.node(this);
-        return trace(node, this, !check.test(data, node.detailFailingOn(true)));
+    public boolean test(D data, CheckDetail checkDetail) {
+        return !check.test(data, checkDetail.prefix(this).negative());
     }
 
     @Override

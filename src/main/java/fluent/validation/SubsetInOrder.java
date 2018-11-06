@@ -25,7 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckDetail;
 
 import java.util.Iterator;
 
@@ -40,20 +40,20 @@ final class SubsetInOrder<D> implements Check<Iterable<D>> {
     }
 
     @Override
-    public boolean test(Iterable<D> data, EvaluationLogger evaluationLogger) {
+    public boolean test(Iterable<D> data, CheckDetail checkDetail) {
         Iterator<D> d = data.iterator();
-        EvaluationLogger.Node node = evaluationLogger.node(this);
+        CheckDetail.Node node = checkDetail.node(this);
         for(Check<? super D> check : conditions) {
-            if(!evaluate(d, check, evaluationLogger)) {
+            if(!evaluate(d, check, checkDetail)) {
                 return trace(node, "", false);
             }
         }
         return trace(node, "", true);
     }
 
-    private boolean evaluate(Iterator<D> data, Check<? super D> check, EvaluationLogger evaluationLogger) {
+    private boolean evaluate(Iterator<D> data, Check<? super D> check, CheckDetail checkDetail) {
         while(data.hasNext()) {
-            if(check.test(data.next(), evaluationLogger)) {
+            if(check.test(data.next(), checkDetail)) {
                 return true;
             }
         }

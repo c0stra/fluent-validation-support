@@ -25,46 +25,35 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckDetail;
 
-final class RequireNotNull<D> implements Check<D> {
+import static fluent.validation.Check.trace;
 
-    private final Check<? super D> requirement;
-    private final Check<? super D> check;
+final class And<D> implements Check<D> {
 
-    RequireNotNull(Check<? super D> requirement, Check<? super D> check) {
-        this.requirement = requirement;
-        this.check = check;
+    private final Check<? super D> left;
+    private final Check<? super D> right;
+
+    And(Check<? super D> left, Check<? super D> right) {
+        this.left = left;
+        this.right = right;
     }
 
     @Override
-    public boolean test(D data, EvaluationLogger evaluationLogger) {
-        return requirement.test(data, new NegativeOnlyEvaluationLogger(evaluationLogger)) && check.test(data, evaluationLogger);
+    public boolean test(D data, CheckDetail checkDetail) {
+        CheckDetail.Node node = checkDetail.node(this);
+        boolean result = left.test(data, node.detailFailingOn(false)) & right.test(data, node.detailFailingOn(false));
+        return trace(node, "", result);
+    }
+
+    @Override
+    public String name() {
+        return "and";
     }
 
     @Override
     public String toString() {
-        return check.toString();
-    }
-
-    private static class NegativeOnlyEvaluationLogger implements EvaluationLogger {
-
-        private final EvaluationLogger evaluationLogger;
-
-        private NegativeOnlyEvaluationLogger(EvaluationLogger evaluationLogger) {
-            this.evaluationLogger = evaluationLogger;
-        }
-
-        @Override
-        public void trace(String expectation, Object actualValue, boolean result) {
-            if(!result) evaluationLogger.trace(expectation, actualValue, false);
-        }
-
-        @Override
-        public Node node(Check<?> nodeName) {
-            return evaluationLogger.node(nodeName);
-        }
-
+        return left + " and " + right;
     }
 
 }

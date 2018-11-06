@@ -25,7 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckDetail;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -41,12 +41,12 @@ final class SubsetAnyOrder<D> implements Check<Iterable<D>> {
     }
 
     @Override
-    public boolean test(Iterable<D> data, EvaluationLogger evaluationLogger) {
+    public boolean test(Iterable<D> data, CheckDetail checkDetail) {
         List<Check<? super D>> set = new LinkedList<>(checks);
         for (D item : data) {
             Iterator<Check<? super D>> i = set.iterator();
             while (i.hasNext()) {
-                if(i.next().test(item, evaluationLogger)) {
+                if(i.next().test(item, checkDetail)) {
                     i.remove();
                     break;
                 }

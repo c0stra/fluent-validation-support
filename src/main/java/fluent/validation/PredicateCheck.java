@@ -25,7 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckDetail;
 
 import java.util.function.Predicate;
 
@@ -42,8 +42,8 @@ final class PredicateCheck<D> implements Check<D> {
     }
 
     @Override
-    public boolean test(D data, EvaluationLogger evaluationLogger) {
-        return trace(evaluationLogger, expectationDescription, data, predicate.test(data));
+    public boolean test(D data, CheckDetail checkDetail) {
+        return trace(checkDetail, expectationDescription, data, predicate.test(data));
     }
 
     @Override

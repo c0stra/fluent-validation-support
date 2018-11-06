@@ -25,7 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckDetail;
 
 import java.util.Iterator;
 
@@ -47,10 +47,10 @@ final class CollectionInOrder<D> implements Check<Iterable<D>> {
     }
 
     @Override
-    public boolean test(Iterable<D> data, EvaluationLogger evaluationLogger) {
+    public boolean test(Iterable<D> data, CheckDetail checkDetail) {
         Iterator<Check<? super D>> c = conditions.iterator();
         Iterator<D> d = data.iterator();
-        EvaluationLogger.Node node = evaluationLogger.node(this);
+        CheckDetail.Node node = checkDetail.node(this);
         while (c.hasNext() && d.hasNext()) {
             Check<? super D> check = c.next();
             if(!check.test(d.next(), node.detailFailingOn(false))) {

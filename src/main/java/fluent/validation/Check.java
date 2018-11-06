@@ -25,10 +25,8 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
-
-import static fluent.validation.Operator.BooleanOperator.AND;
-import static fluent.validation.Operator.BooleanOperator.OR;
+import fluent.validation.detail.CheckDetail;
+import fluent.validation.detail.Mismatch;
 
 /**
  * Simple condition interface used in for validation of various data.
@@ -58,7 +56,7 @@ public interface Check<T> {
      * @return Evaluation result.
      */
     default boolean test(T data) {
-        return test(data, EvaluationLogger.NONE);
+        return test(data, CheckDetail.NONE);
     }
 
     /**
@@ -66,11 +64,25 @@ public interface Check<T> {
      * provided detail collector.
      *
      * @param data Data to test by the condition.
-     * @param evaluationLogger Tracer of the evaluation detail.
+     * @param checkDetail Tracer of the evaluation detail.
      * @return Evaluation result.
      */
-    boolean test(T data, EvaluationLogger evaluationLogger);
+    boolean test(T data, CheckDetail checkDetail);
 
+    default void assertData(T data) {
+        assertData(data, new Mismatch());
+    }
+
+    default void assertData(T data, CheckDetail checkDetail) {
+        if(!test(data, checkDetail)) {
+            throw new AssertionFailure(checkDetail.toString());
+        }
+    }
+
+    /**
+     * Name of the check.
+     * @return The name.
+     */
     default String name() {
         return toString();
     }
@@ -83,7 +95,7 @@ public interface Check<T> {
      * @return Composed check.
      */
     default <U extends T> Check<U> and(Check<? super U> operand) {
-        return new Operator<>(this, operand, AND);
+        return new And<>(this, operand);
     }
 
     /**
@@ -94,7 +106,15 @@ public interface Check<T> {
      * @return Composed check.
      */
     default <U extends T> Check<U> or(Check<? super U> operand) {
-        return new Operator<>(this, operand, OR);
+        return new Or<>(this, operand);
+    }
+
+    static <T> void that(T data, Check<? super T> check) {
+        check.assertData(data);
+    }
+
+    static <T> void that(T data, Check<? super T> check, CheckDetail logger) {
+        check.assertData(data, logger);
     }
 
     /**
@@ -105,7 +125,7 @@ public interface Check<T> {
      * @param result Result of the composed condition.
      * @return Result of the composed condition.
      */
-    static boolean trace(EvaluationLogger.Node node, Object actualValue, boolean result) {
+    static boolean trace(CheckDetail.Node node, Object actualValue, boolean result) {
         node.trace(actualValue, result);
         return result;
     }
@@ -113,14 +133,14 @@ public interface Check<T> {
     /**
      * Shortcut method, that traces current leaf detail, and returns result.
      *
-     * @param evaluationLogger Tracer for tracing condition details.
+     * @param checkDetail Tracer for tracing condition details.
      * @param expectation Description of the expectation.
      * @param actualValue Actual value.
      * @param result Result of the condition.
      * @return Result of the condition.
      */
-    static boolean trace(EvaluationLogger evaluationLogger, String expectation, Object actualValue, boolean result) {
-        evaluationLogger.trace(expectation, actualValue, result);
+    static boolean trace(CheckDetail checkDetail, String expectation, Object actualValue, boolean result) {
+        checkDetail.trace(expectation, actualValue, result);
         return result;
     }
 

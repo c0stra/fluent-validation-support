@@ -25,7 +25,6 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -84,7 +83,7 @@ public final class Checks {
     }
 
     public static <D> Check<D> require(Check<? super D> requirement, Check<? super D> check) {
-        return new RequireNotNull<>(requirement, check);
+        return new DoubleCheck<>(requirement, check);
     }
 
     public static <D> Check<D> requireNotNull(Check<D> check) {
@@ -131,20 +130,21 @@ public final class Checks {
         return oneOf(new HashSet<>(asList(alternatives)));
     }
 
-    private static <D> Check<D> multipleOperands(Iterable<Check<? super D>> operands, Operator.BooleanOperator operator) {
+    private static <D> Check<D> multipleOperands(Iterable<Check<? super D>> operands, boolean andOperator) {
         Iterator<Check<? super D>> iterator = operands.iterator();
         if(!iterator.hasNext()) {
-            throw new IllegalArgumentException("No operand supplied to " + operator);
+            throw new IllegalArgumentException("No operand supplied to " + (andOperator ? "AND" : "OR"));
         }
         Check<D> next = (Check<D>) iterator.next();
         while(iterator.hasNext()) {
-            next = new Operator<>(next, iterator.next(), operator);
+            // Here operator precedence is explicit.
+            next = andOperator ? new And<>(next, iterator.next()) : new Or<>(next, iterator.next());
         }
         return next;
     }
 
     public static <D> Check<D> anyOf(Iterable<Check<? super D>> operands) {
-        return multipleOperands(operands, Operator.BooleanOperator.OR);
+        return multipleOperands(operands, false);
     }
 
     @SafeVarargs
@@ -153,7 +153,7 @@ public final class Checks {
     }
 
     public static <D> Check<D> allOf(Iterable<Check<? super D>> operands) {
-        return multipleOperands(operands, Operator.BooleanOperator.AND);
+        return multipleOperands(operands, true);
     }
 
     @SafeVarargs
@@ -539,63 +539,16 @@ public final class Checks {
         return throwing(a(condition));
     }
 
-    public static <D> CheckBuilder<D> createBuilder() {
-        return new EmptyCheckBuilder<>();
+    public static <D> Check<D> createBuilder() {
+        return new Anything<>();
     }
 
-    public static <D> CheckBuilder<D> createBuilderWith(Check<D> check) {
-        return new CheckChainBuilder<>(check);
+    public static <D> Check<D> createBuilderWith(Check<D> check) {
+        return check;
     }
 
-    public static <D> CheckBuilder<D> which(Check<D> check) {
+    public static <D> Check<D> which(Check<D> check) {
         return createBuilderWith(check);
-    }
-
-    private static final class EmptyCheckBuilder<D> implements CheckBuilder<D> {
-
-        @Override public Check<? super D> get() {
-            return Checks.anything();
-        }
-
-        @Override public <E extends D> CheckBuilder<E> and(Check<? super E> check) {
-            return new CheckChainBuilder<E>(check);
-        }
-
-    }
-
-    final static class CheckChainBuilder<D> implements CheckBuilder<D> {
-
-        private final Check<? super D> check;
-
-        CheckChainBuilder(Check<? super D> check) {
-            this.check = check;
-        }
-        @Override public Check<? super D> get() {
-            return check;
-        }
-        @Override public <E extends D> CheckBuilder<E> and(Check<? super E> check) {
-            return new CheckChainBuilder<>(new LinkedCheck<>(get(), check));
-        }
-        @Override public String toString() {
-            return check.toString();
-        }
-    }
-
-    final static class LinkedCheck<D> implements Check<D> {
-
-        private final Check<? super D> previous;
-        private final Check<? super D> check;
-
-        LinkedCheck(Check<? super D> previous, Check<? super D> check) {
-            this.previous = previous;
-            this.check = check;
-        }
-        @Override public boolean test(D data, EvaluationLogger evaluationLogger) {
-            return previous.test(data, evaluationLogger) & check.test(data, evaluationLogger);
-        }
-        @Override public String toString() {
-            return previous.toString() + ", " + check;
-        }
     }
 
 }

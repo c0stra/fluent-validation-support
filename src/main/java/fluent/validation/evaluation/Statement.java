@@ -26,19 +26,19 @@
 package fluent.validation.evaluation;
 
 import fluent.validation.Check;
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckDetail;
 
 import java.util.Objects;
 
 public interface Statement extends Check<Context>, Conclusion {
 
     @Override
-    default boolean test(Context data, EvaluationLogger evaluationLogger) {
-        return data.isValid(this);//Check.trace(evaluationLogger, toString(), "is valid", data.isValid(this));
+    default boolean test(Context data, CheckDetail checkDetail) {
+        return data.isValid(this);//Check.trace(checkDetail, toString(), "is valid", data.isValid(this));
     }
 
     @Override
-    default void conclude(Boolean aBoolean, Context context, EvaluationLogger logger) {
+    default void conclude(Boolean aBoolean, Context context, CheckDetail logger) {
         context.set(this, aBoolean);
     }
 

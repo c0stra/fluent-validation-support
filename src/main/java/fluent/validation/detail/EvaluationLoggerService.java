@@ -29,11 +29,11 @@ import java.util.function.Supplier;
 
 import static fluent.validation.Checks.anything;
 
-public interface EvaluationLoggerService extends Supplier<EvaluationLogger> {
+public interface EvaluationLoggerService extends Supplier<CheckDetail> {
 
-    default Supplier<EvaluationLogger> get(Object object) {
-        EvaluationLogger evaluationLogger = get().node(anything()).detailFailingOn(false);
-        return () -> evaluationLogger;
+    default Supplier<CheckDetail> get(Object object) {
+        CheckDetail checkDetail = get().node(anything()).detailFailingOn(false);
+        return () -> checkDetail;
     }
 
 }

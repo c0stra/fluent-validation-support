@@ -27,7 +27,7 @@ package fluent.validation.detail;
 
 import fluent.validation.Check;
 
-public final class Mismatch implements EvaluationLogger {
+public final class Mismatch implements CheckDetail {
 
     private final boolean indicateFailure;
     private final StringBuilder builder;
@@ -59,6 +59,22 @@ public final class Mismatch implements EvaluationLogger {
     }
 
     @Override
+    public CheckDetail label(Check<?> name) {
+        builder.append(name.name()).append(": ");
+        return this;
+    }
+
+    @Override
+    public CheckDetail prefix(Check<?> check) {
+        return new Mismatch(indicateFailure, builder, check.name() + " ");
+    }
+
+    @Override
+    public CheckDetail negative() {
+        return new Mismatch(true, builder, desc);
+    }
+
+    @Override
     public String toString() {
         return builder.toString();
     }
@@ -73,7 +89,7 @@ public final class Mismatch implements EvaluationLogger {
         }
 
         @Override
-        public EvaluationLogger detailFailingOn(boolean newIndicateFailure) {
+        public CheckDetail detailFailingOn(boolean newIndicateFailure) {
             return new Mismatch(newIndicateFailure != indicateFailure, optional, "\n\t");
         }
 

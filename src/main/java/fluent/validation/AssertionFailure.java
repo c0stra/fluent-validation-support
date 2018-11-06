@@ -1,4 +1,4 @@
-package fluent.validation.assertion;
+package fluent.validation;
 
 public class AssertionFailure extends AssertionError {
 

@@ -25,7 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckDetail;
 
 import static fluent.validation.Check.trace;
 
@@ -41,8 +41,8 @@ final class Quantifier<D> implements Check<Iterable<D>> {
 
 
     @Override
-    public boolean test(Iterable<D> data, EvaluationLogger evaluationLogger) {
-        EvaluationLogger.Node node = evaluationLogger.node(this);
+    public boolean test(Iterable<D> data, CheckDetail checkDetail) {
+        CheckDetail.Node node = checkDetail.node(this);
         for(D item : data) {
             if(end == check.test(item, node.detailFailingOn(false))) {
                 return trace(node, "", end);

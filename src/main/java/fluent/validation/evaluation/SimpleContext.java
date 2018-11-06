@@ -25,7 +25,7 @@
 
 package fluent.validation.evaluation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckDetail;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -45,8 +45,8 @@ public class SimpleContext implements Context {
     }
 
     @Override
-    public EvaluationLogger logger() {
-        return EvaluationLogger.NONE;
+    public CheckDetail logger() {
+        return CheckDetail.NONE;
     }
 
     @Override

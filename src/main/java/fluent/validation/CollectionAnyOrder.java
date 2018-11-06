@@ -25,7 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckDetail;
 
 final class CollectionAnyOrder<D> implements Check<Iterable<D>> {
 
@@ -36,7 +36,7 @@ final class CollectionAnyOrder<D> implements Check<Iterable<D>> {
     }
 
     @Override
-    public boolean test(Iterable<D> data, EvaluationLogger evaluationLogger) {
+    public boolean test(Iterable<D> data, CheckDetail checkDetail) {
         for(D item : data) for(Check<? super D> check : conditions) {
 
         }

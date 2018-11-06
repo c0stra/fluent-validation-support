@@ -26,14 +26,14 @@
 package fluent.validation.evaluation;
 
 import fluent.validation.Check;
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckDetail;
 
 import static java.lang.Boolean.TRUE;
 
 public abstract class Definition implements Conclusion {
 
     private Context context;
-    private EvaluationLogger logger;
+    private CheckDetail logger;
 
     protected Rule when(Check<? super Context> check) {
         return consumer -> {
@@ -42,7 +42,7 @@ public abstract class Definition implements Conclusion {
     }
 
     @Override
-    public void conclude(Boolean value, Context context, EvaluationLogger logger) {
+    public void conclude(Boolean value, Context context, CheckDetail logger) {
         if(TRUE.equals(value)) {
             this.context = context;
             this.logger = logger;

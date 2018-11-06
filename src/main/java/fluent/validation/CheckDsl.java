@@ -25,20 +25,38 @@
 
 package fluent.validation;
 
+import fluent.validation.detail.CheckDetail;
+
 import java.util.function.Function;
 
 import static fluent.validation.Checks.has;
 
-public interface CheckDsl<L, D> extends Check<D> {
+public class CheckDsl<L, D> implements Check<D> {
 
-    L with(Check<? super D> check);
+    private final Check<D> check;
 
-    default <V> Builder<V, L> withField(String name, Function<? super D, V> function) {
+    private final Function<Check<D>, L> factory;
+
+    protected CheckDsl(Check<D> check, Function<Check<D>, L> factory) {
+        this.check = check;
+        this.factory = factory;
+    }
+
+    protected CheckDsl(Function<Check<D>, L> factory) {
+        this(new Anything<>(), factory);
+    }
+
+    public L with(Check<? super D> check) {
+        return factory.apply(this.check.and(check));
+    }
+
+    public <V> Builder<V, L> withField(String name, Function<? super D, V> function) {
         return condition -> with(has(name, function).matching(condition));
     }
 
-    default Check<Iterable<D>> exists() {
-        return Checks.exists(this);
+    @Override
+    public boolean test(D data, CheckDetail checkDetail) {
+        return check.test(data, checkDetail);
     }
 
 }

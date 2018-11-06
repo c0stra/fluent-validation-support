@@ -23,24 +23,27 @@
  * SUCH DAMAGE.
  */
 
-package fluent.validation;
+package fluent.validation.detail;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.Check;
 
-public interface CheckBuilder<D> extends Check<D> {
+public final class NoDetail implements CheckDetail, CheckDetail.Node {
 
-    Check<? super D> get();
-
-    <E extends D> CheckBuilder<E> and(Check<? super E> check);
-
-    default Check<Iterable<D>> exists() {
-        return Checks.exists(get());
-    }
+    NoDetail() {}
 
     @Override
-    default boolean test(D data, EvaluationLogger evaluationLogger) {
-        return get().test(data, evaluationLogger);
-    }
+    public void trace(String expectation, Object actualValue, boolean result) { }
+
+    @Override
+    public Node node(Check<?> nodeName) { return this; }
+
+    @Override
+    public CheckDetail label(Check<?> name) { return this; }
+
+    @Override
+    public CheckDetail detailFailingOn(boolean indicateFailure) { return this; }
+
+    @Override
+    public void trace(Object actualData, boolean result) { }
 
 }
-

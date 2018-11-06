@@ -23,22 +23,53 @@
  * SUCH DAMAGE.
  */
 
-package fluent.validation.assertion;
+package fluent.validation;
 
-import fluent.validation.Check;
+import fluent.validation.detail.CheckDetail;
 
-/**
- * Interface represents value to be tested by condition.
- * @param <V> Type of the value provided to the condition.
- */
-@FunctionalInterface
-public interface AssertionSubject<V> {
+final class DoubleCheck<D> implements Check<D> {
 
-    /**
-     * Perform the assert, that value represented by this interface satisfy supplied check.
-     * @param check Check to test the value with.
-     * @throws AssertionError Throw assertion error in case, that value do not satisfy the check.
-     */
-    void satisfy(Check<? super V> check);
+    private final Check<? super D> requirement;
+    private final Check<? super D> check;
+
+    DoubleCheck(Check<? super D> requirement, Check<? super D> check) {
+        this.requirement = requirement;
+        this.check = check;
+    }
+
+    @Override
+    public boolean test(D data, CheckDetail checkDetail) {
+        return requirement.test(data, new NegativeOnlyCheckDetail(checkDetail)) && check.test(data, checkDetail);
+    }
+
+    @Override
+    public String toString() {
+        return check.toString();
+    }
+
+    private static class NegativeOnlyCheckDetail implements CheckDetail {
+
+        private final CheckDetail checkDetail;
+
+        private NegativeOnlyCheckDetail(CheckDetail checkDetail) {
+            this.checkDetail = checkDetail;
+        }
+
+        @Override
+        public void trace(String expectation, Object actualValue, boolean result) {
+            if(!result) checkDetail.trace(expectation, actualValue, false);
+        }
+
+        @Override
+        public Node node(Check<?> nodeName) {
+            return checkDetail.node(nodeName);
+        }
+
+        @Override
+        public CheckDetail label(Check<?> name) {
+            return this;
+        }
+
+    }
 
 }
