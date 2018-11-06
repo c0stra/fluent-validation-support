@@ -25,46 +25,35 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckVisitor;
 
-final class RequireNotNull<D> implements Condition<D> {
+import static fluent.validation.Check.trace;
 
-    private final Condition<? super D> requirement;
-    private final Condition<? super D> condition;
+final class And<D> implements Check<D> {
 
-    RequireNotNull(Condition<? super D> requirement, Condition<? super D> condition) {
-        this.requirement = requirement;
-        this.condition = condition;
+    private final Check<? super D> left;
+    private final Check<? super D> right;
+
+    And(Check<? super D> left, Check<? super D> right) {
+        this.left = left;
+        this.right = right;
     }
 
     @Override
-    public boolean test(D data, EvaluationLogger evaluationLogger) {
-        return requirement.test(data, new NegativeOnlyEvaluationLogger(evaluationLogger)) && condition.test(data, evaluationLogger);
+    public boolean test(D data, CheckVisitor checkVisitor) {
+        CheckVisitor node = checkVisitor.node(this);
+        boolean result = left.test(data, node) & right.test(data, node);
+        return trace(node, data, result);
+    }
+
+    @Override
+    public String name() {
+        return "and";
     }
 
     @Override
     public String toString() {
-        return condition.toString();
-    }
-
-    private static class NegativeOnlyEvaluationLogger implements EvaluationLogger {
-
-        private final EvaluationLogger evaluationLogger;
-
-        private NegativeOnlyEvaluationLogger(EvaluationLogger evaluationLogger) {
-            this.evaluationLogger = evaluationLogger;
-        }
-
-        @Override
-        public void trace(String expectationDescription, Object actualData, boolean result) {
-            if(!result) evaluationLogger.trace(expectationDescription, actualData, false);
-        }
-
-        @Override
-        public Node node(String nodeName) {
-            return evaluationLogger.node(nodeName);
-        }
-
+        return left + " and " + right;
     }
 
 }

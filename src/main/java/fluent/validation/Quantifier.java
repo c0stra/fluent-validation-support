@@ -25,26 +25,26 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckVisitor;
 
-import static fluent.validation.Condition.trace;
+import static fluent.validation.Check.trace;
 
-final class Quantifier<D> implements Condition<Iterable<D>> {
+final class Quantifier<D> implements Check<Iterable<D>> {
 
-    private final Condition<? super D> condition;
+    private final Check<? super D> check;
     private final boolean end;
 
-    Quantifier(Condition<? super D> condition, boolean end) {
-        this.condition = condition;
+    Quantifier(Check<? super D> check, boolean end) {
+        this.check = check;
         this.end = end;
     }
 
 
     @Override
-    public boolean test(Iterable<D> data, EvaluationLogger evaluationLogger) {
-        EvaluationLogger.Node node = evaluationLogger.node(end ? "exists" : "every");
+    public boolean test(Iterable<D> data, CheckVisitor checkVisitor) {
+        CheckVisitor node = checkVisitor.node(this);
         for(D item : data) {
-            if(end == condition.test(item, node.detailFailingOn(false))) {
+            if(end == check.test(item, node)) {
                 return trace(node, "", end);
             }
         }
@@ -52,8 +52,13 @@ final class Quantifier<D> implements Condition<Iterable<D>> {
     }
 
     @Override
+    public String name() {
+        return end ? "exists" : "every";
+    }
+
+    @Override
     public String toString() {
-        return end ? "exists element matching " + condition : "every element matches " + condition;
+        return end ? "exists element matching " + check : "every element matches " + check;
     }
 
 }

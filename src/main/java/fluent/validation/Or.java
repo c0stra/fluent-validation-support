@@ -25,21 +25,42 @@
 
 package fluent.validation;
 
-import java.util.function.Function;
+import fluent.validation.detail.CheckVisitor;
 
-import static fluent.validation.Conditions.has;
+import static fluent.validation.Check.trace;
 
-public interface ConditionDsl<L, D> extends Condition<D> {
+final class Or<D> implements Check<D> {
 
-    L with(Condition<? super D> condition);
+    private final Check<? super D> left;
+    private final Check<? super D> right;
 
-    default <V> Builder<V, L> withField(String name, Function<? super D, V> function) {
-        return condition -> with(has(name, function).matching(condition));
+    Or(Check<? super D> left, Check<? super D> right) {
+        this.left = left;
+        this.right = right;
     }
 
-    default Condition<Iterable<D>> exists() {
-        return Conditions.exists(this);
+    @Override
+    public boolean test(D data, CheckVisitor checkVisitor) {
+        CheckVisitor node = checkVisitor.node(this);
+        boolean result = left.test(data, node) | right.test(data, node);
+        return trace(node, data, result);
+    }
+
+    @Override
+    public String name() {
+        return "or";
+    }
+
+    @Override
+    public String toString() {
+        return left + " or " + right;
+    }
+
+    @Override
+    public <U extends D> Check<U> and(Check<? super U> operand) {
+        // Building the expression tree with operator priority reflected:
+        // A or B and C => A or (B and C)
+        return left.or(right.and(operand));
     }
 
 }
-

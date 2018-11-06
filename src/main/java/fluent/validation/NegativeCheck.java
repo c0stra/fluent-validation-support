@@ -23,16 +23,32 @@
  * SUCH DAMAGE.
  */
 
-package fluent.validation.detail;
+package fluent.validation;
 
-import java.util.Objects;
-import java.util.function.Supplier;
+import fluent.validation.detail.CheckVisitor;
 
-public interface EvaluationLoggerService extends Supplier<EvaluationLogger> {
+final class NegativeCheck<D> implements Check<D> {
 
-    default Supplier<EvaluationLogger> get(Object object) {
-        EvaluationLogger evaluationLogger = get().node(Objects.toString(object)).detailFailingOn(false);
-        return () -> evaluationLogger;
+    private final Check<D> check;
+
+    NegativeCheck(Check<D> check) {
+        this.check = check;
+    }
+
+    @Override
+    public boolean test(D data, CheckVisitor checkVisitor) {
+        CheckVisitor negative = checkVisitor.negative(this);
+        return !Check.trace(negative, data, check.test(data, negative));
+    }
+
+    @Override
+    public String name() {
+        return "not";
+    }
+
+    @Override
+    public String toString() {
+        return "not " + check;
     }
 
 }

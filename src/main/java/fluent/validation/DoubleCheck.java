@@ -25,31 +25,27 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckVisitor;
+import fluent.validation.detail.NoVisitor;
 
-import java.util.function.Function;
+final class DoubleCheck<D> implements Check<D> {
 
-final class FunctionCondition<D, V> implements Condition<D> {
+    private final Check<? super D> requirement;
+    private final Check<? super D> check;
 
-    private final String name;
-    private final Function<? super D, V> function;
-    private final Condition<? super V> condition;
-
-    FunctionCondition(String name, Function<? super D, V> function, Condition<? super V> condition) {
-        this.name = name;
-        this.function = function;
-        this.condition = condition;
+    DoubleCheck(Check<? super D> requirement, Check<? super D> check) {
+        this.requirement = requirement;
+        this.check = check;
     }
 
     @Override
-    public boolean test(D data, EvaluationLogger evaluationLogger) {
-        EvaluationLogger.Node node = evaluationLogger.node(name);
-        return Condition.trace(node, name, condition.test(function.apply(data), node.detailFailingOn(false)));
+    public boolean test(D data, CheckVisitor checkVisitor) {
+        return requirement.test(data, NoVisitor.NONE) && check.test(data, checkVisitor);
     }
 
     @Override
     public String toString() {
-        return name + ": " + condition;
+        return check.toString();
     }
 
 }

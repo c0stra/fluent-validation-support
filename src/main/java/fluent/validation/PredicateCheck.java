@@ -23,48 +23,32 @@
  * SUCH DAMAGE.
  */
 
-package fluent.validation.assertion;
+package fluent.validation;
 
-import fluent.validation.Condition;
-import test.Failure;
-import fluent.validation.utils.Mocks;
-import org.mockito.Mock;
-import org.testng.annotations.Test;
+import fluent.validation.detail.CheckVisitor;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
+import java.util.function.Predicate;
 
-public class AssertTest extends Mocks {
+import static fluent.validation.Check.trace;
 
-    @Mock
-    private Condition<Object> condition;
+final class PredicateCheck<D> implements Check<D> {
 
-    @Mock
-    private Object data;
+    private final Predicate<D> predicate;
+    private final String expectationDescription;
 
-    @Test
-    public void testData() {
-        given(condition.test(eq(data), any())).willReturn(true);
-        Assert.assertion().assertThat(data).satisfy(condition);
+    PredicateCheck(Predicate<D> predicate, String expectationDescription) {
+        this.predicate = predicate;
+        this.expectationDescription = expectationDescription;
     }
 
-    @Test(expectedExceptions = Failure.class)
-    public void testDataNegative() {
-        given(condition.test(eq(data), any())).willReturn(false);
-        Assert.assertion().assertThat(data).satisfy(condition);
+    @Override
+    public boolean test(D data, CheckVisitor checkVisitor) {
+        return trace(checkVisitor, expectationDescription, data, predicate.test(data));
     }
 
-    @Test
-    public void testThat() {
-        given(condition.test(eq(data), any())).willReturn(true);
-        Assert.that(data, condition);
-    }
-
-    @Test(expectedExceptions = Failure.class)
-    public void testThatNegative() {
-        given(condition.test(eq(data), any())).willReturn(false);
-        Assert.that(data, condition);
+    @Override
+    public String toString() {
+        return expectationDescription;
     }
 
 }

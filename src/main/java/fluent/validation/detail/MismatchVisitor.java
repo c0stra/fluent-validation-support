@@ -25,55 +25,71 @@
 
 package fluent.validation.detail;
 
-public final class Mismatch implements EvaluationLogger {
+import fluent.validation.Check;
 
-    private final boolean indicateFailure;
-    private final StringBuilder builder;
-    private final String desc;
+public final class MismatchVisitor implements CheckVisitor {
 
-    private Mismatch(boolean indicateFailure, StringBuilder builder, String name) {
-        this.indicateFailure = indicateFailure;
-        this.builder = builder;
-        this.desc = name;
-    }
+    private Object expectation = "";
+    private String message = "";
 
-    public Mismatch() {
-        this(false, new StringBuilder(), "");
+    @Override
+    public void trace(String expectation, Object actualValue, boolean result) {
+        message = "Expected: " + (this.expectation == "" ? expectation : this.expectation) + ", actual: <" + actualValue + '>';
     }
 
     @Override
-    public void trace(String expectationDescription, Object actualData, boolean result) {
-        if(result == indicateFailure) {
-            builder.append("Expected: ")
-                    .append(desc)
-                    .append(expectationDescription)
-                    .append(", actual: <")
-                    .append(actualData).append('>');
-        }
+    public CheckVisitor node(Check<?> name) {
+        return nodeVisitor(name);
     }
 
     @Override
-    public Node node(String name) {
-        return new Node() {
-            StringBuilder b = new StringBuilder();
-            @Override
-            public EvaluationLogger detailFailingOn(boolean newIndicateFailure) {
-                return new Mismatch(newIndicateFailure != indicateFailure, b, desc + name + " ");
-            }
+    public CheckVisitor label(Check<?> name) {
+        return nodeVisitor(name);
+    }
 
-            @Override
-            public void trace(Object actualData, boolean result) {
-                if(result == indicateFailure) {
-                    builder.append(b);
-                }
-            }
+    @Override
+    public CheckVisitor negative(Check<?> name) {
+        return nodeVisitor(name);
+    }
 
-        };
+    @Override
+    public void trace(Object data, boolean result) {
+        message = "Expected: " + expectation + ", actual: <" + data + '>';
     }
 
     @Override
     public String toString() {
-        return builder.toString();
+        return message;
+    }
+
+    private final CheckVisitor nodeVisitor(final Check<?> expectation) {
+        return  new CheckVisitor() {
+
+            @Override
+            public void trace(String expectation, Object actualValue, boolean result) {
+
+            }
+
+            @Override
+            public CheckVisitor node(Check<?> check) {
+                return NONE;
+            }
+
+            @Override
+            public CheckVisitor label(Check<?> check) {
+                return NONE;
+            }
+
+            @Override
+            public CheckVisitor negative(Check<?> check) {
+                return NONE;
+            }
+
+            @Override
+            public void trace(Object data, boolean result) {
+                message = "Expected: " + expectation + ", actual: <" + data + '>';
+            }
+        };
     }
 
 }

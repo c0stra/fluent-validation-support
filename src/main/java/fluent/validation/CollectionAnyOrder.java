@@ -25,19 +25,19 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckVisitor;
 
-final class CollectionAnyOrder<D> implements Condition<Iterable<D>> {
+final class CollectionAnyOrder<D> implements Check<Iterable<D>> {
 
-    private final Iterable<Condition<? super D>> conditions;
+    private final Iterable<Check<? super D>> conditions;
 
-    CollectionAnyOrder(Iterable<Condition<? super D>> conditions) {
+    CollectionAnyOrder(Iterable<Check<? super D>> conditions) {
         this.conditions = conditions;
     }
 
     @Override
-    public boolean test(Iterable<D> data, EvaluationLogger evaluationLogger) {
-        for(D item : data) for(Condition<? super D> condition : conditions) {
+    public boolean test(Iterable<D> data, CheckVisitor checkVisitor) {
+        for(D item : data) for(Check<? super D> check : conditions) {
 
         }
         return false;

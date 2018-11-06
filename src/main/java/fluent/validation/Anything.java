@@ -25,27 +25,24 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckVisitor;
 
-import static fluent.validation.Condition.trace;
-
-final class NegativeCondition<D> implements Condition<D> {
-
-    private final Condition<D> condition;
-
-    NegativeCondition(Condition<D> condition) {
-        this.condition = condition;
-    }
+final class Anything<T> implements Check<T> {
 
     @Override
-    public boolean test(D data, EvaluationLogger evaluationLogger) {
-        EvaluationLogger.Node node = evaluationLogger.node("not");
-        return trace(node, this, !condition.test(data, node.detailFailingOn(true)));
+    public boolean test(T data, CheckVisitor checkVisitor) {
+        return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <U extends T> Check<U> and(Check<? super U> operand) {
+        return (Check<U>) operand;
     }
 
     @Override
     public String toString() {
-        return "not " + condition;
+        return "anything";
     }
 
 }

@@ -23,24 +23,27 @@
  * SUCH DAMAGE.
  */
 
-package fluent.validation;
+package fluent.validation.detail;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.Check;
 
-public interface ConditionBuilder<D> extends Condition<D> {
+public final class NoVisitor implements CheckVisitor {
 
-    Condition<? super D> get();
-
-    <E extends D> ConditionBuilder<E> and(Condition<? super E> condition);
-
-    default Condition<Iterable<D>> exists() {
-        return Conditions.exists(get());
-    }
+    NoVisitor() {}
 
     @Override
-    default boolean test(D data, EvaluationLogger evaluationLogger) {
-        return get().test(data, evaluationLogger);
-    }
+    public void trace(String expectation, Object actualValue, boolean result) { }
+
+    @Override
+    public CheckVisitor node(Check<?> nodeName) { return this; }
+
+    @Override
+    public CheckVisitor label(Check<?> name) { return this; }
+
+    @Override
+    public CheckVisitor negative(Check<?> check) { return this; }
+
+    @Override
+    public void trace(Object actualData, boolean result) { }
 
 }
-

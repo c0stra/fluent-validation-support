@@ -3,10 +3,10 @@ package fluent.validation;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static fluent.validation.Conditions.*;
+import static fluent.validation.Checks.*;
 import static org.testng.Assert.assertEquals;
 
-public class ConditionsTest {
+public class ChecksTest {
 
     @DataProvider
     public static Object[][] requirements() {
@@ -58,12 +58,12 @@ public class ConditionsTest {
 
     @Test(dataProvider = "requirements")
     public <T> void test(Requirement<T, Boolean> requirement) {
-        assertEquals((Boolean) requirement.condition.test(requirement.data), requirement.expectedResult);
+        assertEquals((Boolean) requirement.check.test(requirement.data), requirement.expectedResult);
     }
 
-    private static <T> Object[] requirement(T data, Condition<? super T> condition, boolean expectedResult) {
-        return new Object[] {new Requirement<>(data, condition, expectedResult,
-                "condition `" + condition + "` should return " + expectedResult + " when applied on `" + data + "`")};
+    private static <T> Object[] requirement(T data, Check<? super T> check, boolean expectedResult) {
+        return new Object[] {new Requirement<>(data, check, expectedResult,
+                "check `" + check + "` should return " + expectedResult + " when applied on `" + data + "`")};
     }
 
 }

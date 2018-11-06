@@ -25,10 +25,8 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
-
-import static fluent.validation.Operator.BooleanOperator.AND;
-import static fluent.validation.Operator.BooleanOperator.OR;
+import fluent.validation.detail.CheckVisitor;
+import fluent.validation.detail.MismatchVisitor;
 
 /**
  * Simple condition interface used in for validation of various data.
@@ -38,7 +36,7 @@ import static fluent.validation.Operator.BooleanOperator.OR;
  *
  * But the main purpose of this class is to provide transparency during any complex condition evaluation, similar to
  * Hamcrest Matchers.
- * If you are familiar with Hamcrest matchers, it should be easy to get familiar with Conditions too. There are only
+ * If you are familiar with Hamcrest matchers, it should be easy to get familiar with Checks too. There are only
  * following differences:
  *
  * 1. Evaluation detail is not limited to mismatch description. You can achieve full detail even for passed ones.
@@ -49,7 +47,7 @@ import static fluent.validation.Operator.BooleanOperator.OR;
  *
  * @param <T> Type of the data to be tested using this condition.
  */
-public interface Condition<T> {
+public interface Check<T> {
 
     /**
      * Simple evaluation of the condition on provided data.
@@ -58,7 +56,7 @@ public interface Condition<T> {
      * @return Evaluation result.
      */
     default boolean test(T data) {
-        return test(data, EvaluationLogger.NONE);
+        return test(data, CheckVisitor.NONE);
     }
 
     /**
@@ -66,17 +64,57 @@ public interface Condition<T> {
      * provided detail collector.
      *
      * @param data Data to test by the condition.
-     * @param evaluationLogger Tracer of the evaluation detail.
+     * @param checkVisitor Tracer of the evaluation detail.
      * @return Evaluation result.
      */
-    boolean test(T data, EvaluationLogger evaluationLogger);
+    boolean test(T data, CheckVisitor checkVisitor);
 
-    default <U extends T> Condition<U> and(Condition<? super U> operand) {
-        return new Operator<>(this, operand, AND);
+    default void assertData(T data) {
+        assertData(data, new MismatchVisitor());
     }
 
-    default <U extends T> Condition<U> or(Condition<? super U> operand) {
-        return new Operator<>(this, operand, OR);
+    default void assertData(T data, CheckVisitor checkVisitor) {
+        if(!test(data, checkVisitor)) {
+            throw new AssertionFailure(checkVisitor.toString());
+        }
+    }
+
+    /**
+     * Name of the check.
+     * @return The name.
+     */
+    default String name() {
+        return toString();
+    }
+
+    /**
+     * Compose this check with another one using logical AND operator.
+     *
+     * @param operand Another check.
+     * @param <U> Type of the data tested by other check. It may cause up-cast.
+     * @return Composed check.
+     */
+    default <U extends T> Check<U> and(Check<? super U> operand) {
+        return new And<>(this, operand);
+    }
+
+    /**
+     * Compose this check with another one using logical OR operator.
+     *
+     * @param operand Another check.
+     * @param <U> Type of the data tested by other check. It may cause up-cast.
+     * @return Composed check.
+     */
+    default <U extends T> Check<U> or(Check<? super U> operand) {
+        return new Or<>(this, operand);
+    }
+
+    static <T> void that(T data, Check<? super T> check) {
+        check.assertData(data);
+    }
+
+    static <T> void that(T data, Check<? super T> check, CheckVisitor logger) {
+        check.assertData(data, logger);
     }
 
     /**
@@ -87,7 +125,7 @@ public interface Condition<T> {
      * @param result Result of the composed condition.
      * @return Result of the composed condition.
      */
-    static boolean trace(EvaluationLogger.Node node, Object actualValue, boolean result) {
+    static boolean trace(CheckVisitor node, Object actualValue, boolean result) {
         node.trace(actualValue, result);
         return result;
     }
@@ -95,14 +133,14 @@ public interface Condition<T> {
     /**
      * Shortcut method, that traces current leaf detail, and returns result.
      *
-     * @param evaluationLogger Tracer for tracing condition details.
-     * @param expectationDescription Description of the expectation.
+     * @param checkVisitor Tracer for tracing condition details.
+     * @param expectation Description of the expectation.
      * @param actualValue Actual value.
      * @param result Result of the condition.
      * @return Result of the condition.
      */
-    static boolean trace(EvaluationLogger evaluationLogger, String expectationDescription, Object actualValue, boolean result) {
-        evaluationLogger.trace(expectationDescription, actualValue, result);
+    static boolean trace(CheckVisitor checkVisitor, String expectation, Object actualValue, boolean result) {
+        checkVisitor.trace(expectation, actualValue, result);
         return result;
     }
 

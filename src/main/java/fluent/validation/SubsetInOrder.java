@@ -25,35 +25,35 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckVisitor;
 
 import java.util.Iterator;
 
-import static fluent.validation.Condition.trace;
+import static fluent.validation.Check.trace;
 
-final class SubsetInOrder<D> implements Condition<Iterable<D>> {
+final class SubsetInOrder<D> implements Check<Iterable<D>> {
 
-    private final Iterable<Condition<? super D>> conditions;
+    private final Iterable<Check<? super D>> conditions;
 
-    SubsetInOrder(Iterable<Condition<? super D>> conditions) {
+    SubsetInOrder(Iterable<Check<? super D>> conditions) {
         this.conditions = conditions;
     }
 
     @Override
-    public boolean test(Iterable<D> data, EvaluationLogger evaluationLogger) {
+    public boolean test(Iterable<D> data, CheckVisitor checkVisitor) {
         Iterator<D> d = data.iterator();
-        EvaluationLogger.Node node = evaluationLogger.node("");
-        for(Condition<? super D> condition : conditions) {
-            if(!evaluate(d, condition, evaluationLogger)) {
+        CheckVisitor node = checkVisitor.node(this);
+        for(Check<? super D> check : conditions) {
+            if(!evaluate(d, check, checkVisitor)) {
                 return trace(node, "", false);
             }
         }
         return trace(node, "", true);
     }
 
-    private boolean evaluate(Iterator<D> data, Condition<? super D> condition, EvaluationLogger evaluationLogger) {
+    private boolean evaluate(Iterator<D> data, Check<? super D> check, CheckVisitor checkVisitor) {
         while(data.hasNext()) {
-            if(condition.test(data.next(), evaluationLogger)) {
+            if(check.test(data.next(), checkVisitor)) {
                 return true;
             }
         }

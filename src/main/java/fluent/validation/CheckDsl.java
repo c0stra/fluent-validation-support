@@ -25,30 +25,60 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckVisitor;
 
-import java.util.function.Predicate;
+import java.util.function.Function;
 
-import static fluent.validation.Condition.trace;
+import static fluent.validation.Checks.anything;
+import static fluent.validation.Checks.has;
 
-final class PredicateCondition<D> implements Condition<D> {
+public class CheckDsl<L, D> implements Check<D> {
 
-    private final Predicate<D> predicate;
-    private final String expectationDescription;
+    private final Check<? super D> check;
 
-    PredicateCondition(Predicate<D> predicate, String expectationDescription) {
-        this.predicate = predicate;
-        this.expectationDescription = expectationDescription;
+    private final Function<Check<D>, L> factory;
+
+    protected CheckDsl(Check<? super D> check, Function<Check<D>, L> factory) {
+        this.check = check;
+        this.factory = factory;
+    }
+
+    protected CheckDsl(Function<Check<D>, L> factory) {
+        this(anything(), factory);
+    }
+
+    public L with(Check<? super D> check) {
+        return factory.apply(this.check.and(check));
+    }
+
+    public <V> Builder<V, L> withField(String name, Function<? super D, V> function) {
+        return condition -> with(has(name, function).matching(condition));
+    }
+
+    public L or() {
+        return factory.apply(check.or(anything()));
     }
 
     @Override
-    public boolean test(D data, EvaluationLogger evaluationLogger) {
-        return trace(evaluationLogger, expectationDescription, data, predicate.test(data));
+    public boolean test(D data, CheckVisitor checkVisitor) {
+        return check.test(data, checkVisitor);
     }
 
     @Override
     public String toString() {
-        return expectationDescription;
+        return check.toString();
+    }
+
+    public static class Final<D> extends CheckDsl<Final<D>, D> {
+
+        protected Final(Check<? super D> check) {
+            super(check, Final::new);
+        }
+
+        protected Final() {
+            super(Final::new);
+        }
+
     }
 
 }

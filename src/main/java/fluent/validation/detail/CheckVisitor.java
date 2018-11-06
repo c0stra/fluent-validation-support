@@ -23,22 +23,39 @@
  * SUCH DAMAGE.
  */
 
-package fluent.validation.assertion;
+package fluent.validation.detail;
 
-import fluent.validation.Condition;
+import fluent.validation.Check;
 
 /**
- * Interface represents value to be tested by condition.
- * @param <V> Type of the value provided to the condition.
+ * Logger interface, which allows to capture full detail of any complex condition evaluation.
  */
-@FunctionalInterface
-public interface AssertionSubject<V> {
+public interface CheckVisitor {
 
     /**
-     * Perform the assert, that value represented by this interface satisfy supplied condition.
-     * @param condition Condition to test the value with.
-     * @throws AssertionError Throw assertion error in case, that value do not satisfy the condition.
+     * Capture simple atomic (leaf) verification with defined expectation, actual value and result of the
+     * evaluation.
+     *
+     * @param expectation Expectation description
+     * @param actualValue Actual value
+     * @param result Result of the executed evaluation.
      */
-    void satisfy(Condition<? super V> condition);
+    void trace(String expectation, Object actualValue, boolean result);
+
+    /**
+     * Notify, that this is a node, that will contain a subtree of the evaluation of children.
+     *
+     * @param check Name of the node.
+     * @return Interface to allow capture of the subtree evaluation.
+     */
+    CheckVisitor node(Check<?> check);
+
+    CheckVisitor label(Check<?> check);
+
+    CheckVisitor negative(Check<?> check);
+
+    CheckVisitor NONE = new NoVisitor();
+
+    void trace(Object data, boolean result);
 
 }

@@ -25,7 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckVisitor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -47,7 +47,7 @@ import static java.util.Arrays.stream;
 /**
  * Factory of ready to use most frequent conditions. There are typical conditions for following categories:
  *
- * 1. General condition builders for simple building of new conditions using predicate and description.
+ * 1. General check builders for simple building of new conditions using predicate and description.
  * 2. General object conditions - e.g. isNull, notNull, equalTo, etc.
  * 3. Generalized logical operators (N-ary oneOf instead of binary or, N-ary allOf instead of binary and)
  * 4. Collection (Iterable) conditions + quantifiers
@@ -57,41 +57,41 @@ import static java.util.Arrays.stream;
  * 8. Floating point comparison using a tolerance
  * 9. Builders for composition or collection of criteria.
  */
-public final class Conditions {
+public final class Checks {
 
-    private Conditions() {}
+    private Checks() {}
 
     private static final Double DEFAULT_TOLERANCE = 0.0000001;
-    private static final Condition<Object> IS_NULL = equalTo((Object) null);
-    private static final Condition<Object> NOT_NULL = not(IS_NULL);
-    private static final Condition<Object> ANYTHING = nullableCondition(data -> true, "anything");
+    private static final Check<Object> IS_NULL = equalTo((Object) null);
+    private static final Check<Object> NOT_NULL = not(IS_NULL);
+    private static final Check<Object> ANYTHING = new Anything<>();
 
     /* ------------------------------------------------------------------------------------------------------
-     * Simple condition builders using predicate and description.
+     * Simple check builders using predicate and description.
      * ------------------------------------------------------------------------------------------------------
      */
 
     /**
-     * Define a transparent condition using provided predicate and string expectation description.
+     * Define a transparent check using provided predicate and string expectation description.
      *
      * @param predicate Predicate used to test the supplied data.
      * @param expectationDescription Function, that provides description of the expectation.
      * @param <D> Type of the data to be tested by the created expectation.
      * @return New expectation.
      */
-    public static <D> Condition<D> nullableCondition(Predicate<D> predicate, String expectationDescription) {
-        return new PredicateCondition<>(predicate, expectationDescription);
+    public static <D> Check<D> nullableCondition(Predicate<D> predicate, String expectationDescription) {
+        return new PredicateCheck<>(predicate, expectationDescription);
     }
 
-    public static <D> Condition<D> require(Condition<? super D> requirement, Condition<? super D> condition) {
-        return new RequireNotNull<>(requirement, condition);
+    public static <D> Check<D> require(Check<? super D> requirement, Check<? super D> check) {
+        return new DoubleCheck<>(requirement, check);
     }
 
-    public static <D> Condition<D> requireNotNull(Condition<D> condition) {
-        return require(notNull(), condition);
+    public static <D> Check<D> requireNotNull(Check<D> check) {
+        return require(notNull(), check);
     }
 
-    public static <D> Condition<D> condition(Predicate<D> predicate, String expectationDescription) {
+    public static <D> Check<D> condition(Predicate<D> predicate, String expectationDescription) {
         return requireNotNull(nullableCondition(predicate, expectationDescription));
     }
 
@@ -100,11 +100,11 @@ public final class Conditions {
      * ------------------------------------------------------------------------------------------------------
      */
 
-    public static <D> Condition<D> not(Condition<D> positiveCondition) {
-        return new NegativeCondition<>(positiveCondition);
+    public static <D> Check<D> not(Check<D> positiveCheck) {
+        return new NegativeCheck<>(positiveCheck);
     }
 
-    public static <D> Condition<D> not(D positiveValue) {
+    public static <D> Check<D> not(D positiveValue) {
         return not(equalTo(positiveValue));
     }
 
@@ -115,7 +115,7 @@ public final class Conditions {
      * @param <D> Type of the data to test using this expectation.
      * @return Expectation with alternatives.
      */
-    public static <D> Condition<D> oneOf(Collection<D> alternatives) {
+    public static <D> Check<D> oneOf(Collection<D> alternatives) {
         return nullableCondition(alternatives::contains, "One of " + alternatives);
     }
 
@@ -127,37 +127,38 @@ public final class Conditions {
      * @return Expectation with alternatives.
      */
     @SafeVarargs
-    public static <D> Condition<D> oneOf(D... alternatives) {
+    public static <D> Check<D> oneOf(D... alternatives) {
         return oneOf(new HashSet<>(asList(alternatives)));
     }
 
-    private static <D> Condition<D> multipleOperands(Iterable<Condition<? super D>> operands, Operator.BooleanOperator operator) {
-        Iterator<Condition<? super D>> iterator = operands.iterator();
+    private static <D> Check<D> multipleOperands(Iterable<Check<? super D>> operands, boolean andOperator) {
+        Iterator<Check<? super D>> iterator = operands.iterator();
         if(!iterator.hasNext()) {
-            throw new IllegalArgumentException("No operand supplied to " + operator);
+            throw new IllegalArgumentException("No operand supplied to " + (andOperator ? "AND" : "OR"));
         }
-        Condition<D> next = (Condition<D>) iterator.next();
+        Check<D> next = (Check<D>) iterator.next();
         while(iterator.hasNext()) {
-            next = new Operator<>(next, iterator.next(), operator);
+            // Here operator precedence is explicit.
+            next = andOperator ? new And<>(next, iterator.next()) : new Or<>(next, iterator.next());
         }
         return next;
     }
 
-    public static <D> Condition<D> anyOf(Iterable<Condition<? super D>> operands) {
-        return multipleOperands(operands, Operator.BooleanOperator.OR);
+    public static <D> Check<D> anyOf(Iterable<Check<? super D>> operands) {
+        return multipleOperands(operands, false);
     }
 
     @SafeVarargs
-    public static <D> Condition<D> anyOf(Condition<? super D>... operands) {
+    public static <D> Check<D> anyOf(Check<? super D>... operands) {
         return anyOf(asList(operands));
     }
 
-    public static <D> Condition<D> allOf(Iterable<Condition<? super D>> operands) {
-        return multipleOperands(operands, Operator.BooleanOperator.AND);
+    public static <D> Check<D> allOf(Iterable<Check<? super D>> operands) {
+        return multipleOperands(operands, true);
     }
 
     @SafeVarargs
-    public static <D> Condition<D> allOf(Condition<? super D>... operands) {
+    public static <D> Check<D> allOf(Check<? super D>... operands) {
         return allOf(asList(operands));
     }
 
@@ -166,69 +167,69 @@ public final class Conditions {
      * ------------------------------------------------------------------------------------------------------
      */
 
-    public static <D> Condition<D> equalTo(D expectedValue) {
+    public static <D> Check<D> equalTo(D expectedValue) {
         return nullableCondition(Predicate.isEqual(expectedValue), "<" + expectedValue + ">");
     }
 
-    public static <D> Condition<D> is(D expectedValue) {
+    public static <D> Check<D> is(D expectedValue) {
         return equalTo(expectedValue);
     }
 
-    public static Condition<Object> isNull() {
+    public static Check<Object> isNull() {
         return IS_NULL;
     }
 
-    public static Condition<Object> notNull() {
+    public static Check<Object> notNull() {
         return NOT_NULL;
     }
 
-    public static Condition<Object> anything() {
+    public static Check<Object> anything() {
         return ANYTHING;
     }
 
-    public static <D> Condition<D> sameInstance(D expectedInstance) {
+    public static <D> Check<D> sameInstance(D expectedInstance) {
         return nullableCondition(expectedInstance == null ? Objects::isNull : data -> data == expectedInstance, "" + expectedInstance);
     }
 
-    private static Condition<Object> instanceOf(String prefix, Class<?> expectedClass) {
+    private static Check<Object> instanceOf(String prefix, Class<?> expectedClass) {
         return nullableCondition(expectedClass::isInstance, prefix + " " + expectedClass);
     }
 
-    public static Condition<Object> instanceOf(Class<?> expectedClass) {
+    public static Check<Object> instanceOf(Class<?> expectedClass) {
         return instanceOf("instance of", expectedClass);
     }
 
-    public static Condition<Object> isA(Class<?> expectedClass) {
+    public static Check<Object> isA(Class<?> expectedClass) {
         return instanceOf("is a", expectedClass);
     }
 
-    public static Condition<Object> isAn(Class<?> expectedClass) {
+    public static Check<Object> isAn(Class<?> expectedClass) {
         return instanceOf("is an", expectedClass);
     }
 
-    public static Condition<Object> a(Class<?> expectedClass) {
+    public static Check<Object> a(Class<?> expectedClass) {
         return isA(expectedClass);
     }
 
-    public static Condition<Object> an(Class<?> expectedClass) {
+    public static Check<Object> an(Class<?> expectedClass) {
         return isAn(expectedClass);
     }
 
-    public static Condition<Object> sameClass(Class<?> expectedClass) {
+    public static Check<Object> sameClass(Class<?> expectedClass) {
         return has("class", Object::getClass).matching(equalTo(expectedClass));
     }
 
     /* ------------------------------------------------------------------------------------------------------
-     * Conditions for iterables.
+     * Checks for iterables.
      * ------------------------------------------------------------------------------------------------------
      */
 
-    public static <D> Condition<Iterable<D>> exists(Condition<? super D> condition) {
-        return new Quantifier<>(condition, true);
+    public static <D> Check<Iterable<D>> exists(Check<? super D> check) {
+        return new Quantifier<>(check, true);
     }
 
-    public static <D> Condition<Iterable<D>> every(Condition<? super D> condition) {
-        return new Quantifier<>(condition, false);
+    public static <D> Check<Iterable<D>> every(Check<? super D> check) {
+        return new Quantifier<>(check, false);
     }
 
     /**
@@ -238,7 +239,7 @@ public final class Conditions {
      * @param <D> Type of the items in the collection to be tested.
      * @return Empty collection expectation.
      */
-    public static <D> Condition<D[]> emptyArray() {
+    public static <D> Check<D[]> emptyArray() {
         return nullableCondition(data -> Objects.isNull(data) || data.length == 0, "is empty array");
     }
 
@@ -249,7 +250,7 @@ public final class Conditions {
      * @param <D> Type of the items in the collection to be tested.
      * @return Empty collection expectation.
      */
-    public static <D> Condition<Collection<D>> emptyCollection() {
+    public static <D> Check<Collection<D>> emptyCollection() {
         return nullableCondition(data -> Objects.isNull(data) || data.isEmpty(), "is empty collection");
     }
 
@@ -260,7 +261,7 @@ public final class Conditions {
      * @param <D> Type of the items in the collection to be tested.
      * @return Subset expectation.
      */
-    public static <D> Condition<Collection<D>> subsetOf(Collection<D> superSet) {
+    public static <D> Check<Collection<D>> subsetOf(Collection<D> superSet) {
         return condition(superSet::containsAll, "Superset of " + superSet);
     }
 
@@ -272,7 +273,7 @@ public final class Conditions {
      * @return Subset expectation.
      */
     @SafeVarargs
-    public static <D> Condition<Collection<D>> subsetOf(D... superSet) {
+    public static <D> Check<Collection<D>> subsetOf(D... superSet) {
         return subsetOf(new HashSet<>(asList(superSet)));
     }
 
@@ -285,94 +286,94 @@ public final class Conditions {
      * @param <D> Type of the items in the collection to be tested.
      * @return Collection size expectation.
      */
-    public static <D> Condition<Collection<D>> hasSize(int size) {
+    public static <D> Check<Collection<D>> hasSize(int size) {
         return condition(data -> data.size() == size, "has size " + size);
     }
 
-    public static <D> Condition<Collection<D>> hasItems(Collection<D> items) {
+    public static <D> Check<Collection<D>> hasItems(Collection<D> items) {
         return condition(data -> data.containsAll(items), "Has items " + items);
     }
 
     @SafeVarargs
-    public static <D> Condition<Collection<D>> hasItems(D... items) {
+    public static <D> Check<Collection<D>> hasItems(D... items) {
         return hasItems(asList(items));
     }
 
-    public static <D> Condition<Iterable<D>> hasItemsInOrder(Iterable<Condition<? super D>> itemConditions) {
+    public static <D> Check<Iterable<D>> hasItemsInOrder(Iterable<Check<? super D>> itemConditions) {
         return new SubsetInOrder<>(itemConditions);
     }
 
     @SafeVarargs
-    public static <D> Condition<Iterable<D>> hasItemsInOrder(Condition<? super D>... itemConditions) {
-        return Conditions.<D>hasItemsInOrder(asList(itemConditions));
+    public static <D> Check<Iterable<D>> hasItemsInOrder(Check<? super D>... itemChecks) {
+        return Checks.<D>hasItemsInOrder(asList(itemChecks));
     }
 
-    public static <D> Condition<Iterable<D>> hasItemsInAnyOrder(Collection<Condition<? super D>> itemConditions) {
-        return new SubsetAnyOrder<>(itemConditions);
+    public static <D> Check<Iterable<D>> hasItemsInAnyOrder(Collection<Check<? super D>> itemChecks) {
+        return new SubsetAnyOrder<>(itemChecks);
     }
 
     @SafeVarargs
-    public static <D> Condition<Iterable<D>> hasItemsInAnyOrder(Condition<? super D>... itemConditions) {
-        return Conditions.<D>hasItemsInAnyOrder(asList(itemConditions));
+    public static <D> Check<Iterable<D>> hasItemsInAnyOrder(Check<? super D>... itemChecks) {
+        return Checks.<D>hasItemsInAnyOrder(asList(itemChecks));
     }
 
-    public static <D> Condition<Iterable<D>> exactItemsInOrder(Iterable<Condition<? super D>> itemConditions) {
+    public static <D> Check<Iterable<D>> exactItemsInOrder(Iterable<Check<? super D>> itemConditions) {
         return new CollectionInOrder<>(itemConditions);
     }
 
     @SafeVarargs
-    public static <D> Condition<Iterable<D>> exactItemsInOrder(Condition<? super D>... itemConditions) {
-        return Conditions.<D>exactItemsInOrder(asList(itemConditions));
+    public static <D> Check<Iterable<D>> exactItemsInOrder(Check<? super D>... itemChecks) {
+        return Checks.<D>exactItemsInOrder(asList(itemChecks));
     }
 
     @SafeVarargs
-    public static <D> Condition<Iterable<D>> exactItemsInOrder(D... expectedItems) {
-        return exactItemsInOrder(stream(expectedItems).map(Conditions::equalTo).collect(Collectors.toList()));
+    public static <D> Check<Iterable<D>> exactItemsInOrder(D... expectedItems) {
+        return exactItemsInOrder(stream(expectedItems).map(Checks::equalTo).collect(Collectors.toList()));
     }
 
-    public static <D> Condition<Iterable<D>> exactItemsInAnyOrder(Iterable<Condition<? super D>> itemConditions) {
+    public static <D> Check<Iterable<D>> exactItemsInAnyOrder(Iterable<Check<? super D>> itemConditions) {
         return new CollectionAnyOrder<>(itemConditions);
     }
 
     @SafeVarargs
-    public static <D> Condition<Iterable<D>> exactItemsInAnyOrder(Condition<? super D>... itemConditions) {
-        return Conditions.<D>exactItemsInAnyOrder(asList(itemConditions));
+    public static <D> Check<Iterable<D>> exactItemsInAnyOrder(Check<? super D>... itemChecks) {
+        return Checks.<D>exactItemsInAnyOrder(asList(itemChecks));
     }
 
     /* ------------------------------------------------------------------------------------------------------
-     * Composition of conditions using a function and condition for the result.
+     * Composition of conditions using a function and check for the result.
      * ------------------------------------------------------------------------------------------------------
      */
 
-    public static <D, V> Condition<D> compose(String name, Function<? super D, V> function, Condition<? super V> condition) {
-        return new FunctionCondition<>(name, function, condition);
+    public static <D, V> Check<D> compose(String name, Function<? super D, V> function, Check<? super V> check) {
+        return new FunctionCheck<>(name, function, check);
     }
 
-    public static <D, V> Builder<V, Condition<D>> has(String name, Function<? super D, V> function) {
+    public static <D, V> Builder<V, Check<D>> has(String name, Function<? super D, V> function) {
         return condition -> requireNotNull(compose(name, function, condition));
     }
 
-    public static <D, V> Builder<V, Condition<D>> nullableHas(String name, Function<? super D, V> function) {
+    public static <D, V> Builder<V, Check<D>> nullableHas(String name, Function<? super D, V> function) {
         return condition -> compose(name, function, condition);
     }
 
-    public static <V> Builder<V, Condition<V>> as(Class<V> type) {
+    public static <V> Builder<V, Check<V>> as(Class<V> type) {
         return condition -> require(instanceOf(type), compose("as " + type.getSimpleName(), type::cast, condition));
     }
 
-    public static <D> Conditional<D> when(Condition<D> condition) {
-        return new Conditional<>(condition);
+    public static <D> Conditional<D> when(Check<D> check) {
+        return new Conditional<>(check);
     }
 
     public static final class Conditional<D> {
-        private final Condition<D> condition;
+        private final Check<D> check;
 
-        public Conditional(Condition<D> condition) {
-            this.condition = condition;
+        public Conditional(Check<D> check) {
+            this.check = check;
         }
 
-        public <E extends D> Condition<E> then(Condition<? super E> conditional) {
-            return (data, detail) -> condition.test(data, detail) && conditional.test(data, detail);
+        public <E extends D> Check<E> then(Check<? super E> conditional) {
+            return (data, detail) -> check.test(data, detail) && conditional.test(data, detail);
         }
     }
 
@@ -382,7 +383,7 @@ public final class Conditions {
      */
 
 
-    public static Condition<Document> xpath(String xpath) throws XPathExpressionException {
+    public static Check<Document> xpath(String xpath) throws XPathExpressionException {
         XPathExpression compile = XPathFactory.newInstance().newXPath().compile(xpath);
         return nullableCondition(document -> {
             try {
@@ -393,11 +394,11 @@ public final class Conditions {
         }, xpath);
     }
 
-    public static Builder<String, Condition<Element>> attribute(String name) {
+    public static Builder<String, Check<Element>> attribute(String name) {
         return has(name, e -> e.getAttribute(name));
     }
 
-    public static Condition<Element> hasAttribute(String name) {
+    public static Check<Element> hasAttribute(String name) {
         return condition(e -> e.hasAttribute(name), "has " + name);
     }
 
@@ -407,48 +408,48 @@ public final class Conditions {
      * ------------------------------------------------------------------------------------------------------
      */
 
-    public static Condition<String> equalToCaseInsensitive(String expectedValue) {
+    public static Check<String> equalToCaseInsensitive(String expectedValue) {
         return condition(expectedValue::equalsIgnoreCase, "any case " + expectedValue);
     }
 
-    public static Condition<String> emptyString() {
-        return nullableCondition(data -> Objects.isNull(data) || data.isEmpty(), "Conditions empty string");
+    public static Check<String> emptyString() {
+        return nullableCondition(data -> Objects.isNull(data) || data.isEmpty(), "is empty string");
     }
 
-    public static Condition<String> startsWith(String prefix) {
-        return condition(data -> data.startsWith(prefix), "Starts with " + prefix);
+    public static Check<String> startsWith(String prefix) {
+        return condition(data -> data.startsWith(prefix), "starts with <" + prefix + ">");
     }
 
-    public static Condition<String> startsWithCaseInsensitive(String prefix) {
-        return condition(data -> data.toLowerCase().startsWith(prefix.toLowerCase()), "Starts with " + prefix);
+    public static Check<String> startsWithCaseInsensitive(String prefix) {
+        return condition(data -> data.toLowerCase().startsWith(prefix.toLowerCase()), "starts with " + prefix);
     }
 
-    public static Condition<String> endsWith(String suffix) {
-        return condition(data -> data.startsWith(suffix), "Ends with %s" + suffix);
+    public static Check<String> endsWith(String suffix) {
+        return condition(data -> data.startsWith(suffix), "ends with %s" + suffix);
     }
 
-    public static Condition<String> endsWithCaseInsensitive(String suffix) {
-        return condition(data -> data.toLowerCase().startsWith(suffix.toLowerCase()), "Ends with " + suffix);
+    public static Check<String> endsWithCaseInsensitive(String suffix) {
+        return condition(data -> data.toLowerCase().startsWith(suffix.toLowerCase()), "ends with " + suffix);
     }
 
-    public static Condition<String> contains(String substring) {
-        return condition(data -> data.contains(substring), "Contains "+ substring);
+    public static Check<String> contains(String substring) {
+        return condition(data -> data.contains(substring), "contains "+ substring);
     }
 
-    public static Condition<String> containsCaseInsensitive(String substring) {
-        return condition(data -> data.toLowerCase().contains(substring.toLowerCase()), "Contains " + substring);
+    public static Check<String> containsCaseInsensitive(String substring) {
+        return condition(data -> data.toLowerCase().contains(substring.toLowerCase()), "contains " + substring);
     }
 
-    public static Condition<String> matches(Pattern pattern) {
-        return condition(pattern.asPredicate(), "Matches /" + pattern + '/');
+    public static Check<String> matches(Pattern pattern) {
+        return condition(pattern.asPredicate(), "matches /" + pattern + '/');
     }
 
-    public static Condition<String> matchesPattern(String pattern) {
+    public static Check<String> matchesPattern(String pattern) {
         return matches(Pattern.compile(pattern));
     }
 
-    public static Condition<Throwable> message(Condition<? super String> condition) {
-        return compose("message", Throwable::getMessage, condition);
+    public static Check<Throwable> message(Check<? super String> check) {
+        return compose("message", Throwable::getMessage, check);
     }
 
     /* ------------------------------------------------------------------------------------------------------
@@ -456,48 +457,48 @@ public final class Conditions {
      * ------------------------------------------------------------------------------------------------------
      */
 
-    public static <D> Condition<D> lessThan(D operand, Comparator<D> comparator) {
+    public static <D> Check<D> lessThan(D operand, Comparator<D> comparator) {
         return condition(data -> comparator.compare(data, operand) < 0, "< " + operand);
     }
 
-    public static <D> Condition<D> moreThan(D operand, Comparator<D> comparator) {
+    public static <D> Check<D> moreThan(D operand, Comparator<D> comparator) {
         return condition(data -> comparator.compare(data, operand) > 0, "> " + operand);
     }
 
-    public static <D> Condition<D> equalOrLessThan(D operand, Comparator<D> comparator) {
+    public static <D> Check<D> equalOrLessThan(D operand, Comparator<D> comparator) {
         return condition(data -> comparator.compare(data, operand) < 0, "<= " + operand);
     }
 
-    public static <D> Condition<D> equalOrMoreThan(D operand, Comparator<D> comparator) {
+    public static <D> Check<D> equalOrMoreThan(D operand, Comparator<D> comparator) {
         return condition(data -> comparator.compare(data, operand) > 0, ">= " + operand);
     }
 
-    public static <D extends Comparable<D>> Condition<D> lessThan(D operand) {
+    public static <D extends Comparable<D>> Check<D> lessThan(D operand) {
         return lessThan(operand, Comparable::compareTo);
     }
 
-    public static <D extends Comparable<D>> Condition<D> moreThan(D operand) {
+    public static <D extends Comparable<D>> Check<D> moreThan(D operand) {
         return moreThan(operand, Comparable::compareTo);
     }
 
-    public static <D extends Comparable<D>> Condition<D> equalOrLessThan(D operand) {
+    public static <D extends Comparable<D>> Check<D> equalOrLessThan(D operand) {
         return equalOrLessThan(operand, Comparable::compareTo);
     }
 
-    public static <D extends Comparable<D>> Condition<D> equalOrMoreThan(D operand) {
+    public static <D extends Comparable<D>> Check<D> equalOrMoreThan(D operand) {
         return equalOrMoreThan(operand, Comparable::compareTo);
     }
 
-    public static <D extends Comparable<D>> Condition<D> between(D left, D right) {
+    public static <D extends Comparable<D>> Check<D> between(D left, D right) {
         return between(left, right, Comparable::compareTo);
     }
 
-    public static <D> Condition<D> between(D left, D right, Comparator<D> comparator) {
+    public static <D> Check<D> between(D left, D right, Comparator<D> comparator) {
         if(comparator.compare(left, right) > 0) comparator = comparator.reversed();
         return allOf(moreThan(left, comparator), lessThan(right, comparator));
     }
 
-    public static <D> Condition<D> betweenInclude(D left, D right, Comparator<D> comparator) {
+    public static <D> Check<D> betweenInclude(D left, D right, Comparator<D> comparator) {
         if(comparator.compare(left, right) > 0) comparator = comparator.reversed();
         return allOf(equalOrMoreThan(left, comparator), equalOrLessThan(right, comparator));
     }
@@ -507,95 +508,52 @@ public final class Conditions {
      * ------------------------------------------------------------------------------------------------------
      */
 
-    public static Condition<Double> closeTo(double operand, double precision) {
+    public static Check<Double> closeTo(double operand, double precision) {
         return condition(data -> abs(operand - data) < precision, "<" + operand + " ±" + precision + ">");
     }
 
-    public static Condition<Float> closeTo(float operand, float precision) {
+    public static Check<Float> closeTo(float operand, float precision) {
         return condition(data -> abs(operand - data) < precision, operand + " ±" + precision);
     }
 
-    public static Condition<BigDecimal> closeTo(BigDecimal operand, BigDecimal precision) {
+    public static Check<BigDecimal> closeTo(BigDecimal operand, BigDecimal precision) {
         return condition(data -> operand.subtract(data).abs().compareTo(precision) < 0, operand + " ±" + precision);
     }
 
-    public static Condition<Double> equalTo(Double expectedValue) {
+    public static Check<Double> equalTo(Double expectedValue) {
         return closeTo(expectedValue, DEFAULT_TOLERANCE);
     }
 
-    public static Condition<Float> equalTo(Float expectedValue) {
+    public static Check<Float> equalTo(Float expectedValue) {
         return closeTo(expectedValue, DEFAULT_TOLERANCE.floatValue());
     }
 
-    public static Condition<BigDecimal> equalTo(BigDecimal expectedValue) {
+    public static Check<BigDecimal> equalTo(BigDecimal expectedValue) {
         return closeTo(expectedValue, BigDecimal.valueOf(DEFAULT_TOLERANCE));
     }
 
-    public static ThrowingCondition throwing(Condition<? super Throwable> condition) {
-        return new ThrowingCondition(condition);
+    public static ThrowingCheck throwing(Check<? super Throwable> check) {
+        return new ThrowingCheck(check);
     }
 
-    public static ThrowingCondition throwing(Class<? extends Throwable> condition) {
+    public static ThrowingCheck throwing(Class<? extends Throwable> condition) {
         return throwing(a(condition));
     }
 
-    public static <D> ConditionBuilder<D> createBuilder() {
-        return new EmptyConditionBuilder<>();
+    public static <D> Check<D> createBuilder() {
+        return new Anything<>();
     }
 
-    public static <D> ConditionBuilder<D> createBuilderWith(Condition<D> condition) {
-        return new ConditionChainBuilder<>(condition);
+    public static <D> Check<D> createBuilderWith(Check<D> check) {
+        return check;
     }
 
-    public static <D> ConditionBuilder<D> which(Condition<D> condition) {
-        return createBuilderWith(condition);
+    public static <D> Check<D> which(Check<D> check) {
+        return createBuilderWith(check);
     }
 
-    private static final class EmptyConditionBuilder<D> implements ConditionBuilder<D> {
-
-        @Override public Condition<? super D> get() {
-            return Conditions.anything();
-        }
-
-        @Override public <E extends D> ConditionBuilder<E> and(Condition<? super E> condition) {
-            return new ConditionChainBuilder<E>(condition);
-        }
-
-    }
-
-    final static class ConditionChainBuilder<D> implements ConditionBuilder<D> {
-
-        private final Condition<? super D> condition;
-
-        ConditionChainBuilder(Condition<? super D> condition) {
-            this.condition = condition;
-        }
-        @Override public Condition<? super D> get() {
-            return condition;
-        }
-        @Override public <E extends D> ConditionBuilder<E> and(Condition<? super E> condition) {
-            return new ConditionChainBuilder<>(new LinkedCondition<>(get(), condition));
-        }
-        @Override public String toString() {
-            return condition.toString();
-        }
-    }
-
-    final static class LinkedCondition<D> implements Condition<D> {
-
-        private final Condition<? super D> previous;
-        private final Condition<? super D> condition;
-
-        LinkedCondition(Condition<? super D> previous, Condition<? super D> condition) {
-            this.previous = previous;
-            this.condition = condition;
-        }
-        @Override public boolean test(D data, EvaluationLogger evaluationLogger) {
-            return previous.test(data, evaluationLogger) & condition.test(data, evaluationLogger);
-        }
-        @Override public String toString() {
-            return previous.toString() + " and " + condition;
-        }
+    public static <D> Check<D> transparent(CheckVisitor checkVisitor, Check<D> check) {
+        return new TransparentCheck<>(checkVisitor, check);
     }
 
 }

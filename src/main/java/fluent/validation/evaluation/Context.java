@@ -25,7 +25,7 @@
 
 package fluent.validation.evaluation;
 
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.detail.CheckVisitor;
 
 public interface Context {
 
@@ -33,6 +33,6 @@ public interface Context {
 
     void set(Object statement, boolean value);
 
-    EvaluationLogger logger();
+    CheckVisitor logger();
 
 }

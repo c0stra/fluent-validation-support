@@ -25,20 +25,20 @@
 
 package fluent.validation.evaluation;
 
-import fluent.validation.Condition;
-import fluent.validation.detail.EvaluationLogger;
+import fluent.validation.Check;
+import fluent.validation.detail.CheckVisitor;
 
 import java.util.Objects;
 
-public interface Statement extends Condition<Context>, Conclusion {
+public interface Statement extends Check<Context>, Conclusion {
 
     @Override
-    default boolean test(Context data, EvaluationLogger evaluationLogger) {
-        return Condition.trace(evaluationLogger, toString(), "is valid", data.isValid(this));
+    default boolean test(Context data, CheckVisitor checkVisitor) {
+        return data.isValid(this);//Check.trace(checkVisitor, toString(), "is valid", data.isValid(this));
     }
 
     @Override
-    default void conclude(Boolean aBoolean, Context context, EvaluationLogger logger) {
+    default void conclude(Boolean aBoolean, Context context, CheckVisitor logger) {
         context.set(this, aBoolean);
     }
 

@@ -23,32 +23,43 @@
  * SUCH DAMAGE.
  */
 
-package fluent.validation.detail;
+package fluent.validation;
 
-public interface EvaluationLogger {
+import fluent.validation.detail.CheckVisitor;
 
-    EvaluationLogger NONE = new EvaluationLogger() {
-        @Override public void trace(String expectationDescription, Object actualData, boolean result) {
+import java.util.function.Function;
+
+final class FunctionCheck<D, V> implements Check<D> {
+
+    private final String name;
+    private final Function<? super D, V> function;
+    private final Check<? super V> check;
+
+    FunctionCheck(String name, Function<? super D, V> function, Check<? super V> check) {
+        this.name = name;
+        this.function = function;
+        this.check = check;
+    }
+
+    @Override
+    public boolean test(D data, CheckVisitor checkVisitor) {
+        CheckVisitor label = checkVisitor.label(this);
+        try {
+            return Check.trace(label, data, check.test(function.apply(data), label));
+        } catch (Throwable throwable) {
+            label.trace("get " + name, throwable, false);
+            return false;
         }
-        @Override public Node node(String nodeName) {
-            return Node.NONE;
-        }
-    };
+    }
 
-    void trace(String expectationDescription, Object actualData, boolean result);
+    @Override
+    public String name() {
+        return name;
+    }
 
-    Node node(String nodeName);
-
-    interface Node {
-        Node NONE = new Node() {
-            @Override public EvaluationLogger detailFailingOn(boolean indicateFailure) {
-                return EvaluationLogger.NONE;
-            }
-            @Override public void trace(Object actualData, boolean result) {
-            }
-        };
-        EvaluationLogger detailFailingOn(boolean indicateFailure);
-        void trace(Object actualData, boolean result);
+    @Override
+    public String toString() {
+        return name + ": " + check;
     }
 
 }

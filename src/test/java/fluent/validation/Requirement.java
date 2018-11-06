@@ -3,13 +3,13 @@ package fluent.validation;
 class Requirement<T, E> {
 
     final T data;
-    final Condition<? super T> condition;
+    final Check<? super T> check;
     final E expectedResult;
     private final String toString;
 
-    Requirement(T data, Condition<? super T> condition, E expectedResult, String toString) {
+    Requirement(T data, Check<? super T> check, E expectedResult, String toString) {
         this.data = data;
-        this.condition = condition;
+        this.check = check;
         this.expectedResult = expectedResult;
         this.toString = toString;
     }
