@@ -25,6 +25,7 @@
 
 package fluent.validation;
 
+import fluent.validation.detail.CheckVisitor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -63,7 +64,7 @@ public final class Checks {
     private static final Double DEFAULT_TOLERANCE = 0.0000001;
     private static final Check<Object> IS_NULL = equalTo((Object) null);
     private static final Check<Object> NOT_NULL = not(IS_NULL);
-    private static final Check<Object> ANYTHING = nullableCondition(data -> true, "anything");
+    private static final Check<Object> ANYTHING = new Anything<>();
 
     /* ------------------------------------------------------------------------------------------------------
      * Simple check builders using predicate and description.
@@ -412,35 +413,35 @@ public final class Checks {
     }
 
     public static Check<String> emptyString() {
-        return nullableCondition(data -> Objects.isNull(data) || data.isEmpty(), "Checks empty string");
+        return nullableCondition(data -> Objects.isNull(data) || data.isEmpty(), "is empty string");
     }
 
     public static Check<String> startsWith(String prefix) {
-        return condition(data -> data.startsWith(prefix), "Starts with " + prefix);
+        return condition(data -> data.startsWith(prefix), "starts with <" + prefix + ">");
     }
 
     public static Check<String> startsWithCaseInsensitive(String prefix) {
-        return condition(data -> data.toLowerCase().startsWith(prefix.toLowerCase()), "Starts with " + prefix);
+        return condition(data -> data.toLowerCase().startsWith(prefix.toLowerCase()), "starts with " + prefix);
     }
 
     public static Check<String> endsWith(String suffix) {
-        return condition(data -> data.startsWith(suffix), "Ends with %s" + suffix);
+        return condition(data -> data.startsWith(suffix), "ends with %s" + suffix);
     }
 
     public static Check<String> endsWithCaseInsensitive(String suffix) {
-        return condition(data -> data.toLowerCase().startsWith(suffix.toLowerCase()), "Ends with " + suffix);
+        return condition(data -> data.toLowerCase().startsWith(suffix.toLowerCase()), "ends with " + suffix);
     }
 
     public static Check<String> contains(String substring) {
-        return condition(data -> data.contains(substring), "Contains "+ substring);
+        return condition(data -> data.contains(substring), "contains "+ substring);
     }
 
     public static Check<String> containsCaseInsensitive(String substring) {
-        return condition(data -> data.toLowerCase().contains(substring.toLowerCase()), "Contains " + substring);
+        return condition(data -> data.toLowerCase().contains(substring.toLowerCase()), "contains " + substring);
     }
 
     public static Check<String> matches(Pattern pattern) {
-        return condition(pattern.asPredicate(), "Matches /" + pattern + '/');
+        return condition(pattern.asPredicate(), "matches /" + pattern + '/');
     }
 
     public static Check<String> matchesPattern(String pattern) {
@@ -549,6 +550,10 @@ public final class Checks {
 
     public static <D> Check<D> which(Check<D> check) {
         return createBuilderWith(check);
+    }
+
+    public static <D> Check<D> transparent(CheckVisitor checkVisitor, Check<D> check) {
+        return new TransparentCheck<>(checkVisitor, check);
     }
 
 }

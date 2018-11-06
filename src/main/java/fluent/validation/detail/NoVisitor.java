@@ -25,15 +25,25 @@
 
 package fluent.validation.detail;
 
-import java.util.function.Supplier;
+import fluent.validation.Check;
 
-import static fluent.validation.Checks.anything;
+public final class NoVisitor implements CheckVisitor, CheckVisitor.Node {
 
-public interface EvaluationLoggerService extends Supplier<CheckDetail> {
+    NoVisitor() {}
 
-    default Supplier<CheckDetail> get(Object object) {
-        CheckDetail checkDetail = get().node(anything()).detailFailingOn(false);
-        return () -> checkDetail;
-    }
+    @Override
+    public void trace(String expectation, Object actualValue, boolean result) { }
+
+    @Override
+    public Node node(Check<?> nodeName) { return this; }
+
+    @Override
+    public CheckVisitor label(Check<?> name) { return this; }
+
+    @Override
+    public CheckVisitor detailFailingOn(boolean indicateFailure) { return this; }
+
+    @Override
+    public void trace(Object actualData, boolean result) { }
 
 }

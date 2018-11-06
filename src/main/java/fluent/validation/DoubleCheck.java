@@ -25,7 +25,8 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.CheckDetail;
+import fluent.validation.detail.CheckVisitor;
+import fluent.validation.detail.NoVisitor;
 
 final class DoubleCheck<D> implements Check<D> {
 
@@ -38,8 +39,8 @@ final class DoubleCheck<D> implements Check<D> {
     }
 
     @Override
-    public boolean test(D data, CheckDetail checkDetail) {
-        return requirement.test(data, new NegativeOnlyCheckDetail(checkDetail)) && check.test(data, checkDetail);
+    public boolean test(D data, CheckVisitor checkVisitor) {
+        return requirement.test(data, NoVisitor.NONE) && check.test(data, checkVisitor);
     }
 
     @Override
@@ -47,26 +48,26 @@ final class DoubleCheck<D> implements Check<D> {
         return check.toString();
     }
 
-    private static class NegativeOnlyCheckDetail implements CheckDetail {
+    private static class NegativeOnlyCheckVisitor implements CheckVisitor {
 
-        private final CheckDetail checkDetail;
+        private final CheckVisitor checkVisitor;
 
-        private NegativeOnlyCheckDetail(CheckDetail checkDetail) {
-            this.checkDetail = checkDetail;
+        private NegativeOnlyCheckVisitor(CheckVisitor checkVisitor) {
+            this.checkVisitor = checkVisitor;
         }
 
         @Override
         public void trace(String expectation, Object actualValue, boolean result) {
-            if(!result) checkDetail.trace(expectation, actualValue, false);
+            if(!result) checkVisitor.trace(expectation, actualValue, false);
         }
 
         @Override
         public Node node(Check<?> nodeName) {
-            return checkDetail.node(nodeName);
+            return checkVisitor.node(nodeName);
         }
 
         @Override
-        public CheckDetail label(Check<?> name) {
+        public CheckVisitor label(Check<?> name) {
             return this;
         }
 

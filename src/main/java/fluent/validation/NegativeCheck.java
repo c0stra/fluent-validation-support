@@ -25,7 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.CheckDetail;
+import fluent.validation.detail.CheckVisitor;
 
 final class NegativeCheck<D> implements Check<D> {
 
@@ -36,8 +36,8 @@ final class NegativeCheck<D> implements Check<D> {
     }
 
     @Override
-    public boolean test(D data, CheckDetail checkDetail) {
-        return !check.test(data, checkDetail.prefix(this).negative());
+    public boolean test(D data, CheckVisitor checkVisitor) {
+        return !check.test(data, checkVisitor.negative());
     }
 
     @Override

@@ -1,35 +1,35 @@
 package fluent.validation;
 
-import fluent.validation.detail.CheckDetail;
+import fluent.validation.detail.CheckVisitor;
 
-public class TransparentCheck<T> implements Check<T> {
+class TransparentCheck<T> implements Check<T> {
 
-    private final CheckDetail checkDetail;
+    private final CheckVisitor checkVisitor;
     private final Check<T> check;
 
-    public TransparentCheck(CheckDetail checkDetail, Check<T> check) {
-        this.checkDetail = checkDetail;
+    TransparentCheck(CheckVisitor checkVisitor, Check<T> check) {
+        this.checkVisitor = checkVisitor;
         this.check = check;
     }
 
     @Override
     public void assertData(T data) {
-        assertData(data, checkDetail);
+        assertData(data, checkVisitor);
     }
 
     @Override
-    public boolean test(T data, CheckDetail checkDetail) {
-        return check.test(data, checkDetail);
+    public boolean test(T data, CheckVisitor checkVisitor) {
+        return check.test(data, checkVisitor);
     }
 
     @Override
     public <U extends T> Check<U> and(Check<? super U> operand) {
-        return new TransparentCheck<>(checkDetail, check.and(operand));
+        return new TransparentCheck<>(checkVisitor, check.and(operand));
     }
 
     @Override
     public <U extends T> Check<U> or(Check<? super U> operand) {
-        return new TransparentCheck<>(checkDetail, check.or(operand));
+        return new TransparentCheck<>(checkVisitor, check.or(operand));
     }
 
 }

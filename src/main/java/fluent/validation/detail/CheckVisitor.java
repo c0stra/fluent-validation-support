@@ -30,7 +30,7 @@ import fluent.validation.Check;
 /**
  * Logger interface, which allows to capture full detail of any complex condition evaluation.
  */
-public interface CheckDetail {
+public interface CheckVisitor {
 
     /**
      * Capture simple atomic (leaf) verification with defined expectation, actual value and result of the
@@ -50,17 +50,13 @@ public interface CheckDetail {
      */
     Node node(Check<?> check);
 
-    CheckDetail label(Check<?> check);
+    CheckVisitor label(Check<?> check);
 
-    default CheckDetail prefix(Check<?> check) {
-        return label(check);
-    }
-
-    default CheckDetail negative() {
+    default CheckVisitor negative() {
         return this;
     }
 
-    CheckDetail NONE = new NoDetail();
+    CheckVisitor NONE = new NoVisitor();
 
     /**
      * Interface to allow capture of the subtree evaluation.
@@ -77,7 +73,7 @@ public interface CheckDetail {
          * @param indicateFailure What result in the child indicates failure of the parent.
          * @return Logger to capture the evaluation of the child.
          */
-        CheckDetail detailFailingOn(boolean indicateFailure);
+        CheckVisitor detailFailingOn(boolean indicateFailure);
 
         /**
          * Capture current node result and actual data. Expectation is not present here, as it consists of the

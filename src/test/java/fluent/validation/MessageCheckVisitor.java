@@ -1,8 +1,8 @@
 package fluent.validation;
 
-import fluent.validation.detail.CheckDetail;
+import fluent.validation.detail.CheckVisitor;
 
-public class MessageCheckDetail implements CheckDetail {
+public class MessageCheckVisitor implements CheckVisitor {
 
     private final StringBuilder builder = new StringBuilder();
 
@@ -16,8 +16,8 @@ public class MessageCheckDetail implements CheckDetail {
     public Node node(Check<?> nodeName) {
         return new Node() {
             @Override
-            public CheckDetail detailFailingOn(boolean indicateFailure) {
-                return MessageCheckDetail.this;
+            public CheckVisitor detailFailingOn(boolean indicateFailure) {
+                return MessageCheckVisitor.this;
             }
 
             @Override
@@ -28,7 +28,7 @@ public class MessageCheckDetail implements CheckDetail {
     }
 
     @Override
-    public CheckDetail label(Check<?> name) {
+    public CheckVisitor label(Check<?> name) {
         return this;
     }
 

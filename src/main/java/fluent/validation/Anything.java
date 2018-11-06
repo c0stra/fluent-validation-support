@@ -1,11 +1,11 @@
 package fluent.validation;
 
-import fluent.validation.detail.CheckDetail;
+import fluent.validation.detail.CheckVisitor;
 
-public class Anything<T> implements Check<T> {
+final class Anything<T> implements Check<T> {
 
     @Override
-    public boolean test(T data, CheckDetail checkDetail) {
+    public boolean test(T data, CheckVisitor checkVisitor) {
         return true;
     }
 
@@ -13,6 +13,11 @@ public class Anything<T> implements Check<T> {
     @Override
     public <U extends T> Check<U> and(Check<? super U> operand) {
         return (Check<U>) operand;
+    }
+
+    @Override
+    public String toString() {
+        return "anything";
     }
 
 }

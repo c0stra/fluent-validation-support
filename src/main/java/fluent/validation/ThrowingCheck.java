@@ -1,26 +1,26 @@
 package fluent.validation;
 
-import fluent.validation.detail.CheckDetail;
+import fluent.validation.detail.CheckVisitor;
 
 import static fluent.validation.Checks.allOf;
 import static fluent.validation.Checks.equalTo;
 import static fluent.validation.Checks.has;
 
-public class ThrowingCheck implements Check<Runnable> {
+class ThrowingCheck implements Check<Runnable> {
 
     private final Check<? super Throwable> check;
 
-    public ThrowingCheck(Check<? super Throwable> check) {
+    ThrowingCheck(Check<? super Throwable> check) {
         this.check = check;
     }
 
     @Override
-    public boolean test(Runnable data, CheckDetail checkDetail) {
+    public boolean test(Runnable data, CheckVisitor checkVisitor) {
         try {
             data.run();
             return false;
         } catch (Throwable throwable) {
-            return check.test(throwable, checkDetail);
+            return check.test(throwable, checkVisitor);
         }
     }
 

@@ -25,7 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.CheckDetail;
+import fluent.validation.detail.CheckVisitor;
 
 import java.util.function.Function;
 
@@ -42,11 +42,11 @@ final class FunctionCheck<D, V> implements Check<D> {
     }
 
     @Override
-    public boolean test(D data, CheckDetail checkDetail) {
+    public boolean test(D data, CheckVisitor checkVisitor) {
         try {
-            return check.test(function.apply(data), checkDetail.label(this));
+            return check.test(function.apply(data), checkVisitor.label(this));
         } catch (Throwable throwable) {
-            checkDetail.label(this).trace("get " + name, throwable, false);
+            checkVisitor.label(this).trace("get " + name, throwable, false);
             return false;
         }
     }

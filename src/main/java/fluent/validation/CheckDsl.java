@@ -25,25 +25,26 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.CheckDetail;
+import fluent.validation.detail.CheckVisitor;
 
 import java.util.function.Function;
 
+import static fluent.validation.Checks.anything;
 import static fluent.validation.Checks.has;
 
 public class CheckDsl<L, D> implements Check<D> {
 
-    private final Check<D> check;
+    private final Check<? super D> check;
 
     private final Function<Check<D>, L> factory;
 
-    protected CheckDsl(Check<D> check, Function<Check<D>, L> factory) {
+    protected CheckDsl(Check<? super D> check, Function<Check<D>, L> factory) {
         this.check = check;
         this.factory = factory;
     }
 
     protected CheckDsl(Function<Check<D>, L> factory) {
-        this(new Anything<>(), factory);
+        this(anything(), factory);
     }
 
     public L with(Check<? super D> check) {
@@ -54,9 +55,30 @@ public class CheckDsl<L, D> implements Check<D> {
         return condition -> with(has(name, function).matching(condition));
     }
 
+    public L or() {
+        return factory.apply(check.or(anything()));
+    }
+
     @Override
-    public boolean test(D data, CheckDetail checkDetail) {
-        return check.test(data, checkDetail);
+    public boolean test(D data, CheckVisitor checkVisitor) {
+        return check.test(data, checkVisitor);
+    }
+
+    @Override
+    public String toString() {
+        return check.toString();
+    }
+
+    public static class Final<D> extends CheckDsl<Final<D>, D> {
+
+        protected Final(Check<? super D> check) {
+            super(check, Final::new);
+        }
+
+        protected Final() {
+            super(Final::new);
+        }
+
     }
 
 }

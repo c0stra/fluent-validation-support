@@ -27,51 +27,23 @@ package fluent.validation.detail;
 
 import fluent.validation.Check;
 
-public final class Mismatch implements CheckDetail {
+public final class MismatchVisitor implements CheckVisitor {
 
-    private final boolean indicateFailure;
-    private final StringBuilder builder;
-    private final String desc;
-
-    private Mismatch(boolean indicateFailure, StringBuilder builder, String name) {
-        this.indicateFailure = indicateFailure;
-        this.builder = builder;
-        this.desc = name;
-    }
-
-    public Mismatch() {
-        this(false, new StringBuilder(), "");
-    }
+    private final StringBuilder builder = new StringBuilder();
 
     @Override
     public void trace(String expectation, Object actualValue, boolean result) {
-        if(result == indicateFailure) {
-            builder.append(desc).append("Expected: ")
-                    .append(expectation)
-                    .append(", actual: <")
-                    .append(actualValue).append('>');
-        }
+        builder.append("Expected: ").append(expectation).append(", actual: <").append(actualValue).append('>');
     }
 
     @Override
     public Node node(Check<?> name) {
-        return new MismatchNode(name.toString());
+        return NoVisitor.NONE.node(name);
     }
 
     @Override
-    public CheckDetail label(Check<?> name) {
-        builder.append(name.name()).append(": ");
-        return this;
-    }
-
-    @Override
-    public CheckDetail prefix(Check<?> check) {
-        return new Mismatch(indicateFailure, builder, check.name() + " ");
-    }
-
-    @Override
-    public CheckDetail negative() {
-        return new Mismatch(true, builder, desc);
+    public CheckVisitor label(Check<?> name) {
+        return NoVisitor.NONE;
     }
 
     @Override
@@ -79,26 +51,4 @@ public final class Mismatch implements CheckDetail {
         return builder.toString();
     }
 
-
-    private class MismatchNode implements Node {
-
-        StringBuilder optional;
-
-        public MismatchNode(String name) {
-            optional = new StringBuilder("Expected: ").append(name).append(", but:");
-        }
-
-        @Override
-        public CheckDetail detailFailingOn(boolean newIndicateFailure) {
-            return new Mismatch(newIndicateFailure != indicateFailure, optional, "\n\t");
-        }
-
-        @Override
-        public void trace(Object actualData, boolean result) {
-            if(result == indicateFailure) {
-                builder.append(optional);
-            }
-        }
-
-    }
 }

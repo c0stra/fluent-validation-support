@@ -25,8 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.CheckDetail;
-import fluent.validation.detail.Mismatch;
+import fluent.validation.detail.CheckVisitor;
 
 /**
  * Simple condition interface used in for validation of various data.
@@ -56,7 +55,7 @@ public interface Check<T> {
      * @return Evaluation result.
      */
     default boolean test(T data) {
-        return test(data, CheckDetail.NONE);
+        return test(data, CheckVisitor.NONE);
     }
 
     /**
@@ -64,18 +63,20 @@ public interface Check<T> {
      * provided detail collector.
      *
      * @param data Data to test by the condition.
-     * @param checkDetail Tracer of the evaluation detail.
+     * @param checkVisitor Tracer of the evaluation detail.
      * @return Evaluation result.
      */
-    boolean test(T data, CheckDetail checkDetail);
+    boolean test(T data, CheckVisitor checkVisitor);
 
     default void assertData(T data) {
-        assertData(data, new Mismatch());
+        if(!test(data)) {
+            throw new AssertionFailure("Expected: " + this + ", actual: <" + data + ">");
+        }
     }
 
-    default void assertData(T data, CheckDetail checkDetail) {
-        if(!test(data, checkDetail)) {
-            throw new AssertionFailure(checkDetail.toString());
+    default void assertData(T data, CheckVisitor checkVisitor) {
+        if(!test(data, checkVisitor)) {
+            throw new AssertionFailure(checkVisitor.toString());
         }
     }
 
@@ -113,7 +114,7 @@ public interface Check<T> {
         check.assertData(data);
     }
 
-    static <T> void that(T data, Check<? super T> check, CheckDetail logger) {
+    static <T> void that(T data, Check<? super T> check, CheckVisitor logger) {
         check.assertData(data, logger);
     }
 
@@ -125,7 +126,7 @@ public interface Check<T> {
      * @param result Result of the composed condition.
      * @return Result of the composed condition.
      */
-    static boolean trace(CheckDetail.Node node, Object actualValue, boolean result) {
+    static boolean trace(CheckVisitor.Node node, Object actualValue, boolean result) {
         node.trace(actualValue, result);
         return result;
     }
@@ -133,14 +134,14 @@ public interface Check<T> {
     /**
      * Shortcut method, that traces current leaf detail, and returns result.
      *
-     * @param checkDetail Tracer for tracing condition details.
+     * @param checkVisitor Tracer for tracing condition details.
      * @param expectation Description of the expectation.
      * @param actualValue Actual value.
      * @param result Result of the condition.
      * @return Result of the condition.
      */
-    static boolean trace(CheckDetail checkDetail, String expectation, Object actualValue, boolean result) {
-        checkDetail.trace(expectation, actualValue, result);
+    static boolean trace(CheckVisitor checkVisitor, String expectation, Object actualValue, boolean result) {
+        checkVisitor.trace(expectation, actualValue, result);
         return result;
     }
 
