@@ -37,7 +37,8 @@ final class NegativeCheck<D> implements Check<D> {
 
     @Override
     public boolean test(D data, CheckVisitor checkVisitor) {
-        return !check.test(data, checkVisitor.negative());
+        CheckVisitor negative = checkVisitor.negative(this);
+        return !Check.trace(negative, data, check.test(data, negative));
     }
 
     @Override

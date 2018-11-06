@@ -23,8 +23,13 @@ public class MessageCheckVisitor implements CheckVisitor {
     }
 
     @Override
-    public void trace(Object data, boolean result) {
+    public CheckVisitor negative(Check<?> check) {
+        return this;
+    }
 
+    @Override
+    public void trace(Object data, boolean result) {
+        builder.append("Actual:\n---------------------\n").append(data).append("\n---------------------\n");
     }
 
     @Override

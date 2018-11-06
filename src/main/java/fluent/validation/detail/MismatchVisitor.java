@@ -29,31 +29,67 @@ import fluent.validation.Check;
 
 public final class MismatchVisitor implements CheckVisitor {
 
-    private final StringBuilder builder = new StringBuilder();
+    private Object expectation = "";
+    private String message = "";
 
     @Override
     public void trace(String expectation, Object actualValue, boolean result) {
-        builder.append("Expected: ").append(expectation).append(", actual: <").append(actualValue).append('>');
+        message = "Expected: " + (this.expectation == "" ? expectation : this.expectation) + ", actual: <" + actualValue + '>';
     }
 
     @Override
     public CheckVisitor node(Check<?> name) {
-        return NoVisitor.NONE.node(name);
+        return nodeVisitor(name);
     }
 
     @Override
     public CheckVisitor label(Check<?> name) {
-        return NoVisitor.NONE;
+        return nodeVisitor(name);
+    }
+
+    @Override
+    public CheckVisitor negative(Check<?> name) {
+        return nodeVisitor(name);
     }
 
     @Override
     public void trace(Object data, boolean result) {
-        builder.append(", but actual: <").append(data).append('>');
+        message = "Expected: " + expectation + ", actual: <" + data + '>';
     }
 
     @Override
     public String toString() {
-        return builder.toString();
+        return message;
+    }
+
+    private final CheckVisitor nodeVisitor(final Check<?> expectation) {
+        return  new CheckVisitor() {
+
+            @Override
+            public void trace(String expectation, Object actualValue, boolean result) {
+
+            }
+
+            @Override
+            public CheckVisitor node(Check<?> check) {
+                return NONE;
+            }
+
+            @Override
+            public CheckVisitor label(Check<?> check) {
+                return NONE;
+            }
+
+            @Override
+            public CheckVisitor negative(Check<?> check) {
+                return NONE;
+            }
+
+            @Override
+            public void trace(Object data, boolean result) {
+                message = "Expected: " + expectation + ", actual: <" + data + '>';
+            }
+        };
     }
 
 }

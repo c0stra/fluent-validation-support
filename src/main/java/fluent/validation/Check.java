@@ -26,6 +26,7 @@
 package fluent.validation;
 
 import fluent.validation.detail.CheckVisitor;
+import fluent.validation.detail.MismatchVisitor;
 
 /**
  * Simple condition interface used in for validation of various data.
@@ -69,15 +70,11 @@ public interface Check<T> {
     boolean test(T data, CheckVisitor checkVisitor);
 
     default void assertData(T data) {
-        if(!test(data)) {
-            throw new AssertionFailure("Expected: " + this + ", actual: <" + data + ">");
-        }
+        assertData(data, new MismatchVisitor());
     }
 
     default void assertData(T data, CheckVisitor checkVisitor) {
-        boolean result = test(data, checkVisitor);
-        checkVisitor.trace(data, result);
-        if(!result) {
+        if(!test(data, checkVisitor)) {
             throw new AssertionFailure(checkVisitor.toString());
         }
     }

@@ -52,9 +52,7 @@ public interface CheckVisitor {
 
     CheckVisitor label(Check<?> check);
 
-    default CheckVisitor negative() {
-        return this;
-    }
+    CheckVisitor negative(Check<?> check);
 
     CheckVisitor NONE = new NoVisitor();
 

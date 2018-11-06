@@ -41,6 +41,9 @@ public final class NoVisitor implements CheckVisitor {
     public CheckVisitor label(Check<?> name) { return this; }
 
     @Override
+    public CheckVisitor negative(Check<?> check) { return this; }
+
+    @Override
     public void trace(Object actualData, boolean result) { }
 
 }

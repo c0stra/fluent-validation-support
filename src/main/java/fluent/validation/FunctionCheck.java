@@ -43,10 +43,11 @@ final class FunctionCheck<D, V> implements Check<D> {
 
     @Override
     public boolean test(D data, CheckVisitor checkVisitor) {
+        CheckVisitor label = checkVisitor.label(this);
         try {
-            return check.test(function.apply(data), checkVisitor.label(this));
+            return Check.trace(label, data, check.test(function.apply(data), label));
         } catch (Throwable throwable) {
-            checkVisitor.label(this).trace("get " + name, throwable, false);
+            label.trace("get " + name, throwable, false);
             return false;
         }
     }

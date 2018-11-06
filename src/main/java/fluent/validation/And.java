@@ -43,7 +43,7 @@ final class And<D> implements Check<D> {
     public boolean test(D data, CheckVisitor checkVisitor) {
         CheckVisitor node = checkVisitor.node(this);
         boolean result = left.test(data, node) & right.test(data, node);
-        return trace(node, "", result);
+        return trace(node, data, result);
     }
 
     @Override
