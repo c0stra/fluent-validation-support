@@ -4,7 +4,7 @@
     <groupId>foundation.fluent.api</groupId>
     <artifactId>fluent-validation-support</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <modelVersion>4.0.0</modelVersion>
 
     <name>Fluent validation support.</name>
@@ -34,7 +34,7 @@
         <connection>scm:git:git://github.com/c0stra/fluent-validation-support.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/c0stra/fluent-validation-support.git</developerConnection>
         <url>https://github.com/c0stra/fluent-validation-support</url>
-      <tag>HEAD</tag>
+      <tag>fluent-validation-support-1.0</tag>
   </scm>
 
     <properties>
