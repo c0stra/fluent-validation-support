@@ -42,7 +42,7 @@ final class SubsetInOrder<D> implements Check<Iterable<D>> {
     @Override
     public boolean test(Iterable<D> data, CheckVisitor checkVisitor) {
         Iterator<D> d = data.iterator();
-        CheckVisitor.Node node = checkVisitor.node(this);
+        CheckVisitor node = checkVisitor.node(this);
         for(Check<? super D> check : conditions) {
             if(!evaluate(d, check, checkVisitor)) {
                 return trace(node, "", false);

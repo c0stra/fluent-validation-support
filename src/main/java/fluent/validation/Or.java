@@ -41,8 +41,8 @@ final class Or<D> implements Check<D> {
 
     @Override
     public boolean test(D data, CheckVisitor checkVisitor) {
-        CheckVisitor.Node node = checkVisitor.node(this);
-        boolean result = left.test(data, node.detailFailingOn(false)) | right.test(data, node.detailFailingOn(false));
+        CheckVisitor node = checkVisitor.node(this);
+        boolean result = left.test(data, node) | right.test(data, node);
         return trace(node, "", result);
     }
 

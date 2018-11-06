@@ -50,10 +50,10 @@ final class CollectionInOrder<D> implements Check<Iterable<D>> {
     public boolean test(Iterable<D> data, CheckVisitor checkVisitor) {
         Iterator<Check<? super D>> c = conditions.iterator();
         Iterator<D> d = data.iterator();
-        CheckVisitor.Node node = checkVisitor.node(this);
+        CheckVisitor node = checkVisitor.node(this);
         while (c.hasNext() && d.hasNext()) {
             Check<? super D> check = c.next();
-            if(!check.test(d.next(), node.detailFailingOn(false))) {
+            if(!check.test(d.next(), node)) {
                 return trace(node, "No item matching " + check, false);
             }
         }

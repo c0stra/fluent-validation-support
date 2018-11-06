@@ -75,7 +75,9 @@ public interface Check<T> {
     }
 
     default void assertData(T data, CheckVisitor checkVisitor) {
-        if(!test(data, checkVisitor)) {
+        boolean result = test(data, checkVisitor);
+        checkVisitor.trace(data, result);
+        if(!result) {
             throw new AssertionFailure(checkVisitor.toString());
         }
     }
@@ -126,7 +128,7 @@ public interface Check<T> {
      * @param result Result of the composed condition.
      * @return Result of the composed condition.
      */
-    static boolean trace(CheckVisitor.Node node, Object actualValue, boolean result) {
+    static boolean trace(CheckVisitor node, Object actualValue, boolean result) {
         node.trace(actualValue, result);
         return result;
     }

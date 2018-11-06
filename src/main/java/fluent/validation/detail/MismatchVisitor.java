@@ -37,13 +37,18 @@ public final class MismatchVisitor implements CheckVisitor {
     }
 
     @Override
-    public Node node(Check<?> name) {
+    public CheckVisitor node(Check<?> name) {
         return NoVisitor.NONE.node(name);
     }
 
     @Override
     public CheckVisitor label(Check<?> name) {
         return NoVisitor.NONE;
+    }
+
+    @Override
+    public void trace(Object data, boolean result) {
+        builder.append(", but actual: <").append(data).append('>');
     }
 
     @Override

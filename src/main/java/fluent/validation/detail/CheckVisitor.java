@@ -48,7 +48,7 @@ public interface CheckVisitor {
      * @param check Name of the node.
      * @return Interface to allow capture of the subtree evaluation.
      */
-    Node node(Check<?> check);
+    CheckVisitor node(Check<?> check);
 
     CheckVisitor label(Check<?> check);
 
@@ -58,32 +58,6 @@ public interface CheckVisitor {
 
     CheckVisitor NONE = new NoVisitor();
 
-    /**
-     * Interface to allow capture of the subtree evaluation.
-     */
-    interface Node {
-
-        /**
-         * Capture evaluation of an item in the subtree, and give it a hint, what result value of it means
-         * failure.
-         *
-         * E.g. in not() operator, we indicate, that failure of whole condition will occur if child evaluates
-         * to `true`, hence the strange detailFailingOn(true) in Negation.
-         *
-         * @param indicateFailure What result in the child indicates failure of the parent.
-         * @return Logger to capture the evaluation of the child.
-         */
-        CheckVisitor detailFailingOn(boolean indicateFailure);
-
-        /**
-         * Capture current node result and actual data. Expectation is not present here, as it consists of the
-         * subtree items.
-         *
-         * @param actualData Actual data, which are subject to this node evaluation.
-         * @param result Result of the executed evaluation.
-         */
-        void trace(Object actualData, boolean result);
-
-    }
+    void trace(Object data, boolean result);
 
 }

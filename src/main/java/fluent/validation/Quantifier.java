@@ -42,9 +42,9 @@ final class Quantifier<D> implements Check<Iterable<D>> {
 
     @Override
     public boolean test(Iterable<D> data, CheckVisitor checkVisitor) {
-        CheckVisitor.Node node = checkVisitor.node(this);
+        CheckVisitor node = checkVisitor.node(this);
         for(D item : data) {
-            if(end == check.test(item, node.detailFailingOn(false))) {
+            if(end == check.test(item, node)) {
                 return trace(node, "", end);
             }
         }

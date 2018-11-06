@@ -48,29 +48,4 @@ final class DoubleCheck<D> implements Check<D> {
         return check.toString();
     }
 
-    private static class NegativeOnlyCheckVisitor implements CheckVisitor {
-
-        private final CheckVisitor checkVisitor;
-
-        private NegativeOnlyCheckVisitor(CheckVisitor checkVisitor) {
-            this.checkVisitor = checkVisitor;
-        }
-
-        @Override
-        public void trace(String expectation, Object actualValue, boolean result) {
-            if(!result) checkVisitor.trace(expectation, actualValue, false);
-        }
-
-        @Override
-        public Node node(Check<?> nodeName) {
-            return checkVisitor.node(nodeName);
-        }
-
-        @Override
-        public CheckVisitor label(Check<?> name) {
-            return this;
-        }
-
-    }
-
 }

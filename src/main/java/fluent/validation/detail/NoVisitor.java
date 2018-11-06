@@ -27,7 +27,7 @@ package fluent.validation.detail;
 
 import fluent.validation.Check;
 
-public final class NoVisitor implements CheckVisitor, CheckVisitor.Node {
+public final class NoVisitor implements CheckVisitor {
 
     NoVisitor() {}
 
@@ -35,13 +35,10 @@ public final class NoVisitor implements CheckVisitor, CheckVisitor.Node {
     public void trace(String expectation, Object actualValue, boolean result) { }
 
     @Override
-    public Node node(Check<?> nodeName) { return this; }
+    public CheckVisitor node(Check<?> nodeName) { return this; }
 
     @Override
     public CheckVisitor label(Check<?> name) { return this; }
-
-    @Override
-    public CheckVisitor detailFailingOn(boolean indicateFailure) { return this; }
 
     @Override
     public void trace(Object actualData, boolean result) { }
