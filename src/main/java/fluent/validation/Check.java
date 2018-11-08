@@ -31,8 +31,7 @@ import fluent.validation.detail.MismatchVisitor;
 /**
  * Simple check used in for validation of various data.
  *
- * It implements the Java 8 Predicate, providing simple #test(V value) method,  which simply tests, if value meets
- * a condition (pretty the same).
+ * It tests, if value meets a criteria described by the check.
  *
  * But the main purpose of this class is to provide transparency during any complex condition evaluation, similar to
  * Hamcrest Matchers.
@@ -89,21 +88,53 @@ public abstract class Check<T> {
         return new Or<>(this, operand);
     }
 
+    /**
+     * Execute the check on provided data.
+     *
+     * @param data Tested data.
+     * @param check Check to be applied.
+     * @param <T> Type of the tested data.
+     * @return Result of the check application on the data.
+     */
     public static <T> boolean test(T data, Check<? super T> check) {
         return test(data, check, CheckVisitor.NONE);
     }
 
+    /**
+     * Execute the check on provided data.
+     *
+     * @param data Tested data.
+     * @param check Check to be applied.
+     * @param checkVisitor Check visitor to trace evaluation of the check.
+     * @param <T> Type of the tested data.
+     * @return Result of the check application on the data.
+     */
     public static <T> boolean test(T data, Check<? super T> check, CheckVisitor checkVisitor) {
-        return check.test(data, CheckVisitor.NONE);
+        return check.test(data, checkVisitor);
     }
 
+    /**
+     * Assert the data using provided check.
+     *
+     * @param data Tested data.
+     * @param check Check to be applied.
+     * @param <T> Type of the tested data.
+     */
     public static <T> void that(T data, Check<? super T> check) {
         Check.that(data, check, new MismatchVisitor());
     }
 
-    public static <T> void that(T data, Check<? super T> check, CheckVisitor logger) {
-        if(!check.test(data, logger)) {
-            throw new AssertionFailure(logger.toString());
+    /**
+     * Assert the data using provided check.
+     *
+     * @param data Tested data.
+     * @param check Check to be applied.
+     * @param checkVisitor Check visitor to trace evaluation of the check.
+     * @param <T> Type of the tested data.
+     */
+    public static <T> void that(T data, Check<? super T> check, CheckVisitor checkVisitor) {
+        if(!check.test(data, checkVisitor)) {
+            throw new AssertionFailure(checkVisitor.toString());
         }
     }
 
