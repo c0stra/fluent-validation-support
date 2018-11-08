@@ -30,15 +30,15 @@ import fluent.validation.detail.CheckVisitor;
 
 import java.util.Objects;
 
-public interface Statement extends Check<Context>, Conclusion {
+public class Statement extends Check<Context> implements Conclusion {
 
     @Override
-    default boolean test(Context data, CheckVisitor checkVisitor) {
+    protected boolean test(Context data, CheckVisitor checkVisitor) {
         return data.isValid(this);//Check.trace(checkVisitor, toString(), "is valid", data.isValid(this));
     }
 
     @Override
-    default void conclude(Boolean aBoolean, Context context, CheckVisitor logger) {
+    public void conclude(Boolean aBoolean, Context context, CheckVisitor logger) {
         context.set(this, aBoolean);
     }
 

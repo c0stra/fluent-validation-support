@@ -32,7 +32,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-final class SubsetAnyOrder<D> implements Check<Iterable<D>> {
+final class SubsetAnyOrder<D> extends Check<Iterable<D>> {
 
     private final Collection<Check<? super D>> checks;
 

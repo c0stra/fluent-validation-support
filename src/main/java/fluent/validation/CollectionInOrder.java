@@ -38,7 +38,7 @@ import static fluent.validation.Check.trace;
  *
  * @param <D> Type of the items in the collection.
  */
-final class CollectionInOrder<D> implements Check<Iterable<D>> {
+final class CollectionInOrder<D> extends Check<Iterable<D>> {
 
     private final Iterable<Check<? super D>> conditions;
 

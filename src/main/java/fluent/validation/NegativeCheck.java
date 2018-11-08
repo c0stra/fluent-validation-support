@@ -27,7 +27,7 @@ package fluent.validation;
 
 import fluent.validation.detail.CheckVisitor;
 
-final class NegativeCheck<D> implements Check<D> {
+final class NegativeCheck<D> extends Check<D> {
 
     private final Check<D> check;
 

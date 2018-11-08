@@ -27,9 +27,7 @@ package fluent.validation;
 
 import fluent.validation.detail.CheckVisitor;
 
-import static fluent.validation.Check.trace;
-
-final class Quantifier<D> implements Check<Iterable<D>> {
+final class Quantifier<D> extends Check<Iterable<D>> {
 
     private final Check<? super D> check;
     private final boolean end;

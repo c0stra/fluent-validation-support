@@ -9,6 +9,7 @@ import static fluent.validation.Checks.anything;
 import static fluent.validation.Checks.transparent;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class CustomCheckVisitorTest extends Mocks {
 
@@ -17,8 +18,11 @@ public class CustomCheckVisitorTest extends Mocks {
 
     @Test
     public void testMismatch() {
+        when(mockVisitor.node(any())).thenReturn(mockVisitor);
+        when(mockVisitor.label(any())).thenReturn(mockVisitor);
+        when(mockVisitor.negative(any())).thenReturn(mockVisitor);
         try {
-            new CheckDsl.Final<>(transparent(mockVisitor, anything())).withField("toString", Object::toString).equalTo("A").assertData("A");
+            Check.that("A", new CheckDsl.Final<>(transparent(mockVisitor, anything())).withField("toString", Object::toString).equalTo("A"));
         } catch (AssertionFailure failure) {
             verify(mockVisitor).node(any());
         }

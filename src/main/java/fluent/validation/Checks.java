@@ -361,22 +361,6 @@ public final class Checks {
         return condition -> require(instanceOf(type), compose("as " + type.getSimpleName(), type::cast, condition));
     }
 
-    public static <D> Conditional<D> when(Check<D> check) {
-        return new Conditional<>(check);
-    }
-
-    public static final class Conditional<D> {
-        private final Check<D> check;
-
-        public Conditional(Check<D> check) {
-            this.check = check;
-        }
-
-        public <E extends D> Check<E> then(Check<? super E> conditional) {
-            return (data, detail) -> check.test(data, detail) && conditional.test(data, detail);
-        }
-    }
-
     /* ------------------------------------------------------------------------------------------------------
      * XML conditions.
      * ------------------------------------------------------------------------------------------------------

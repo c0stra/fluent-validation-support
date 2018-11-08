@@ -3,7 +3,6 @@
 
     <groupId>foundation.fluent.api</groupId>
     <artifactId>fluent-validation-support</artifactId>
-    <packaging>pom</packaging>
     <version>1.1-SNAPSHOT</version>
     <modelVersion>4.0.0</modelVersion>
 
@@ -49,7 +48,7 @@
         <dependency>
             <groupId>foundation.fluent.api</groupId>
             <artifactId>fluent-api-end-check</artifactId>
-            <version>1.5</version>
+            <version>1.10</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
@@ -85,6 +84,13 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <annotationProcessorPaths>
+                        <annotationProcessorPath>
+                            <groupId>foundation.fluent.api</groupId>
+                            <artifactId>fluent-api-end-check</artifactId>
+                            <version>1.10</version>
+                        </annotationProcessorPath>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <plugin>

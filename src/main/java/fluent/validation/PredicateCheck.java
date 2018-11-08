@@ -29,9 +29,7 @@ import fluent.validation.detail.CheckVisitor;
 
 import java.util.function.Predicate;
 
-import static fluent.validation.Check.trace;
-
-final class PredicateCheck<D> implements Check<D> {
+final class PredicateCheck<D> extends Check<D> {
 
     private final Predicate<D> predicate;
     private final String expectationDescription;

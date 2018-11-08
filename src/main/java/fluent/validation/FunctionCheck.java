@@ -29,7 +29,7 @@ import fluent.validation.detail.CheckVisitor;
 
 import java.util.function.Function;
 
-final class FunctionCheck<D, V> implements Check<D> {
+final class FunctionCheck<D, V> extends Check<D> {
 
     private final String name;
     private final Function<? super D, V> function;

@@ -26,8 +26,11 @@ public class ChecksErrorMessageTest {
 
     @Test(dataProvider = "requirements")
     public <T> void test(Requirement<T, String> requirement) {
-        throwing(require(isAn(AssertionFailure.class), has("message", Throwable::getMessage).equalTo(requirement.expectedResult)))
-                .assertData(() -> requirement.check.assertData(requirement.data), new MessageCheckVisitor());
+        Check.that(
+                () -> Check.that(requirement.data, requirement.check),
+                throwing(require(isAn(AssertionFailure.class), has("message", Throwable::getMessage).equalTo(requirement.expectedResult))),
+                new MessageCheckVisitor()
+        );
     }
 
     private static <T> Object[] requirement(T data, Check<? super T> check, String expectedMessage) {

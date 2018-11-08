@@ -28,7 +28,7 @@ package fluent.validation;
 import fluent.validation.detail.CheckVisitor;
 import fluent.validation.detail.NoVisitor;
 
-final class DoubleCheck<D> implements Check<D> {
+final class DoubleCheck<D> extends Check<D> {
 
     private final Check<? super D> requirement;
     private final Check<? super D> check;

@@ -29,7 +29,7 @@ import fluent.validation.detail.CheckVisitor;
 import fluent.validation.detail.MismatchVisitor;
 
 /**
- * Simple condition interface used in for validation of various data.
+ * Simple check used in for validation of various data.
  *
  * It implements the Java 8 Predicate, providing simple #test(V value) method,  which simply tests, if value meets
  * a condition (pretty the same).
@@ -47,17 +47,7 @@ import fluent.validation.detail.MismatchVisitor;
  *
  * @param <T> Type of the data to be tested using this condition.
  */
-public interface Check<T> {
-
-    /**
-     * Simple evaluation of the condition on provided data.
-     *
-     * @param data Data to test by the condition.
-     * @return Evaluation result.
-     */
-    default boolean test(T data) {
-        return test(data, CheckVisitor.NONE);
-    }
+public abstract class Check<T> {
 
     /**
      * Evaluation of the condition on provided data, able to provide full detail of the evaluation using
@@ -67,23 +57,13 @@ public interface Check<T> {
      * @param checkVisitor Tracer of the evaluation detail.
      * @return Evaluation result.
      */
-    boolean test(T data, CheckVisitor checkVisitor);
-
-    default void assertData(T data) {
-        assertData(data, new MismatchVisitor());
-    }
-
-    default void assertData(T data, CheckVisitor checkVisitor) {
-        if(!test(data, checkVisitor)) {
-            throw new AssertionFailure(checkVisitor.toString());
-        }
-    }
+    protected abstract boolean test(T data, CheckVisitor checkVisitor);
 
     /**
      * Name of the check.
      * @return The name.
      */
-    default String name() {
+    public String name() {
         return toString();
     }
 
@@ -94,7 +74,7 @@ public interface Check<T> {
      * @param <U> Type of the data tested by other check. It may cause up-cast.
      * @return Composed check.
      */
-    default <U extends T> Check<U> and(Check<? super U> operand) {
+    public <U extends T> Check<U> and(Check<? super U> operand) {
         return new And<>(this, operand);
     }
 
@@ -105,16 +85,26 @@ public interface Check<T> {
      * @param <U> Type of the data tested by other check. It may cause up-cast.
      * @return Composed check.
      */
-    default <U extends T> Check<U> or(Check<? super U> operand) {
+    public <U extends T> Check<U> or(Check<? super U> operand) {
         return new Or<>(this, operand);
     }
 
-    static <T> void that(T data, Check<? super T> check) {
-        check.assertData(data);
+    public static <T> boolean test(T data, Check<? super T> check) {
+        return test(data, check, CheckVisitor.NONE);
     }
 
-    static <T> void that(T data, Check<? super T> check, CheckVisitor logger) {
-        check.assertData(data, logger);
+    public static <T> boolean test(T data, Check<? super T> check, CheckVisitor checkVisitor) {
+        return check.test(data, CheckVisitor.NONE);
+    }
+
+    public static <T> void that(T data, Check<? super T> check) {
+        Check.that(data, check, new MismatchVisitor());
+    }
+
+    public static <T> void that(T data, Check<? super T> check, CheckVisitor logger) {
+        if(!check.test(data, logger)) {
+            throw new AssertionFailure(logger.toString());
+        }
     }
 
     /**
@@ -125,7 +115,7 @@ public interface Check<T> {
      * @param result Result of the composed condition.
      * @return Result of the composed condition.
      */
-    static boolean trace(CheckVisitor node, Object actualValue, boolean result) {
+    protected static boolean trace(CheckVisitor node, Object actualValue, boolean result) {
         node.trace(actualValue, result);
         return result;
     }
@@ -139,7 +129,7 @@ public interface Check<T> {
      * @param result Result of the condition.
      * @return Result of the condition.
      */
-    static boolean trace(CheckVisitor checkVisitor, String expectation, Object actualValue, boolean result) {
+    protected static boolean trace(CheckVisitor checkVisitor, String expectation, Object actualValue, boolean result) {
         checkVisitor.trace(expectation, actualValue, result);
         return result;
     }

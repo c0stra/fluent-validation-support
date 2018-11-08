@@ -1,8 +1,9 @@
 package fluent.validation;
 
 import fluent.validation.detail.CheckVisitor;
+import fluent.validation.detail.CheckVisitorDecorator;
 
-class TransparentCheck<T> implements Check<T> {
+class TransparentCheck<T> extends Check<T> {
 
     private final CheckVisitor checkVisitor;
     private final Check<T> check;
@@ -13,13 +14,8 @@ class TransparentCheck<T> implements Check<T> {
     }
 
     @Override
-    public void assertData(T data) {
-        assertData(data, checkVisitor);
-    }
-
-    @Override
     public boolean test(T data, CheckVisitor checkVisitor) {
-        return check.test(data, checkVisitor);
+        return check.test(data, new CheckVisitorDecorator(checkVisitor, this.checkVisitor));
     }
 
     @Override

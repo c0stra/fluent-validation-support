@@ -27,7 +27,7 @@ package fluent.validation;
 
 import fluent.validation.detail.CheckVisitor;
 
-final class CollectionAnyOrder<D> implements Check<Iterable<D>> {
+final class CollectionAnyOrder<D> extends Check<Iterable<D>> {
 
     private final Iterable<Check<? super D>> conditions;
 

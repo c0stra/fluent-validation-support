@@ -29,9 +29,7 @@ import fluent.validation.detail.CheckVisitor;
 
 import java.util.Iterator;
 
-import static fluent.validation.Check.trace;
-
-final class SubsetInOrder<D> implements Check<Iterable<D>> {
+final class SubsetInOrder<D> extends Check<Iterable<D>> {
 
     private final Iterable<Check<? super D>> conditions;
 

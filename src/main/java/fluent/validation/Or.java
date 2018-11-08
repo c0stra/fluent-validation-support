@@ -27,9 +27,7 @@ package fluent.validation;
 
 import fluent.validation.detail.CheckVisitor;
 
-import static fluent.validation.Check.trace;
-
-final class Or<D> implements Check<D> {
+final class Or<D> extends Check<D> {
 
     private final Check<? super D> left;
     private final Check<? super D> right;

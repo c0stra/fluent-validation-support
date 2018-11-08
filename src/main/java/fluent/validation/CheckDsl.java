@@ -32,7 +32,7 @@ import java.util.function.Function;
 import static fluent.validation.Checks.anything;
 import static fluent.validation.Checks.has;
 
-public class CheckDsl<L, D> implements Check<D> {
+public class CheckDsl<L, D> extends Check<D> {
 
     private final Check<? super D> check;
 
