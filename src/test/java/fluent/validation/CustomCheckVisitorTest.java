@@ -6,6 +6,7 @@ import org.mockito.Mock;
 import org.testng.annotations.Test;
 
 import static fluent.validation.Checks.anything;
+import static fluent.validation.Checks.dsl;
 import static fluent.validation.Checks.transparent;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -22,7 +23,7 @@ public class CustomCheckVisitorTest extends Mocks {
         when(mockVisitor.label(any())).thenReturn(mockVisitor);
         when(mockVisitor.negative(any())).thenReturn(mockVisitor);
         try {
-            Check.that("A", new CheckDsl.Final<>(transparent(mockVisitor, anything())).withField("toString", Object::toString).equalTo("A"));
+            Check.that("A", dsl().with(transparent(mockVisitor, anything())).withField("toString", Object::toString).equalTo("A"));
         } catch (AssertionFailure failure) {
             verify(mockVisitor).node(any());
         }

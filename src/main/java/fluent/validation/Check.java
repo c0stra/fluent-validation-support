@@ -25,6 +25,7 @@
 
 package fluent.validation;
 
+import fluent.api.End;
 import fluent.validation.detail.CheckVisitor;
 import fluent.validation.detail.MismatchVisitor;
 
@@ -120,8 +121,9 @@ public abstract class Check<T> {
      * @param check Check to be applied.
      * @param <T> Type of the tested data.
      */
+    @End(message = "Check is not used. Pass it either to Check.test(data, check) or Check.that(data, check).")
     public static <T> void that(T data, Check<? super T> check) {
-        Check.that(data, check, new MismatchVisitor());
+        that(data, check, new MismatchVisitor());
     }
 
     /**

@@ -71,11 +71,11 @@ public class CheckDsl<L, D> extends Check<D> {
 
     public static class Final<D> extends CheckDsl<Final<D>, D> {
 
-        protected Final(Check<? super D> check) {
+        Final(Check<? super D> check) {
             super(check, Final::new);
         }
 
-        protected Final() {
+        Final() {
             super(Final::new);
         }
 

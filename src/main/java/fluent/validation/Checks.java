@@ -305,7 +305,7 @@ public final class Checks {
 
     @SafeVarargs
     public static <D> Check<Iterable<D>> hasItemsInOrder(Check<? super D>... itemChecks) {
-        return Checks.<D>hasItemsInOrder(asList(itemChecks));
+        return hasItemsInOrder(asList(itemChecks));
     }
 
     public static <D> Check<Iterable<D>> hasItemsInAnyOrder(Collection<Check<? super D>> itemChecks) {
@@ -314,7 +314,7 @@ public final class Checks {
 
     @SafeVarargs
     public static <D> Check<Iterable<D>> hasItemsInAnyOrder(Check<? super D>... itemChecks) {
-        return Checks.<D>hasItemsInAnyOrder(asList(itemChecks));
+        return hasItemsInAnyOrder(asList(itemChecks));
     }
 
     public static <D> Check<Iterable<D>> exactItemsInOrder(Iterable<Check<? super D>> itemConditions) {
@@ -323,7 +323,7 @@ public final class Checks {
 
     @SafeVarargs
     public static <D> Check<Iterable<D>> exactItemsInOrder(Check<? super D>... itemChecks) {
-        return Checks.<D>exactItemsInOrder(asList(itemChecks));
+        return exactItemsInOrder(asList(itemChecks));
     }
 
     @SafeVarargs
@@ -337,7 +337,7 @@ public final class Checks {
 
     @SafeVarargs
     public static <D> Check<Iterable<D>> exactItemsInAnyOrder(Check<? super D>... itemChecks) {
-        return Checks.<D>exactItemsInAnyOrder(asList(itemChecks));
+        return exactItemsInAnyOrder(asList(itemChecks));
     }
 
     /* ------------------------------------------------------------------------------------------------------
@@ -538,6 +538,10 @@ public final class Checks {
 
     public static <D> Check<D> transparent(CheckVisitor checkVisitor, Check<D> check) {
         return new TransparentCheck<>(checkVisitor, check);
+    }
+
+    public static <D> CheckDsl.Final<D> dsl() {
+        return new CheckDsl.Final<>();
     }
 
 }
