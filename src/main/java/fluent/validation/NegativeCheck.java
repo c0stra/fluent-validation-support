@@ -25,7 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.CheckVisitor;
+import fluent.validation.result.Result;
 
 final class NegativeCheck<D> extends Check<D> {
 
@@ -36,14 +36,11 @@ final class NegativeCheck<D> extends Check<D> {
     }
 
     @Override
-    public boolean test(D data, CheckVisitor checkVisitor) {
-        CheckVisitor negative = checkVisitor.negative(this);
-        return !Check.trace(negative, data, check.test(data, negative));
-    }
+    protected Result evaluate(D data) {
+        Result result = check.evaluate(data);
+        return new Result(result.failed()) {
 
-    @Override
-    public String name() {
-        return "not";
+        };
     }
 
     @Override

@@ -25,7 +25,6 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.CheckVisitor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -225,11 +224,11 @@ public final class Checks {
      */
 
     public static <D> Check<Iterable<D>> exists(Check<? super D> check) {
-        return new Quantifier<>(check, true);
+        return new Exists<>(check);
     }
 
     public static <D> Check<Iterable<D>> every(Check<? super D> check) {
-        return new Quantifier<>(check, false);
+        return new Every<>(check);
     }
 
     /**
@@ -318,7 +317,7 @@ public final class Checks {
     }
 
     public static <D> Check<Iterable<D>> exactItemsInOrder(Iterable<Check<? super D>> itemConditions) {
-        return new CollectionInOrder<>(itemConditions);
+        return new CollectionEqualsInOrder<>(itemConditions);
     }
 
     @SafeVarargs
@@ -331,8 +330,8 @@ public final class Checks {
         return exactItemsInOrder(stream(expectedItems).map(Checks::equalTo).collect(Collectors.toList()));
     }
 
-    public static <D> Check<Iterable<D>> exactItemsInAnyOrder(Iterable<Check<? super D>> itemConditions) {
-        return new CollectionAnyOrder<>(itemConditions);
+    public static <D> Check<Iterable<D>> exactItemsInAnyOrder(Collection<Check<? super D>> itemConditions) {
+        return new CollectionEqualsInAnyOrder<>(itemConditions);
     }
 
     @SafeVarargs
@@ -534,10 +533,6 @@ public final class Checks {
 
     public static <D> Check<D> which(Check<D> check) {
         return createBuilderWith(check);
-    }
-
-    public static <D> Check<D> transparent(CheckVisitor checkVisitor, Check<D> check) {
-        return new TransparentCheck<>(checkVisitor, check);
     }
 
     public static <D> CheckDsl.Final<D> dsl() {

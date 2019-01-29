@@ -25,38 +25,48 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.CheckVisitor;
+import fluent.validation.result.GroupResult;
+import fluent.validation.result.Result;
 
-final class Quantifier<D> extends Check<Iterable<D>> {
+import java.util.Iterator;
 
-    private final Check<? super D> check;
-    private final boolean end;
+/**
+ * Check, making sure, that an actual collection meets provided conditions in exact order:
+ *   1st item matches 1st condition, 2nd item matches 2nd condition, etc. and there must not be any item missing or
+ *   extra (length of actual collection needs to match length of collection of conditions).
+ *
+ * @param <D> Type of the items in the collection.
+ */
+final class CollectionEqualsInOrder<D> extends Check<Iterable<D>> {
 
-    Quantifier(Check<? super D> check, boolean end) {
-        this.check = check;
-        this.end = end;
+    private final Iterable<Check<? super D>> conditions;
+
+    CollectionEqualsInOrder(Iterable<Check<? super D>> conditions) {
+        this.conditions = conditions;
     }
 
-
     @Override
-    public boolean test(Iterable<D> data, CheckVisitor checkVisitor) {
-        CheckVisitor node = checkVisitor.node(this);
-        for(D item : data) {
-            if(end == check.test(item, node)) {
-                return trace(node, "", end);
+    public Result evaluate(Iterable<D> data) {
+        GroupResult.Builder resultBuilder = new GroupResult.Builder();
+        Iterator<Check<? super D>> c = conditions.iterator();
+        Iterator<D> d = data.iterator();
+        while (c.hasNext() && d.hasNext()) {
+            if(resultBuilder.add(c.next().evaluate(d.next())).failed()) {
+                return resultBuilder.build(false);
             }
         }
-        return trace(node, "", !end);
-    }
-
-    @Override
-    public String name() {
-        return end ? "exists" : "every";
+        if(c.hasNext()) {
+            return resultBuilder.build(false);
+        }
+        if(d.hasNext()) {
+            return resultBuilder.build(false);
+        }
+        return resultBuilder.build(true);
     }
 
     @Override
     public String toString() {
-        return end ? "exists element matching " + check : "every element matches " + check;
+        return "Items matching " + conditions;
     }
 
 }

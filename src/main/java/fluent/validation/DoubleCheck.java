@@ -25,8 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.CheckVisitor;
-import fluent.validation.detail.NoVisitor;
+import fluent.validation.result.Result;
 
 final class DoubleCheck<D> extends Check<D> {
 
@@ -39,8 +38,17 @@ final class DoubleCheck<D> extends Check<D> {
     }
 
     @Override
-    public boolean test(D data, CheckVisitor checkVisitor) {
-        return requirement.test(data, NoVisitor.NONE) && check.test(data, checkVisitor);
+    public Result evaluate(D data) {
+        Result requirementResult = requirement.evaluate(data);
+        if(requirementResult.failed()) {
+            return new Result(false) {
+
+            };
+        }
+        Result result = check.evaluate(data);
+        return new Result(result.passed()) {
+
+        };
     }
 
     @Override

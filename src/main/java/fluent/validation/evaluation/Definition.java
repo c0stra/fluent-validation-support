@@ -26,27 +26,24 @@
 package fluent.validation.evaluation;
 
 import fluent.validation.Check;
-import fluent.validation.detail.CheckVisitor;
 
 import static java.lang.Boolean.TRUE;
 
 public abstract class Definition implements Conclusion {
 
     private Context context;
-    private CheckVisitor logger;
 
     protected Rule when(Check<? super Context> check) {
         return consumer -> {
-            if(Check.test(context, check, logger)) consumer.conclude(true, context, logger);
+            if(Check.test(context, check)) consumer.conclude(true, context);
         };
     }
 
     @Override
-    public void conclude(Boolean value, Context context, CheckVisitor logger) {
+    public void conclude(Boolean value, Context context) {
         if(TRUE.equals(value)) {
             this.context = context;
-            this.logger = logger;
-            define();
+             define();
         }
     }
 
@@ -57,7 +54,7 @@ public abstract class Definition implements Conclusion {
     protected abstract void define();
 
     public void apply(Context context) {
-        conclude(true, context, context.logger());
+        conclude(true, context);
     }
 
 }

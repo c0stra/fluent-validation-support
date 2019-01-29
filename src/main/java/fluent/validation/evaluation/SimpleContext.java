@@ -25,8 +25,6 @@
 
 package fluent.validation.evaluation;
 
-import fluent.validation.detail.CheckVisitor;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -42,11 +40,6 @@ public class SimpleContext implements Context {
     @Override
     public void set(Object statement, boolean value) {
         values.put(statement, value);
-    }
-
-    @Override
-    public CheckVisitor logger() {
-        return CheckVisitor.NONE;
     }
 
     @Override

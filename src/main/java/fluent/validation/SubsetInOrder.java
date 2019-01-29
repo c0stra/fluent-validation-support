@@ -25,7 +25,8 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.CheckVisitor;
+import fluent.validation.result.GroupResult;
+import fluent.validation.result.Result;
 
 import java.util.Iterator;
 
@@ -38,24 +39,17 @@ final class SubsetInOrder<D> extends Check<Iterable<D>> {
     }
 
     @Override
-    public boolean test(Iterable<D> data, CheckVisitor checkVisitor) {
+    public Result evaluate(Iterable<D> data) {
+        GroupResult.Builder resultBuilder = new GroupResult.Builder();
         Iterator<D> d = data.iterator();
-        CheckVisitor node = checkVisitor.node(this);
         for(Check<? super D> check : conditions) {
-            if(!evaluate(d, check, checkVisitor)) {
-                return trace(node, "", false);
-            }
+            do {
+                if(!d.hasNext()) {
+                    return resultBuilder.build(false);
+                }
+            } while (resultBuilder.add(check.evaluate(d.next())).failed());
         }
-        return trace(node, "", true);
-    }
-
-    private boolean evaluate(Iterator<D> data, Check<? super D> check, CheckVisitor checkVisitor) {
-        while(data.hasNext()) {
-            if(check.test(data.next(), checkVisitor)) {
-                return true;
-            }
-        }
-        return true;
+        return resultBuilder.build(true);
     }
 
 }

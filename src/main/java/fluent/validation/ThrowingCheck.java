@@ -1,6 +1,6 @@
 package fluent.validation;
 
-import fluent.validation.detail.CheckVisitor;
+import fluent.validation.result.Result;
 
 import static fluent.validation.Checks.allOf;
 import static fluent.validation.Checks.equalTo;
@@ -15,12 +15,17 @@ class ThrowingCheck extends Check<Runnable> {
     }
 
     @Override
-    public boolean test(Runnable data, CheckVisitor checkVisitor) {
+    public Result evaluate(Runnable data) {
         try {
             data.run();
-            return false;
+            return new Result(false) {
+
+            };
         } catch (Throwable throwable) {
-            return check.test(throwable, checkVisitor);
+            Result result = check.evaluate(throwable);
+            return new Result(result.passed()) {
+
+            };
         }
     }
 

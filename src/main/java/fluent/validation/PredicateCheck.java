@@ -25,7 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.CheckVisitor;
+import fluent.validation.result.Result;
 
 import java.util.function.Predicate;
 
@@ -40,13 +40,15 @@ final class PredicateCheck<D> extends Check<D> {
     }
 
     @Override
-    public boolean test(D data, CheckVisitor checkVisitor) {
-        return trace(checkVisitor, expectationDescription, data, predicate.test(data));
+    public String toString() {
+        return expectationDescription;
     }
 
     @Override
-    public String toString() {
-        return expectationDescription;
+    protected Result evaluate(D data) {
+        return new Result(predicate.test(data)) {
+
+        };
     }
 
 }

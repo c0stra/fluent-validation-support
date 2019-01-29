@@ -25,10 +25,8 @@
 
 package fluent.validation.evaluation;
 
-import fluent.validation.detail.CheckVisitor;
-
 public interface Conclusion {
 
-    void conclude(Boolean value, Context context, CheckVisitor logger);
+    void conclude(Boolean value, Context context);
 
 }

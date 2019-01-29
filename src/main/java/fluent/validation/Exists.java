@@ -23,27 +23,37 @@
  * SUCH DAMAGE.
  */
 
-package fluent.validation.detail;
+package fluent.validation;
 
-import fluent.validation.Check;
+import fluent.validation.result.GroupResult;
+import fluent.validation.result.Result;
 
-public final class NoVisitor implements CheckVisitor {
+import java.util.ArrayList;
+import java.util.List;
 
-    NoVisitor() {}
+final class Exists<D> extends Check<Iterable<D>> {
 
-    @Override
-    public void trace(String expectation, Object actualValue, boolean result) { }
+    private final Check<? super D> check;
 
-    @Override
-    public CheckVisitor node(Check<?> nodeName) { return this; }
+    Exists(Check<? super D> check) {
+        this.check = check;
+    }
 
-    @Override
-    public CheckVisitor label(Check<?> name) { return this; }
-
-    @Override
-    public CheckVisitor negative(Check<?> check) { return this; }
 
     @Override
-    public void trace(Object actualData, boolean result) { }
+    public Result evaluate(Iterable<D> data) {
+        GroupResult.Builder itemResults = new GroupResult.Builder();
+        for(D item : data) {
+            if(itemResults.add(check.evaluate(item)).passed()) {
+                return itemResults.build(true);
+            }
+        }
+        return itemResults.build(false);
+    }
+
+    @Override
+    public String toString() {
+        return "exists element matching " + check;
+    }
 
 }

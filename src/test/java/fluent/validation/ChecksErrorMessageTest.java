@@ -3,6 +3,8 @@ package fluent.validation;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Collections;
+
 import static fluent.validation.Checks.*;
 
 public class ChecksErrorMessageTest {
@@ -21,6 +23,7 @@ public class ChecksErrorMessageTest {
                 requirement("A", allOf(equalTo("C"), equalTo("B")), "Expected: <C> and <B>, actual: <A>"),
                 requirement("A", has("toString", Object::toString).equalTo("B"), "Expected: toString: <B>, actual: <A>"),
                 requirement("A", createBuilderWith(has("toString", Object::toString).equalTo("B")).and(has("length", String::length).equalTo(4)), "Expected: toString: <B> and length: <4>, actual: <A>"),
+                requirement(Collections.singleton("A"), exists(equalTo("B")), "")
         };
     }
 
@@ -28,8 +31,7 @@ public class ChecksErrorMessageTest {
     public <T> void test(Requirement<T, String> requirement) {
         Check.that(
                 () -> Check.that(requirement.data, requirement.check),
-                throwing(require(isAn(AssertionFailure.class), has("message", Throwable::getMessage).equalTo(requirement.expectedResult))),
-                new MessageCheckVisitor()
+                throwing(require(isAn(AssertionFailure.class), has("message", Throwable::getMessage).equalTo(requirement.expectedResult)))
         );
     }
 

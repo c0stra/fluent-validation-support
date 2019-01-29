@@ -25,13 +25,15 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.CheckVisitor;
+import fluent.validation.result.Result;
 
 final class Anything<T> extends Check<T> {
 
     @Override
-    public boolean test(T data, CheckVisitor checkVisitor) {
-        return true;
+    public Result evaluate(T data) {
+        return new Result(true) {
+
+        };
     }
 
     @SuppressWarnings("unchecked")

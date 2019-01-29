@@ -25,7 +25,8 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.CheckVisitor;
+import fluent.validation.result.GroupResult;
+import fluent.validation.result.Result;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -41,21 +42,22 @@ final class SubsetAnyOrder<D> extends Check<Iterable<D>> {
     }
 
     @Override
-    public boolean test(Iterable<D> data, CheckVisitor checkVisitor) {
+    public Result evaluate(Iterable<D> data) {
+        GroupResult.Builder resultBuilder = new GroupResult.Builder();
         List<Check<? super D>> set = new LinkedList<>(checks);
         for (D item : data) {
             Iterator<Check<? super D>> i = set.iterator();
             while (i.hasNext()) {
-                if(i.next().test(item, checkVisitor)) {
+                if(resultBuilder.add(i.next().evaluate(item)).passed()) {
                     i.remove();
                     break;
                 }
             }
             if(set.isEmpty()) {
-                return true;
+                return resultBuilder.build(true);
             }
         }
-        return false;
+        return resultBuilder.build(false);
     }
 
 }

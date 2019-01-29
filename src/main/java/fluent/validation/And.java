@@ -25,7 +25,8 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.CheckVisitor;
+import fluent.validation.result.BinaryOperationResult;
+import fluent.validation.result.Result;
 
 final class And<D> extends Check<D> {
 
@@ -38,15 +39,10 @@ final class And<D> extends Check<D> {
     }
 
     @Override
-    public boolean test(D data, CheckVisitor checkVisitor) {
-        CheckVisitor node = checkVisitor.node(this);
-        boolean result = left.test(data, node) & right.test(data, node);
-        return trace(node, data, result);
-    }
-
-    @Override
-    public String name() {
-        return "and";
+    public Result evaluate(D data) {
+        Result leftResult = left.evaluate(data);
+        Result rightResult = right.evaluate(data);
+        return new BinaryOperationResult(leftResult.passed() && rightResult.passed(), "and", leftResult, rightResult);
     }
 
     @Override

@@ -26,8 +26,7 @@
 package fluent.validation;
 
 import fluent.api.End;
-import fluent.validation.detail.CheckVisitor;
-import fluent.validation.detail.MismatchVisitor;
+import fluent.validation.result.Result;
 
 /**
  * Simple check used in for validation of various data.
@@ -54,18 +53,13 @@ public abstract class Check<T> {
      * provided detail collector.
      *
      * @param data Data to test by the condition.
-     * @param checkVisitor Tracer of the evaluation detail.
      * @return Evaluation result.
      */
-    protected abstract boolean test(T data, CheckVisitor checkVisitor);
-
-    /**
-     * Name of the check.
-     * @return The name.
-     */
-    public String name() {
-        return toString();
+    protected final boolean test(T data) {
+        return evaluate(data).passed();
     }
+
+    protected abstract Result evaluate(T data);
 
     /**
      * Compose this check with another one using logical AND operator.
@@ -98,20 +92,7 @@ public abstract class Check<T> {
      * @return Result of the check application on the data.
      */
     public static <T> boolean test(T data, Check<? super T> check) {
-        return test(data, check, CheckVisitor.NONE);
-    }
-
-    /**
-     * Execute the check on provided data.
-     *
-     * @param data Tested data.
-     * @param check Check to be applied.
-     * @param checkVisitor Check visitor to trace evaluation of the check.
-     * @param <T> Type of the tested data.
-     * @return Result of the check application on the data.
-     */
-    public static <T> boolean test(T data, Check<? super T> check, CheckVisitor checkVisitor) {
-        return check.test(data, checkVisitor);
+        return check.test(data);
     }
 
     /**
@@ -123,48 +104,10 @@ public abstract class Check<T> {
      */
     @End(message = "Check is not used. Pass it either to Check.test(data, check) or Check.that(data, check).")
     public static <T> void that(T data, Check<? super T> check) {
-        that(data, check, new MismatchVisitor());
-    }
-
-    /**
-     * Assert the data using provided check.
-     *
-     * @param data Tested data.
-     * @param check Check to be applied.
-     * @param checkVisitor Check visitor to trace evaluation of the check.
-     * @param <T> Type of the tested data.
-     */
-    public static <T> void that(T data, Check<? super T> check, CheckVisitor checkVisitor) {
-        if(!check.test(data, checkVisitor)) {
-            throw new AssertionFailure(checkVisitor.toString());
+        Result result = check.evaluate(data);
+        if(result.failed()) {
+            throw new AssertionFailure(result);
         }
-    }
-
-    /**
-     * Shortcut method, that traces current node detail, and returns result.
-     *
-     * @param node Tracer node wrapping composed condition details.
-     * @param actualValue Actual value.
-     * @param result Result of the composed condition.
-     * @return Result of the composed condition.
-     */
-    protected static boolean trace(CheckVisitor node, Object actualValue, boolean result) {
-        node.trace(actualValue, result);
-        return result;
-    }
-
-    /**
-     * Shortcut method, that traces current leaf detail, and returns result.
-     *
-     * @param checkVisitor Tracer for tracing condition details.
-     * @param expectation Description of the expectation.
-     * @param actualValue Actual value.
-     * @param result Result of the condition.
-     * @return Result of the condition.
-     */
-    protected static boolean trace(CheckVisitor checkVisitor, String expectation, Object actualValue, boolean result) {
-        checkVisitor.trace(expectation, actualValue, result);
-        return result;
     }
 
 }

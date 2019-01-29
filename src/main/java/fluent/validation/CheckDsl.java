@@ -25,7 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.CheckVisitor;
+import fluent.validation.result.Result;
 
 import java.util.function.Function;
 
@@ -60,8 +60,11 @@ public class CheckDsl<L, D> extends Check<D> {
     }
 
     @Override
-    public boolean test(D data, CheckVisitor checkVisitor) {
-        return check.test(data, checkVisitor);
+    public Result evaluate(D data) {
+        Result result = check.evaluate(data);
+        return new Result(result.passed()) {
+
+        };
     }
 
     @Override

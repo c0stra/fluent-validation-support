@@ -25,54 +25,32 @@
 
 package fluent.validation;
 
-import fluent.validation.detail.CheckVisitor;
+import fluent.validation.result.GroupResult;
+import fluent.validation.result.Result;
 
-import java.util.Iterator;
+final class Every<D> extends Check<Iterable<D>> {
 
-import static fluent.validation.Check.trace;
+    private final Check<? super D> check;
 
-/**
- * Check, making sure, that an actual collection meets provided conditions in exact order:
- *   1st item matches 1st condition, 2nd item matches 2nd condition, etc. and there must not be any item missing or
- *   extra (length of actual collection needs to match length of collection of conditions).
- *
- * @param <D> Type of the items in the collection.
- */
-final class CollectionInOrder<D> extends Check<Iterable<D>> {
-
-    private final Iterable<Check<? super D>> conditions;
-
-    CollectionInOrder(Iterable<Check<? super D>> conditions) {
-        this.conditions = conditions;
+    Every(Check<? super D> check) {
+        this.check = check;
     }
 
+
     @Override
-    public boolean test(Iterable<D> data, CheckVisitor checkVisitor) {
-        Iterator<Check<? super D>> c = conditions.iterator();
-        Iterator<D> d = data.iterator();
-        CheckVisitor node = checkVisitor.node(this);
-        while (c.hasNext() && d.hasNext()) {
-            Check<? super D> check = c.next();
-            if(!check.test(d.next(), node)) {
-                return trace(node, "No item matching " + check, false);
+    public Result evaluate(Iterable<D> data) {
+        GroupResult.Builder resultBuilder = new GroupResult.Builder();
+        for(D item : data) {
+            if(resultBuilder.add(check.evaluate(item)).failed()) {
+                return resultBuilder.build(false);
             }
         }
-        if(c.hasNext()) {
-            return trace(node, "No item matching " + c.next(), false);
-        }
-        if(d.hasNext()) {
-            return trace(node, "Extra items " + d.next(), false);
-        }
-        return trace(node, "Matched", true);
-    }
-
-    @Override
-    public String name() {
-        return "Items matching";
+        return resultBuilder.build(true);
     }
 
     @Override
     public String toString() {
-        return "Items matching " + conditions;
+        return "every element matches " + check;
     }
+
 }

@@ -25,14 +25,10 @@
 
 package fluent.validation.evaluation;
 
-import fluent.validation.detail.CheckVisitor;
-
 public interface Context {
 
     boolean isValid(Object statement);
 
     void set(Object statement, boolean value);
-
-    CheckVisitor logger();
 
 }
