@@ -13,4 +13,8 @@ public class BinaryOperationResult extends Result {
         this.rightResult = rightResult;
     }
 
+    @Override
+    public void accept(ResultVisitor visitor) {
+        visitor.binaryOperationResult(operator, passed(), leftResult, rightResult);
+    }
 }

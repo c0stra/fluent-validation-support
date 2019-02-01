@@ -1,6 +1,6 @@
 package fluent.validation.result;
 
-public class Result {
+public abstract class Result {
 
     private final boolean result;
 
@@ -14,6 +14,15 @@ public class Result {
 
     public boolean failed() {
         return !passed();
+    }
+
+    public abstract void accept(ResultVisitor visitor);
+
+    @Override
+    public String toString() {
+        ResultVisitor visitor = new MismatchResultVisitor();
+        accept(visitor);
+        return visitor.toString();
     }
 
 }

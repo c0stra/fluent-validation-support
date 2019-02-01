@@ -40,7 +40,7 @@ final class CollectionEqualsInAnyOrder<D> extends Check<Iterable<D>> {
 
     @Override
     public Result evaluate(Iterable<D> data) {
-        GroupResult.Builder resultBuilder = new GroupResult.Builder();
+        GroupResult.Builder resultBuilder = new GroupResult.Builder("collection equals in any order");
         final List<Check<? super D>> conditions = new LinkedList<>(this.conditions);
         for(D item : data) {
             if (conditions.isEmpty()) {

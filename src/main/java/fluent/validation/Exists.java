@@ -28,9 +28,6 @@ package fluent.validation;
 import fluent.validation.result.GroupResult;
 import fluent.validation.result.Result;
 
-import java.util.ArrayList;
-import java.util.List;
-
 final class Exists<D> extends Check<Iterable<D>> {
 
     private final Check<? super D> check;
@@ -42,7 +39,7 @@ final class Exists<D> extends Check<Iterable<D>> {
 
     @Override
     public Result evaluate(Iterable<D> data) {
-        GroupResult.Builder itemResults = new GroupResult.Builder();
+        GroupResult.Builder itemResults = new GroupResult.Builder(this);
         for(D item : data) {
             if(itemResults.add(check.evaluate(item)).passed()) {
                 return itemResults.build(true);

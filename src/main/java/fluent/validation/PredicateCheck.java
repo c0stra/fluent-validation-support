@@ -25,6 +25,8 @@
 
 package fluent.validation;
 
+import fluent.validation.result.ExceptionResult;
+import fluent.validation.result.PredicateResult;
 import fluent.validation.result.Result;
 
 import java.util.function.Predicate;
@@ -46,9 +48,11 @@ final class PredicateCheck<D> extends Check<D> {
 
     @Override
     protected Result evaluate(D data) {
-        return new Result(predicate.test(data)) {
-
-        };
+        try {
+            return new PredicateResult(predicate.test(data), expectationDescription, data);
+        } catch (RuntimeException | Error throwable) {
+            return new ExceptionResult(throwable);
+        }
     }
 
 }

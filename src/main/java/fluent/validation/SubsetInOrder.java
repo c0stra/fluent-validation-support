@@ -32,17 +32,17 @@ import java.util.Iterator;
 
 final class SubsetInOrder<D> extends Check<Iterable<D>> {
 
-    private final Iterable<Check<? super D>> conditions;
+    private final Iterable<Check<? super D>> checks;
 
-    SubsetInOrder(Iterable<Check<? super D>> conditions) {
-        this.conditions = conditions;
+    SubsetInOrder(Iterable<Check<? super D>> checks) {
+        this.checks = checks;
     }
 
     @Override
     public Result evaluate(Iterable<D> data) {
-        GroupResult.Builder resultBuilder = new GroupResult.Builder();
+        GroupResult.Builder resultBuilder = new GroupResult.Builder(this);
         Iterator<D> d = data.iterator();
-        for(Check<? super D> check : conditions) {
+        for(Check<? super D> check : checks) {
             do {
                 if(!d.hasNext()) {
                     return resultBuilder.build(false);
@@ -52,4 +52,8 @@ final class SubsetInOrder<D> extends Check<Iterable<D>> {
         return resultBuilder.build(true);
     }
 
+    @Override
+    public String toString() {
+        return "subset " + checks;
+    }
 }

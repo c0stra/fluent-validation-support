@@ -61,10 +61,7 @@ public class CheckDsl<L, D> extends Check<D> {
 
     @Override
     public Result evaluate(D data) {
-        Result result = check.evaluate(data);
-        return new Result(result.passed()) {
-
-        };
+        return check.evaluate(data);
     }
 
     @Override

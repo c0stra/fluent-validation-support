@@ -47,7 +47,7 @@ final class CollectionEqualsInOrder<D> extends Check<Iterable<D>> {
 
     @Override
     public Result evaluate(Iterable<D> data) {
-        GroupResult.Builder resultBuilder = new GroupResult.Builder();
+        GroupResult.Builder resultBuilder = new GroupResult.Builder("collection equals");
         Iterator<Check<? super D>> c = conditions.iterator();
         Iterator<D> d = data.iterator();
         while (c.hasNext() && d.hasNext()) {

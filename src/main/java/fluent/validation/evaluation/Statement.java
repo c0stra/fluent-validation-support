@@ -26,6 +26,7 @@
 package fluent.validation.evaluation;
 
 import fluent.validation.Check;
+import fluent.validation.result.PredicateResult;
 import fluent.validation.result.Result;
 
 import java.util.Objects;
@@ -34,7 +35,7 @@ public class Statement extends Check<Context> implements Conclusion {
 
     @Override
     protected Result evaluate(Context data) {
-        return new Result(data.isValid(this));
+        return new PredicateResult(data.isValid(this), this, this);
     }
 
     @Override

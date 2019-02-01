@@ -25,7 +25,9 @@
 
 package fluent.validation;
 
+import fluent.validation.result.ExceptionResult;
 import fluent.validation.result.Result;
+import fluent.validation.result.TargetResult;
 
 import java.util.function.Function;
 
@@ -47,14 +49,10 @@ final class FunctionCheck<D, V> extends Check<D> {
         try {
             value = function.apply(data);
         } catch (RuntimeException | Error unchecked) {
-            return new Result(false) {
-
-            };
+            return new ExceptionResult(unchecked);
         }
         Result result = check.evaluate(value);
-        return new Result(result.passed()) {
-
-        };
+        return new TargetResult(result.passed(), name, result);
     }
 
     @Override

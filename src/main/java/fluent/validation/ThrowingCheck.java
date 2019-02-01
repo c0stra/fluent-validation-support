@@ -1,6 +1,8 @@
 package fluent.validation;
 
+import fluent.validation.result.PredicateResult;
 import fluent.validation.result.Result;
+import fluent.validation.result.TargetResult;
 
 import static fluent.validation.Checks.allOf;
 import static fluent.validation.Checks.equalTo;
@@ -18,14 +20,10 @@ class ThrowingCheck extends Check<Runnable> {
     public Result evaluate(Runnable data) {
         try {
             data.run();
-            return new Result(false) {
-
-            };
+            return new PredicateResult(false, "throw exception", "no exception thrown");
         } catch (Throwable throwable) {
             Result result = check.evaluate(throwable);
-            return new Result(result.passed()) {
-
-            };
+            return new TargetResult(result.passed(), "throwing", result);
         }
     }
 

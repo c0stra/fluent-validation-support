@@ -39,7 +39,7 @@ final class Every<D> extends Check<Iterable<D>> {
 
     @Override
     public Result evaluate(Iterable<D> data) {
-        GroupResult.Builder resultBuilder = new GroupResult.Builder();
+        GroupResult.Builder resultBuilder = new GroupResult.Builder(this);
         for(D item : data) {
             if(resultBuilder.add(check.evaluate(item)).failed()) {
                 return resultBuilder.build(false);

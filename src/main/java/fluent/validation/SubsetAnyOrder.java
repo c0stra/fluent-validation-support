@@ -43,7 +43,7 @@ final class SubsetAnyOrder<D> extends Check<Iterable<D>> {
 
     @Override
     public Result evaluate(Iterable<D> data) {
-        GroupResult.Builder resultBuilder = new GroupResult.Builder();
+        GroupResult.Builder resultBuilder = new GroupResult.Builder(this);
         List<Check<? super D>> set = new LinkedList<>(checks);
         for (D item : data) {
             Iterator<Check<? super D>> i = set.iterator();
@@ -58,6 +58,11 @@ final class SubsetAnyOrder<D> extends Check<Iterable<D>> {
             }
         }
         return resultBuilder.build(false);
+    }
+
+    @Override
+    public String toString() {
+        return "subset in any order " + checks;
     }
 
 }

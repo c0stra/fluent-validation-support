@@ -40,15 +40,7 @@ final class DoubleCheck<D> extends Check<D> {
     @Override
     public Result evaluate(D data) {
         Result requirementResult = requirement.evaluate(data);
-        if(requirementResult.failed()) {
-            return new Result(false) {
-
-            };
-        }
-        Result result = check.evaluate(data);
-        return new Result(result.passed()) {
-
-        };
+        return requirementResult.failed() ? requirementResult : check.evaluate(data);
     }
 
     @Override

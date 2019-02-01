@@ -25,15 +25,14 @@
 
 package fluent.validation;
 
+import fluent.validation.result.PredicateResult;
 import fluent.validation.result.Result;
 
 final class Anything<T> extends Check<T> {
 
     @Override
     public Result evaluate(T data) {
-        return new Result(true) {
-
-        };
+        return new PredicateResult(true, "anything", data);
     }
 
     @SuppressWarnings("unchecked")
