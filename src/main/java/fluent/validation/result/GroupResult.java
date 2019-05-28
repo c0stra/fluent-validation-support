@@ -6,17 +6,19 @@ import java.util.List;
 public class GroupResult extends Result {
 
     private final Object description;
+    private final Object actualValueDescription;
     private final List<Result> itemResults;
 
-    public GroupResult(boolean result, Object description, List<Result> itemResults) {
+    public GroupResult(boolean result, Object description, Object actualValueDescription, List<Result> itemResults) {
         super(result);
         this.description = description;
+        this.actualValueDescription = actualValueDescription;
         this.itemResults = itemResults;
     }
 
     @Override
     public void accept(ResultVisitor visitor) {
-        visitor.groupResult(description, passed(), itemResults);
+        visitor.groupResult(description, actualValueDescription, passed(), itemResults);
     }
 
     public static class Builder {
@@ -31,8 +33,8 @@ public class GroupResult extends Result {
             itemResults.add(itemResult);
             return itemResult;
         }
-        public Result build(boolean result) {
-            return new GroupResult(result, description, itemResults);
+        public Result build(Object actualValueDescription, boolean result) {
+            return new GroupResult(result, description, actualValueDescription, itemResults);
         }
     }
 

@@ -27,6 +27,7 @@ package fluent.validation;
 
 import fluent.api.End;
 import fluent.validation.result.Result;
+import fluent.validation.result.ResultFactory;
 
 /**
  * Simple check used in for validation of various data.
@@ -49,17 +50,22 @@ import fluent.validation.result.Result;
 public abstract class Check<T> {
 
     /**
+     * Abstract method to delegate implementation of specific check logic to subclasses.
+     * @param data Tested data.
+     * @return representation of outcome of the test.
+     */
+    protected abstract Result evaluate(T data, ResultFactory factory);
+
+    /**
      * Evaluation of the condition on provided data, able to provide full detail of the evaluation using
      * provided detail collector.
      *
      * @param data Data to test by the condition.
      * @return Evaluation result.
      */
-    protected final boolean test(T data) {
-        return evaluate(data).passed();
+    private boolean test(T data, ResultFactory factory) {
+        return evaluate(data, factory).passed();
     }
-
-    protected abstract Result evaluate(T data);
 
     /**
      * Compose this check with another one using logical AND operator.
@@ -92,7 +98,19 @@ public abstract class Check<T> {
      * @return Result of the check application on the data.
      */
     public static <T> boolean test(T data, Check<? super T> check) {
-        return check.test(data);
+        return test(data, check, ResultFactory.DEFAULT);
+    }
+
+    /**
+     * Execute the check on provided data.
+     *
+     * @param data Tested data.
+     * @param check Check to be applied.
+     * @param <T> Type of the tested data.
+     * @return Result of the check application on the data.
+     */
+    public static <T> boolean test(T data, Check<? super T> check, ResultFactory resultFactory) {
+        return check.test(data, resultFactory);
     }
 
     /**
@@ -104,7 +122,19 @@ public abstract class Check<T> {
      */
     @End(message = "Check is not used. Pass it either to Check.test(data, check) or Check.that(data, check).")
     public static <T> void that(T data, Check<? super T> check) {
-        Result result = check.evaluate(data);
+        that(data, check, ResultFactory.DEFAULT);
+    }
+
+    /**
+     * Assert the data using provided check.
+     *
+     * @param data Tested data.
+     * @param check Check to be applied.
+     * @param <T> Type of the tested data.
+     */
+    @End(message = "Check is not used. Pass it either to Check.test(data, check) or Check.that(data, check).")
+    public static <T> void that(T data, Check<? super T> check, ResultFactory resultFactory) {
+        Result result = check.evaluate(data, resultFactory);
         if(result.failed()) {
             throw new AssertionFailure(result);
         }

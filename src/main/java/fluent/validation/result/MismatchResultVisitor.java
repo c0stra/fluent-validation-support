@@ -8,18 +8,19 @@ public class MismatchResultVisitor implements ResultVisitor {
 
     @Override
     public void predicateResult(Object expectation, Object actual, boolean result) {
-        builder.append("Expected: ").append(expectation).append(" but actual: ").append(actual).append('\n');
+        builder.append("expected: ").append(expectation).append(" but actual: <").append(actual).append('>');//.append('\n');
     }
 
     @Override
-    public void targetResult(Object target, boolean result, Result dependency) {
+    public void targetResult(CheckDescription target, boolean result, Result dependency) {
+        builder.append(target.description()).append(' ');
         dependency.accept(this);
     }
 
     @Override
-    public void groupResult(Object description, boolean result, List<Result> itemResults) {
-        builder.append(description).append(' ');
-        itemResults.stream().filter(r -> r.passed()).forEach(r -> r.accept(this));
+    public void groupResult(Object description, Object actualValueDescription, boolean result, List<Result> itemResults) {
+        builder.append(description).append(" but ").append(actualValueDescription);
+        itemResults.stream().filter(Result::passed).forEach(r -> r.accept(this));
     }
 
     @Override

@@ -2,10 +2,10 @@ package fluent.validation.result;
 
 public class TargetResult extends Result {
 
-    private final Object target;
+    private final CheckDescription target;
     private final Result dependency;
 
-    public TargetResult(boolean result, Object target, Result dependency) {
+    public TargetResult(CheckDescription target, boolean result, Result dependency) {
         super(result);
         this.target = target;
         this.dependency = dependency;

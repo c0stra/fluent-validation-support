@@ -27,33 +27,60 @@ package fluent.validation;
 
 import fluent.validation.result.GroupResult;
 import fluent.validation.result.Result;
+import fluent.validation.result.ResultFactory;
 
 import java.util.Iterator;
 
-final class SubsetInOrder<D> extends Check<Iterable<D>> {
+/**
+ * Check, making sure, that an actual collection meets provided conditions in exact order:
+ *   1st item matches 1st condition, 2nd item matches 2nd condition, etc. and there must not be any item missing or
+ *   extra (length of actual collection needs to match length of collection of conditions).
+ *
+ * @param <D> Type of the items in the collection.
+ */
+final class CollectionCheckInOrder<D> extends Check<Iterable<D>> {
 
     private final Iterable<Check<? super D>> checks;
+    private final boolean full;
+    private final boolean exact;
 
-    SubsetInOrder(Iterable<Check<? super D>> checks) {
+    CollectionCheckInOrder(Iterable<Check<? super D>> checks, boolean full, boolean exact) {
         this.checks = checks;
+        this.full = full;
+        this.exact = exact;
+    }
+
+    private boolean match(Check<? super D> check, Iterator<D> d, GroupResult.Builder resultBuilder, ResultFactory factory) {
+        while (d.hasNext()) {
+            D item = d.next();
+            if(resultBuilder.add(check.evaluate(item, factory)).passed()) {
+                return true;
+            }
+            if(exact) {
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override
-    public Result evaluate(Iterable<D> data) {
-        GroupResult.Builder resultBuilder = new GroupResult.Builder(this);
+    public Result evaluate(Iterable<D> data, ResultFactory factory) {
+        GroupResult.Builder resultBuilder = new GroupResult.Builder("collection equals");
         Iterator<D> d = data.iterator();
         for(Check<? super D> check : checks) {
-            do {
-                if(!d.hasNext()) {
-                    return resultBuilder.build(false);
-                }
-            } while (resultBuilder.add(check.evaluate(d.next())).failed());
+            if(!match(check, d, resultBuilder, factory)) {
+                return resultBuilder.build(check + " not matched by any item", false);
+            }
         }
-        return resultBuilder.build(true);
+        if(full && exact && d.hasNext()) {
+            return resultBuilder.build("Extra item " + d.next(), false);
+        }
+        return resultBuilder.build("Items matched checks", true);
     }
 
     @Override
     public String toString() {
-        return "subset " + checks;
+        return "Items matching " + checks;
     }
+
 }

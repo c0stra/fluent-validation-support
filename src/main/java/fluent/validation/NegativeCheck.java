@@ -25,10 +25,11 @@
 
 package fluent.validation;
 
+import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Result;
-import fluent.validation.result.TargetResult;
+import fluent.validation.result.ResultFactory;
 
-final class NegativeCheck<D> extends Check<D> {
+final class NegativeCheck<D> extends Check<D> implements CheckDescription {
 
     private final Check<D> check;
 
@@ -37,9 +38,9 @@ final class NegativeCheck<D> extends Check<D> {
     }
 
     @Override
-    protected Result evaluate(D data) {
-        Result result = check.evaluate(data);
-        return new TargetResult(result.failed(), "not", result);
+    protected Result evaluate(D data, ResultFactory factory) {
+        Result result = check.evaluate(data, factory);
+        return factory.targetResult(this, data, result.failed(), result);
     }
 
     @Override
@@ -47,4 +48,8 @@ final class NegativeCheck<D> extends Check<D> {
         return "not " + check;
     }
 
+    @Override
+    public String description() {
+        return "not";
+    }
 }

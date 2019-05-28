@@ -26,6 +26,7 @@
 package fluent.validation;
 
 import fluent.validation.result.Result;
+import fluent.validation.result.ResultFactory;
 
 final class DoubleCheck<D> extends Check<D> {
 
@@ -38,9 +39,9 @@ final class DoubleCheck<D> extends Check<D> {
     }
 
     @Override
-    public Result evaluate(D data) {
-        Result requirementResult = requirement.evaluate(data);
-        return requirementResult.failed() ? requirementResult : check.evaluate(data);
+    public Result evaluate(D data, ResultFactory factory) {
+        Result requirementResult = requirement.evaluate(data, factory);
+        return requirementResult.failed() ? requirementResult : check.evaluate(data, factory);
     }
 
     @Override

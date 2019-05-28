@@ -25,13 +25,14 @@
 
 package fluent.validation;
 
+import fluent.validation.result.CheckDescription;
 import fluent.validation.result.ExceptionResult;
-import fluent.validation.result.PredicateResult;
 import fluent.validation.result.Result;
+import fluent.validation.result.ResultFactory;
 
 import java.util.function.Predicate;
 
-final class PredicateCheck<D> extends Check<D> {
+final class PredicateCheck<D> extends Check<D> implements CheckDescription {
 
     private final Predicate<D> predicate;
     private final String expectationDescription;
@@ -47,12 +48,17 @@ final class PredicateCheck<D> extends Check<D> {
     }
 
     @Override
-    protected Result evaluate(D data) {
+    protected Result evaluate(D data, ResultFactory factory) {
         try {
-            return new PredicateResult(predicate.test(data), expectationDescription, data);
+            return factory.predicateResult(this, data, predicate.test(data));
         } catch (RuntimeException | Error throwable) {
             return new ExceptionResult(throwable);
         }
+    }
+
+    @Override
+    public String description() {
+        return toString();
     }
 
 }

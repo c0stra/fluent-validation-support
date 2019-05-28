@@ -25,13 +25,13 @@
 
 package fluent.validation;
 
-import fluent.validation.result.ExceptionResult;
+import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Result;
-import fluent.validation.result.TargetResult;
+import fluent.validation.result.ResultFactory;
 
 import java.util.function.Function;
 
-final class FunctionCheck<D, V> extends Check<D> {
+final class FunctionCheck<D, V> extends Check<D> implements CheckDescription {
 
     private final String name;
     private final Function<? super D, V> function;
@@ -44,20 +44,25 @@ final class FunctionCheck<D, V> extends Check<D> {
     }
 
     @Override
-    protected Result evaluate(D data) {
+    protected Result evaluate(D data, ResultFactory factory) {
         V value;
         try {
             value = function.apply(data);
         } catch (RuntimeException | Error unchecked) {
-            return new ExceptionResult(unchecked);
+            return factory.exceptionResult(unchecked, false);
         }
-        Result result = check.evaluate(value);
-        return new TargetResult(result.passed(), name, result);
+        Result result = check.evaluate(value, factory);
+        return factory.targetResult(this, data, result.passed(), result);
     }
 
     @Override
     public String toString() {
         return name + ": " + check;
+    }
+
+    @Override
+    public String description() {
+        return name;
     }
 
 }

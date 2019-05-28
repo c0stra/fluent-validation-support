@@ -27,34 +27,46 @@ package fluent.validation;
 
 import fluent.validation.result.GroupResult;
 import fluent.validation.result.Result;
+import fluent.validation.result.ResultFactory;
 
 import java.util.*;
 
-final class CollectionEqualsInAnyOrder<D> extends Check<Iterable<D>> {
+final class QueueCheckInAnyOrder<D> extends Check<Queue<D>> {
 
-    private final List<Check<? super D>> conditions;
+    private final List<Check<? super D>> checks;
+    private final boolean full;
+    private final boolean exact;
 
-    CollectionEqualsInAnyOrder(Collection<Check<? super D>> conditions) {
-        this.conditions = new ArrayList<>(conditions);
+    QueueCheckInAnyOrder(Collection<Check<? super D>> checks, boolean full, boolean exact) {
+        this.checks = new ArrayList<>(checks);
+        this.full = full;
+        this.exact = exact;
+    }
+
+    private boolean matchesAnyAndRemoves(D item, List<Check<? super D>> checks, GroupResult.Builder resultBuilder, ResultFactory factory) {
+        Iterator<Check<? super D>> c = checks.iterator();
+        while (c.hasNext()) {
+            if (resultBuilder.add(c.next().evaluate(item, factory)).passed()) {
+                c.remove();
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
-    public Result evaluate(Iterable<D> data) {
+    public Result evaluate(Queue<D> data, ResultFactory factory) {
         GroupResult.Builder resultBuilder = new GroupResult.Builder("collection equals in any order");
-        final List<Check<? super D>> conditions = new LinkedList<>(this.conditions);
-        for(D item : data) {
-            if (conditions.isEmpty()) {
-                return resultBuilder.build(false);
+        final List<Check<? super D>> copy = new LinkedList<>(this.checks);
+        for(D item = data.poll(); item != null; item = data.poll()) {
+            if(copy.isEmpty()) {
+                return full ? resultBuilder.build("Extra items found", false) : resultBuilder.build("Prefix matched", true);
             }
-            Iterator<Check<? super D>> c = conditions.iterator();
-            while (c.hasNext()) {
-                if (resultBuilder.add(c.next().evaluate(item)).passed()) {
-                    c.remove();
-                    break;
-                }
+            if (!matchesAnyAndRemoves(item, copy, resultBuilder, factory) && exact) {
+                return resultBuilder.build("Extra items found", false);
             }
         }
-        return resultBuilder.build(conditions.isEmpty());
+        return resultBuilder.build(copy.isEmpty()? "All checks satisfied": "" + copy.size() + " checks not satisfied", copy.isEmpty());
     }
 
 }

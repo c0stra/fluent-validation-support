@@ -47,7 +47,7 @@ public interface Builder<V, R> {
      * @return Followup of the builder.
      */
     default R equalTo(V expectedValue) {
-        return matching(Checks.equalTo(expectedValue));
+        return matching(BasicChecks.equalTo(expectedValue));
     }
 
 }

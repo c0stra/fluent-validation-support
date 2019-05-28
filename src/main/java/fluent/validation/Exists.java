@@ -27,30 +27,32 @@ package fluent.validation;
 
 import fluent.validation.result.GroupResult;
 import fluent.validation.result.Result;
+import fluent.validation.result.ResultFactory;
 
 final class Exists<D> extends Check<Iterable<D>> {
 
+    private final String elementName;
     private final Check<? super D> check;
 
-    Exists(Check<? super D> check) {
+    Exists(String elementName, Check<? super D> check) {
+        this.elementName = elementName;
         this.check = check;
     }
 
-
     @Override
-    public Result evaluate(Iterable<D> data) {
+    public Result evaluate(Iterable<D> data, ResultFactory factory) {
         GroupResult.Builder itemResults = new GroupResult.Builder(this);
         for(D item : data) {
-            if(itemResults.add(check.evaluate(item)).passed()) {
-                return itemResults.build(true);
+            if(itemResults.add(check.evaluate(item, factory)).passed()) {
+                return itemResults.build(elementName + " " + check + " found", true);
             }
         }
-        return itemResults.build(false);
+        return itemResults.build("No " + elementName + " " + check + " found", false);
     }
 
     @Override
     public String toString() {
-        return "exists element matching " + check;
+        return "exists " + elementName + " " + check;
     }
 
 }

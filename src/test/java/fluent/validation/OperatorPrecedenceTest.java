@@ -2,7 +2,7 @@ package fluent.validation;
 
 import org.testng.annotations.Test;
 
-import static fluent.validation.Checks.equalTo;
+import static fluent.validation.BasicChecks.equalTo;
 import static org.testng.Assert.assertTrue;
 
 public class OperatorPrecedenceTest {

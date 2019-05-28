@@ -25,23 +25,14 @@
 
 package fluent.validation;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static java.lang.Math.abs;
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
 
 /**
  * Factory of ready to use most frequent conditions. There are typical conditions for following categories:
@@ -56,9 +47,9 @@ import static java.util.Arrays.stream;
  * 8. Floating point comparison using a tolerance
  * 9. Builders for composition or collection of criteria.
  */
-public final class Checks {
+public final class BasicChecks {
 
-    private Checks() {}
+    private BasicChecks() {}
 
     private static final Double DEFAULT_TOLERANCE = 0.0000001;
     private static final Check<Object> IS_NULL = equalTo((Object) null);
@@ -218,19 +209,6 @@ public final class Checks {
         return has("class", Object::getClass).matching(equalTo(expectedClass));
     }
 
-    /* ------------------------------------------------------------------------------------------------------
-     * Checks for iterables.
-     * ------------------------------------------------------------------------------------------------------
-     */
-
-    public static <D> Check<Iterable<D>> exists(Check<? super D> check) {
-        return new Exists<>(check);
-    }
-
-    public static <D> Check<Iterable<D>> every(Check<? super D> check) {
-        return new Every<>(check);
-    }
-
     /**
      * Create matcher of empty array.
      * It returns true, if tested collection meets null or has no elements.
@@ -240,103 +218,6 @@ public final class Checks {
      */
     public static <D> Check<D[]> emptyArray() {
         return nullableCondition(data -> Objects.isNull(data) || data.length == 0, "is empty array");
-    }
-
-    /**
-     * Create matcher of empty collection.
-     * It returns true, if tested collection meets null or has no elements.
-     *
-     * @param <D> Type of the items in the collection to be tested.
-     * @return Empty collection expectation.
-     */
-    public static <D> Check<Collection<D>> emptyCollection() {
-        return nullableCondition(data -> Objects.isNull(data) || data.isEmpty(), "is empty collection");
-    }
-
-    /**
-     * Create matcher, that matches if tested collection meets subset of provided superset.
-     *
-     * @param superSet Superset of expected items.
-     * @param <D> Type of the items in the collection to be tested.
-     * @return Subset expectation.
-     */
-    public static <D> Check<Collection<D>> subsetOf(Collection<D> superSet) {
-        return condition(superSet::containsAll, "Superset of " + superSet);
-    }
-
-    /**
-     * Create matcher, that matches if tested collection meets subset of provided superset.
-     *
-     * @param superSet Superset of expected items.
-     * @param <D> Type of the items in the collection to be tested.
-     * @return Subset expectation.
-     */
-    @SafeVarargs
-    public static <D> Check<Collection<D>> subsetOf(D... superSet) {
-        return subsetOf(new HashSet<>(asList(superSet)));
-    }
-
-    /**
-     * Create matcher of collection size.
-     * If you want to test for emptiness using size 0, note different behavior from empty() for null. This expectation
-     * will fail for it, but empty() will pass.
-     *
-     * @param size Expected size of the collection.
-     * @param <D> Type of the items in the collection to be tested.
-     * @return Collection size expectation.
-     */
-    public static <D> Check<Collection<D>> hasSize(int size) {
-        return condition(data -> data.size() == size, "has size " + size);
-    }
-
-    public static <D> Check<Collection<D>> hasItems(Collection<D> items) {
-        return condition(data -> data.containsAll(items), "Has items " + items);
-    }
-
-    @SafeVarargs
-    public static <D> Check<Collection<D>> hasItems(D... items) {
-        return hasItems(asList(items));
-    }
-
-    public static <D> Check<Iterable<D>> hasItemsInOrder(Iterable<Check<? super D>> itemConditions) {
-        return new SubsetInOrder<>(itemConditions);
-    }
-
-    @SafeVarargs
-    public static <D> Check<Iterable<D>> hasItemsInOrder(Check<? super D>... itemChecks) {
-        return hasItemsInOrder(asList(itemChecks));
-    }
-
-    public static <D> Check<Iterable<D>> hasItemsInAnyOrder(Collection<Check<? super D>> itemChecks) {
-        return new SubsetAnyOrder<>(itemChecks);
-    }
-
-    @SafeVarargs
-    public static <D> Check<Iterable<D>> hasItemsInAnyOrder(Check<? super D>... itemChecks) {
-        return hasItemsInAnyOrder(asList(itemChecks));
-    }
-
-    public static <D> Check<Iterable<D>> exactItemsInOrder(Iterable<Check<? super D>> itemConditions) {
-        return new CollectionEqualsInOrder<>(itemConditions);
-    }
-
-    @SafeVarargs
-    public static <D> Check<Iterable<D>> exactItemsInOrder(Check<? super D>... itemChecks) {
-        return exactItemsInOrder(asList(itemChecks));
-    }
-
-    @SafeVarargs
-    public static <D> Check<Iterable<D>> exactItemsInOrder(D... expectedItems) {
-        return exactItemsInOrder(stream(expectedItems).map(Checks::equalTo).collect(Collectors.toList()));
-    }
-
-    public static <D> Check<Iterable<D>> exactItemsInAnyOrder(Collection<Check<? super D>> itemConditions) {
-        return new CollectionEqualsInAnyOrder<>(itemConditions);
-    }
-
-    @SafeVarargs
-    public static <D> Check<Iterable<D>> exactItemsInAnyOrder(Check<? super D>... itemChecks) {
-        return exactItemsInAnyOrder(asList(itemChecks));
     }
 
     /* ------------------------------------------------------------------------------------------------------
@@ -358,31 +239,6 @@ public final class Checks {
 
     public static <V> Builder<V, Check<V>> as(Class<V> type) {
         return condition -> require(instanceOf(type), compose("as " + type.getSimpleName(), type::cast, condition));
-    }
-
-    /* ------------------------------------------------------------------------------------------------------
-     * XML conditions.
-     * ------------------------------------------------------------------------------------------------------
-     */
-
-
-    public static Check<Document> xpath(String xpath) throws XPathExpressionException {
-        XPathExpression compile = XPathFactory.newInstance().newXPath().compile(xpath);
-        return nullableCondition(document -> {
-            try {
-                return (boolean) compile.evaluate(document, XPathConstants.BOOLEAN);
-            } catch (XPathExpressionException e) {
-                throw new IllegalArgumentException(e);
-            }
-        }, xpath);
-    }
-
-    public static Builder<String, Check<Element>> attribute(String name) {
-        return has(name, e -> e.getAttribute(name));
-    }
-
-    public static Check<Element> hasAttribute(String name) {
-        return condition(e -> e.hasAttribute(name), "has " + name);
     }
 
 

@@ -5,7 +5,7 @@ public class PredicateResult extends Result {
     private final Object expectation;
     private final Object actual;
 
-    public PredicateResult(boolean result, Object expectation, Object actual) {
+    public PredicateResult(Object expectation, Object actual, boolean result) {
         super(result);
         this.expectation = expectation;
         this.actual = actual;

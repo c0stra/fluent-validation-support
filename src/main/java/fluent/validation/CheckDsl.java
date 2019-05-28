@@ -26,11 +26,12 @@
 package fluent.validation;
 
 import fluent.validation.result.Result;
+import fluent.validation.result.ResultFactory;
 
 import java.util.function.Function;
 
-import static fluent.validation.Checks.anything;
-import static fluent.validation.Checks.has;
+import static fluent.validation.BasicChecks.anything;
+import static fluent.validation.BasicChecks.has;
 
 public class CheckDsl<L, D> extends Check<D> {
 
@@ -60,8 +61,8 @@ public class CheckDsl<L, D> extends Check<D> {
     }
 
     @Override
-    public Result evaluate(D data) {
-        return check.evaluate(data);
+    public Result evaluate(D data, ResultFactory factory) {
+        return check.evaluate(data, factory);
     }
 
     @Override

@@ -1,14 +1,14 @@
 package fluent.validation;
 
-import fluent.validation.result.PredicateResult;
+import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Result;
-import fluent.validation.result.TargetResult;
+import fluent.validation.result.ResultFactory;
 
-import static fluent.validation.Checks.allOf;
-import static fluent.validation.Checks.equalTo;
-import static fluent.validation.Checks.has;
+import static fluent.validation.BasicChecks.allOf;
+import static fluent.validation.BasicChecks.equalTo;
+import static fluent.validation.BasicChecks.has;
 
-class ThrowingCheck extends Check<Runnable> {
+class ThrowingCheck extends Check<Runnable> implements CheckDescription {
 
     private final Check<? super Throwable> check;
 
@@ -17,13 +17,13 @@ class ThrowingCheck extends Check<Runnable> {
     }
 
     @Override
-    public Result evaluate(Runnable data) {
+    public Result evaluate(Runnable data, ResultFactory factory) {
         try {
             data.run();
-            return new PredicateResult(false, "throw exception", "no exception thrown");
+            return factory.predicateResult(this, "no exception thrown", false);
         } catch (Throwable throwable) {
-            Result result = check.evaluate(throwable);
-            return new TargetResult(result.passed(), "throwing", result);
+            Result result = check.evaluate(throwable, factory);
+            return factory.targetResult(this, throwable, result.passed(), result);
         }
     }
 
@@ -38,5 +38,10 @@ class ThrowingCheck extends Check<Runnable> {
     @Override
     public String toString() {
         return "throwing " + check;
+    }
+
+    @Override
+    public String description() {
+        return "throw exception";
     }
 }

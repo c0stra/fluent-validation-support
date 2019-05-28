@@ -1,29 +1,33 @@
 package fluent.validation;
 
+import fluent.validation.result.Result;
+import fluent.validation.result.ResultFactory;
+import fluent.validation.utils.ErrorMessageResult;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Collections;
 
-import static fluent.validation.Checks.*;
+import static fluent.validation.BasicChecks.*;
+import static fluent.validation.CollectionChecks.*;
 
 public class ChecksErrorMessageTest {
 
     @DataProvider
     public static Object[][] requirements() {
         return new Object[][]{
-                requirement("A", equalTo("B"), "Expected: <B>, actual: <A>"),
-                requirement(1.0, equalTo(2.0), "Expected: <2.0 ±1.0E-7>, actual: <1.0>"),
-                requirement("A", not("A"), "Expected: not <A>, actual: <A>"),
-                requirement("A", not(allOf(equalTo("A"), startsWith("A"))), "Expected: not <A> and starts with <A>, actual: <A>"),
-                requirement("A", allOf(not("A"), not("B")), "Expected: not <A> and not <B>, actual: <A>"),
-                requirement(null, notNull(), "Expected: not <null>, actual: <null>"),
-                requirement(null, not(anything()), "Expected: not anything, actual: <null>"),
-                requirement("A", allOf(equalTo("A"), equalTo("B")), "Expected: <A> and <B>, actual: <A>"),
-                requirement("A", allOf(equalTo("C"), equalTo("B")), "Expected: <C> and <B>, actual: <A>"),
-                requirement("A", has("toString", Object::toString).equalTo("B"), "Expected: toString: <B>, actual: <A>"),
-                requirement("A", createBuilderWith(has("toString", Object::toString).equalTo("B")).and(has("length", String::length).equalTo(4)), "Expected: toString: <B> and length: <4>, actual: <A>"),
-                requirement(Collections.singleton("A"), exists(equalTo("B")), "")
+                requirement("A", equalTo("B"), "expected: <B> but actual: <A>"),
+                requirement(1.0, equalTo(2.0), "expected: <2.0 ±1.0E-7> but actual: <1.0>"),
+                requirement("A", not("A"), "not expected: <A> but actual: <A>"),
+                requirement("A", not(allOf(equalTo("A"), startsWith("A"))), "not expected: <A> and starts with <A> but actual: <A>"),
+                requirement("A", allOf(not("A"), not("B")), "Expected: not <A> and not <B> but actual: <A>"),
+                requirement(null, notNull(), "not expected: <null> but actual: <null>"),
+                requirement(null, not(anything()), "not expected: anything but actual: <null>"),
+                requirement("A", allOf(equalTo("A"), equalTo("B")), "expected: <A> and <B> but actual: <A>"),
+                requirement("A", allOf(equalTo("C"), equalTo("B")), "expected: <C> and <B> but actual: <A>"),
+                requirement("A", has("toString", Object::toString).equalTo("B"), "toString expected: <B> but actual: <A>"),
+                requirement("A", createBuilderWith(has("toString", Object::toString).equalTo("B")).and(has("length", String::length).equalTo(4)), "toString expected: <B> but actual: <A> and length expected: <4> but actual: <1>"),
+                requirement(Collections.singleton("A"), exists("String", equalTo("B")), "exists String <B> but No String <B> found")
         };
     }
 
@@ -31,8 +35,12 @@ public class ChecksErrorMessageTest {
     public <T> void test(Requirement<T, String> requirement) {
         Check.that(
                 () -> Check.that(requirement.data, requirement.check),
-                throwing(require(isAn(AssertionFailure.class), has("message", Throwable::getMessage).equalTo(requirement.expectedResult)))
-        );
+                throwing(require(isAn(AssertionFailure.class), has("Error message", Throwable::getMessage).matching(
+                        new Check<String>() {
+                            @Override protected Result evaluate(String data, ResultFactory factory) {
+                                return new ErrorMessageResult(equalTo(requirement.expectedResult).evaluate(data, factory));
+                            }
+                        }))));
     }
 
     private static <T> Object[] requirement(T data, Check<? super T> check, String expectedMessage) {

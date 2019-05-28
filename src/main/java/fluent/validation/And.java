@@ -25,10 +25,13 @@
 
 package fluent.validation;
 
-import fluent.validation.result.BinaryOperationResult;
+import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Result;
+import fluent.validation.result.ResultFactory;
 
-final class And<D> extends Check<D> {
+import static java.util.Arrays.asList;
+
+final class And<D> extends Check<D> implements CheckDescription {
 
     private final Check<? super D> left;
     private final Check<? super D> right;
@@ -39,10 +42,10 @@ final class And<D> extends Check<D> {
     }
 
     @Override
-    public Result evaluate(D data) {
-        Result leftResult = left.evaluate(data);
-        Result rightResult = right.evaluate(data);
-        return new BinaryOperationResult(leftResult.passed() && rightResult.passed(), "and", leftResult, rightResult);
+    public Result evaluate(D data, ResultFactory factory) {
+        Result leftResult = left.evaluate(data, factory);
+        Result rightResult = right.evaluate(data, factory);
+        return factory.groupResult(this, data, leftResult.passed() && rightResult.passed(), asList(leftResult, rightResult));
     }
 
     @Override
@@ -50,4 +53,8 @@ final class And<D> extends Check<D> {
         return left + " and " + right;
     }
 
+    @Override
+    public String description() {
+        return "and";
+    }
 }

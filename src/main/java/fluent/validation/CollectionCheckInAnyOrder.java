@@ -27,46 +27,51 @@ package fluent.validation;
 
 import fluent.validation.result.GroupResult;
 import fluent.validation.result.Result;
+import fluent.validation.result.ResultFactory;
 
-import java.util.Iterator;
+import java.util.*;
 
-/**
- * Check, making sure, that an actual collection meets provided conditions in exact order:
- *   1st item matches 1st condition, 2nd item matches 2nd condition, etc. and there must not be any item missing or
- *   extra (length of actual collection needs to match length of collection of conditions).
- *
- * @param <D> Type of the items in the collection.
- */
-final class CollectionEqualsInOrder<D> extends Check<Iterable<D>> {
+final class CollectionCheckInAnyOrder<D> extends Check<Iterable<D>> {
 
-    private final Iterable<Check<? super D>> conditions;
+    private final List<Check<? super D>> checks;
+    private final boolean full;
+    private final boolean exact;
 
-    CollectionEqualsInOrder(Iterable<Check<? super D>> conditions) {
-        this.conditions = conditions;
+    CollectionCheckInAnyOrder(Collection<Check<? super D>> checks, boolean full, boolean exact) {
+        this.checks = new ArrayList<>(checks);
+        this.full = full;
+        this.exact = exact;
+    }
+
+    private boolean matchesAnyAndRemoves(D item, List<Check<? super D>> checks, GroupResult.Builder resultBuilder, ResultFactory factory) {
+        Iterator<Check<? super D>> c = checks.iterator();
+        while (c.hasNext()) {
+            if (resultBuilder.add(c.next().evaluate(item, factory)).passed()) {
+                c.remove();
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
-    public Result evaluate(Iterable<D> data) {
-        GroupResult.Builder resultBuilder = new GroupResult.Builder("collection equals");
-        Iterator<Check<? super D>> c = conditions.iterator();
-        Iterator<D> d = data.iterator();
-        while (c.hasNext() && d.hasNext()) {
-            if(resultBuilder.add(c.next().evaluate(d.next())).failed()) {
-                return resultBuilder.build(false);
+    public Result evaluate(Iterable<D> data, ResultFactory factory) {
+        GroupResult.Builder resultBuilder = new GroupResult.Builder("collection equals in any order");
+        final List<Check<? super D>> copy = new LinkedList<>(this.checks);
+        for(D item : data) {
+            if(copy.isEmpty()) {
+                return full ? resultBuilder.build("Extra items found", false) : resultBuilder.build("Prefix matched", true);
+            }
+            if (!matchesAnyAndRemoves(item, copy, resultBuilder, factory) && exact) {
+                return resultBuilder.build("Extra items found", false);
             }
         }
-        if(c.hasNext()) {
-            return resultBuilder.build(false);
-        }
-        if(d.hasNext()) {
-            return resultBuilder.build(false);
-        }
-        return resultBuilder.build(true);
+        return resultBuilder.build(copy.isEmpty()? "All checks satisfied": "" + copy.size() + " checks not satisfied", copy.isEmpty());
     }
 
     @Override
     public String toString() {
-        return "Items matching " + conditions;
+        return "Items matching in any order " + checks;
     }
 
 }

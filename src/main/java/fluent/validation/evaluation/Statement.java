@@ -26,16 +26,18 @@
 package fluent.validation.evaluation;
 
 import fluent.validation.Check;
+import fluent.validation.result.CheckDescription;
 import fluent.validation.result.PredicateResult;
 import fluent.validation.result.Result;
+import fluent.validation.result.ResultFactory;
 
 import java.util.Objects;
 
-public class Statement extends Check<Context> implements Conclusion {
+public class Statement extends Check<Context> implements Conclusion, CheckDescription {
 
     @Override
-    protected Result evaluate(Context data) {
-        return new PredicateResult(data.isValid(this), this, this);
+    protected Result evaluate(Context data, ResultFactory factory) {
+        return factory.predicateResult(this, this, data.isValid(this));
     }
 
     @Override
@@ -58,4 +60,8 @@ public class Statement extends Check<Context> implements Conclusion {
         };
     }
 
+    @Override
+    public String description() {
+        return toString();
+    }
 }

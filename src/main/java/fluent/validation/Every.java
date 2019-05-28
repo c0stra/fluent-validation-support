@@ -27,30 +27,32 @@ package fluent.validation;
 
 import fluent.validation.result.GroupResult;
 import fluent.validation.result.Result;
+import fluent.validation.result.ResultFactory;
 
 final class Every<D> extends Check<Iterable<D>> {
 
+    private final String elementName;
     private final Check<? super D> check;
 
-    Every(Check<? super D> check) {
+    Every(String elementName, Check<? super D> check) {
+        this.elementName = elementName;
         this.check = check;
     }
 
-
     @Override
-    public Result evaluate(Iterable<D> data) {
-        GroupResult.Builder resultBuilder = new GroupResult.Builder(this);
+    public Result evaluate(Iterable<D> data, ResultFactory factory) {
+        GroupResult.Builder itemResults = new GroupResult.Builder(this);
         for(D item : data) {
-            if(resultBuilder.add(check.evaluate(item)).failed()) {
-                return resultBuilder.build(false);
+            if(itemResults.add(check.evaluate(item, factory)).failed()) {
+                return itemResults.build(item + " doesn't match " + check, false);
             }
         }
-        return resultBuilder.build(true);
+        return itemResults.build("All " + elementName + "s matched " + check, true);
     }
 
     @Override
     public String toString() {
-        return "every element matches " + check;
+        return "every " + elementName + " " + check;
     }
 
 }
