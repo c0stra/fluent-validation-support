@@ -148,4 +148,9 @@ public class CollectionChecksTest {
         return new LinkedList<>(asList(values));
     }
 
+    @Test
+    public void arrayCheck() {
+        assertTrue(Check.test(new String[] {"A", "B"}, arrayEqualTo(items("A", "B"))));
+    }
+
 }

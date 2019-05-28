@@ -25,11 +25,12 @@
 
 package fluent.validation;
 
-import fluent.validation.result.GroupResult;
+import fluent.validation.result.CheckDescription;
+import fluent.validation.result.GroupResultBuilder;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-final class Every<D> extends Check<Iterable<D>> {
+final class Every<D> extends Check<Iterable<D>> implements CheckDescription {
 
     private final String elementName;
     private final Check<? super D> check;
@@ -41,7 +42,7 @@ final class Every<D> extends Check<Iterable<D>> {
 
     @Override
     public Result evaluate(Iterable<D> data, ResultFactory factory) {
-        GroupResult.Builder itemResults = new GroupResult.Builder(this);
+        GroupResultBuilder itemResults = factory.groupBuilder(this);
         for(D item : data) {
             if(itemResults.add(check.evaluate(item, factory)).failed()) {
                 return itemResults.build(item + " doesn't match " + check, false);
@@ -55,4 +56,8 @@ final class Every<D> extends Check<Iterable<D>> {
         return "every " + elementName + " " + check;
     }
 
+    @Override
+    public String description() {
+        return toString();
+    }
 }

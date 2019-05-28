@@ -25,9 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.result.GroupResult;
-import fluent.validation.result.Result;
-import fluent.validation.result.ResultFactory;
+import fluent.validation.result.*;
 
 import java.util.Iterator;
 
@@ -38,7 +36,7 @@ import java.util.Iterator;
  *
  * @param <D> Type of the items in the collection.
  */
-final class CollectionCheckInOrder<D> extends Check<Iterable<D>> {
+final class CollectionCheckInOrder<D> extends Check<Iterable<D>> implements CheckDescription {
 
     private final Iterable<Check<? super D>> checks;
     private final boolean full;
@@ -50,7 +48,7 @@ final class CollectionCheckInOrder<D> extends Check<Iterable<D>> {
         this.exact = exact;
     }
 
-    private boolean match(Check<? super D> check, Iterator<D> d, GroupResult.Builder resultBuilder, ResultFactory factory) {
+    private boolean match(Check<? super D> check, Iterator<D> d, GroupResultBuilder resultBuilder, ResultFactory factory) {
         while (d.hasNext()) {
             D item = d.next();
             if(resultBuilder.add(check.evaluate(item, factory)).passed()) {
@@ -65,7 +63,7 @@ final class CollectionCheckInOrder<D> extends Check<Iterable<D>> {
 
     @Override
     public Result evaluate(Iterable<D> data, ResultFactory factory) {
-        GroupResult.Builder resultBuilder = new GroupResult.Builder("collection equals");
+        GroupResultBuilder resultBuilder = factory.groupBuilder(this);
         Iterator<D> d = data.iterator();
         for(Check<? super D> check : checks) {
             if(!match(check, d, resultBuilder, factory)) {
@@ -83,4 +81,8 @@ final class CollectionCheckInOrder<D> extends Check<Iterable<D>> {
         return "Items matching " + checks;
     }
 
+    @Override
+    public String description() {
+        return toString();
+    }
 }

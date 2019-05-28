@@ -25,11 +25,12 @@
 
 package fluent.validation;
 
-import fluent.validation.result.GroupResult;
+import fluent.validation.result.CheckDescription;
+import fluent.validation.result.GroupResultBuilder;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-final class Exists<D> extends Check<Iterable<D>> {
+final class Exists<D> extends Check<Iterable<D>> implements CheckDescription {
 
     private final String elementName;
     private final Check<? super D> check;
@@ -41,7 +42,7 @@ final class Exists<D> extends Check<Iterable<D>> {
 
     @Override
     public Result evaluate(Iterable<D> data, ResultFactory factory) {
-        GroupResult.Builder itemResults = new GroupResult.Builder(this);
+        GroupResultBuilder itemResults = factory.groupBuilder(this);
         for(D item : data) {
             if(itemResults.add(check.evaluate(item, factory)).passed()) {
                 return itemResults.build(elementName + " " + check + " found", true);
@@ -55,4 +56,8 @@ final class Exists<D> extends Check<Iterable<D>> {
         return "exists " + elementName + " " + check;
     }
 
+    @Override
+    public String description() {
+        return toString();
+    }
 }

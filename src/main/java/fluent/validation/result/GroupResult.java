@@ -21,18 +21,21 @@ public class GroupResult extends Result {
         visitor.groupResult(description, actualValueDescription, passed(), itemResults);
     }
 
-    public static class Builder {
+    static class Builder implements GroupResultBuilder {
         private final Object description;
         private final List<Result> itemResults = new ArrayList<>();
 
-        public Builder(Object description) {
+        Builder(Object description) {
             this.description = description;
         }
 
+        @Override
         public Result add(Result itemResult) {
             itemResults.add(itemResult);
             return itemResult;
         }
+
+        @Override
         public Result build(Object actualValueDescription, boolean result) {
             return new GroupResult(result, description, actualValueDescription, itemResults);
         }

@@ -12,6 +12,8 @@ public interface ResultFactory {
 
     Result exceptionResult(Throwable throwable, boolean result);
 
+    GroupResultBuilder groupBuilder(CheckDescription description);
+
     ResultFactory DEFAULT = new ResultFactory() {
         @Override public Result predicateResult(CheckDescription expectation, Object actual, boolean result) {
             return new PredicateResult(expectation, actual, result);
@@ -28,27 +30,11 @@ public interface ResultFactory {
         @Override public Result exceptionResult(Throwable throwable, boolean result) {
             return new ExceptionResult(throwable);
         }
-    };
-
-    ResultFactory SIMPLE = new ResultFactory() {
-        @Override
-        public Result predicateResult(CheckDescription expectation, Object actual, boolean result) {
-            return null;
-        }
 
         @Override
-        public Result targetResult(CheckDescription target, Object actual, boolean result, Result dependency) {
-            return null;
-        }
-
-        @Override
-        public Result groupResult(CheckDescription description, Object actualValueDescription, boolean result, List<Result> itemResults) {
-            return null;
-        }
-
-        @Override
-        public Result exceptionResult(Throwable throwable, boolean result) {
-            return null;
+        public GroupResultBuilder groupBuilder(CheckDescription description) {
+            return new GroupResult.Builder(description);
         }
     };
+
 }

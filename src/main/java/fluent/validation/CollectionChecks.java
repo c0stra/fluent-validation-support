@@ -1,12 +1,8 @@
 package fluent.validation;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
 
-import static fluent.validation.BasicChecks.condition;
-import static fluent.validation.BasicChecks.nullableCondition;
+import static fluent.validation.BasicChecks.*;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
@@ -60,6 +56,32 @@ public final class CollectionChecks {
 
     public static <D> Check<Iterable<D>> collectionEqualInAnyOrderTo(Collection<Check<? super D>> itemConditions) {
         return new CollectionCheckInAnyOrder<>(itemConditions, true, true);
+    }
+
+
+
+    public static <T> Check<T[]> arrayStartsWith(Collection<Check<? super T>> prefix) {
+        return compose("", Arrays::asList, collectionStartsWith(prefix));
+    }
+
+    public static <T> Check<T[]> arrayStartsInAnyOrderWith(Collection<Check<? super T>> prefix) {
+        return compose("", Arrays::asList, collectionStartsInAnyOrderWith(prefix));
+    }
+
+    public static <D> Check<D[]> arrayContains(Collection<Check<? super D>> itemConditions) {
+        return compose("", Arrays::asList, collectionContains(itemConditions));
+    }
+
+    public static <D> Check<D[]> arrayContainsInAnyOrder(Collection<Check<? super D>> itemChecks) {
+        return compose("", Arrays::asList, collectionContainsInAnyOrder(itemChecks));
+    }
+
+    public static <D> Check<D[]> arrayEqualTo(Iterable<Check<? super D>> itemConditions) {
+        return compose("", Arrays::asList, collectionEqualTo(itemConditions));
+    }
+
+    public static <D> Check<D[]> arrayEqualInAnyOrderTo(Collection<Check<? super D>> itemConditions) {
+        return compose("", Arrays::asList, collectionEqualInAnyOrderTo(itemConditions));
     }
 
 

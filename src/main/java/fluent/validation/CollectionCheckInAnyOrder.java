@@ -25,13 +25,14 @@
 
 package fluent.validation;
 
-import fluent.validation.result.GroupResult;
+import fluent.validation.result.CheckDescription;
+import fluent.validation.result.GroupResultBuilder;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
 import java.util.*;
 
-final class CollectionCheckInAnyOrder<D> extends Check<Iterable<D>> {
+final class CollectionCheckInAnyOrder<D> extends Check<Iterable<D>> implements CheckDescription {
 
     private final List<Check<? super D>> checks;
     private final boolean full;
@@ -43,7 +44,7 @@ final class CollectionCheckInAnyOrder<D> extends Check<Iterable<D>> {
         this.exact = exact;
     }
 
-    private boolean matchesAnyAndRemoves(D item, List<Check<? super D>> checks, GroupResult.Builder resultBuilder, ResultFactory factory) {
+    private boolean matchesAnyAndRemoves(D item, List<Check<? super D>> checks, GroupResultBuilder resultBuilder, ResultFactory factory) {
         Iterator<Check<? super D>> c = checks.iterator();
         while (c.hasNext()) {
             if (resultBuilder.add(c.next().evaluate(item, factory)).passed()) {
@@ -56,7 +57,7 @@ final class CollectionCheckInAnyOrder<D> extends Check<Iterable<D>> {
 
     @Override
     public Result evaluate(Iterable<D> data, ResultFactory factory) {
-        GroupResult.Builder resultBuilder = new GroupResult.Builder("collection equals in any order");
+        GroupResultBuilder resultBuilder = factory.groupBuilder(this);
         final List<Check<? super D>> copy = new LinkedList<>(this.checks);
         for(D item : data) {
             if(copy.isEmpty()) {
@@ -74,4 +75,8 @@ final class CollectionCheckInAnyOrder<D> extends Check<Iterable<D>> {
         return "Items matching in any order " + checks;
     }
 
+    @Override
+    public String description() {
+        return toString();
+    }
 }

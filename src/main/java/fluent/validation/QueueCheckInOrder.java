@@ -25,9 +25,7 @@
 
 package fluent.validation;
 
-import fluent.validation.result.GroupResult;
-import fluent.validation.result.Result;
-import fluent.validation.result.ResultFactory;
+import fluent.validation.result.*;
 
 import java.util.Queue;
 
@@ -38,7 +36,7 @@ import java.util.Queue;
  *
  * @param <D> Type of the items in the collection.
  */
-final class QueueCheckInOrder<D> extends Check<Queue<D>> {
+final class QueueCheckInOrder<D> extends Check<Queue<D>> implements CheckDescription {
 
     private final Iterable<Check<? super D>> conditions;
     private final boolean full;
@@ -50,7 +48,7 @@ final class QueueCheckInOrder<D> extends Check<Queue<D>> {
         this.exact = exact;
     }
 
-    private boolean match(Check<? super D> check, Queue<D> data, GroupResult.Builder resultBuilder, ResultFactory factory) {
+    private boolean match(Check<? super D> check, Queue<D> data, GroupResultBuilder resultBuilder, ResultFactory factory) {
         for(D item = data.poll(); item != null; item = data.poll()) {
             if(resultBuilder.add(check.evaluate(item, factory)).passed()) {
                 return true;
@@ -64,7 +62,7 @@ final class QueueCheckInOrder<D> extends Check<Queue<D>> {
 
     @Override
     public Result evaluate(Queue<D> data, ResultFactory factory) {
-        GroupResult.Builder resultBuilder = new GroupResult.Builder("collection equals");
+        GroupResultBuilder resultBuilder = factory.groupBuilder(this);
         for(Check<? super D> check : conditions) {
             if(!match(check, data, resultBuilder, factory)) {
                 return resultBuilder.build(check + " not matched by any item", false);
@@ -81,4 +79,8 @@ final class QueueCheckInOrder<D> extends Check<Queue<D>> {
         return "Items matching " + conditions;
     }
 
+    @Override
+    public String description() {
+        return toString();
+    }
 }
