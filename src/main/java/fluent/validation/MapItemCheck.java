@@ -25,61 +25,37 @@
 
 package fluent.validation;
 
+import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-import java.util.function.Function;
+import java.util.Map;
 
-import static fluent.validation.BasicChecks.anything;
-import static fluent.validation.BasicChecks.has;
+final class MapItemCheck<K, V> extends Check<Map<K, V>> implements CheckDescription {
 
-public class CheckDsl<L, D> extends Check<D> {
+    private final K key;
+    private final Check<? super V> check;
 
-    private final Check<? super D> check;
-
-    private final Function<Check<D>, L> factory;
-
-    protected CheckDsl(Check<? super D> check, Function<Check<D>, L> factory) {
+    MapItemCheck(K key, Check<? super V> check) {
+        this.key = key;
         this.check = check;
-        this.factory = factory;
-    }
-
-    protected CheckDsl(Function<Check<D>, L> factory) {
-        this(anything(), factory);
-    }
-
-    public L with(Check<? super D> check) {
-        return factory.apply(this.check.and(check));
-    }
-
-    public <V> Builder<V, L> withField(String name, Transformation<? super D, V> transformation) {
-        return condition -> with(has(name, transformation).matching(condition));
-    }
-
-    public L or() {
-        return factory.apply(check.or(anything()));
     }
 
     @Override
-    public Result evaluate(D data, ResultFactory factory) {
-        return check.evaluate(data, factory);
+    protected Result evaluate(Map<K, V> data, ResultFactory factory) {
+        V value = data.get(key);
+        Result result = check.evaluate(value, factory);
+        return factory.targetResult(this, data, result.passed(), result);
     }
 
     @Override
     public String toString() {
-        return check.toString();
+        return "" + check;
     }
 
-    public static class Final<D> extends CheckDsl<Final<D>, D> {
-
-        Final(Check<? super D> check) {
-            super(check, Final::new);
-        }
-
-        Final() {
-            super(Final::new);
-        }
-
+    @Override
+    public String description() {
+        return "";
     }
 
 }

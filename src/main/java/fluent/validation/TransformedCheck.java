@@ -26,38 +26,39 @@
 package fluent.validation;
 
 import fluent.validation.result.CheckDescription;
-import fluent.validation.result.GroupResultBuilder;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-final class Every<D> extends Check<Iterable<D>> implements CheckDescription {
+final class TransformedCheck<D, V> extends Check<D> implements CheckDescription {
 
-    private final String elementName;
-    private final Check<? super D> check;
+    private final Transformation<? super D, V> transformation;
+    private final Check<? super V> check;
 
-    Every(String elementName, Check<? super D> check) {
-        this.elementName = elementName;
+    TransformedCheck(Transformation<? super D, V> transformation, Check<? super V> check) {
+        this.transformation = transformation;
         this.check = check;
     }
 
     @Override
-    public Result evaluate(Iterable<D> data, ResultFactory factory) {
-        GroupResultBuilder itemResults = factory.groupBuilder(this);
-        for(D item : data) {
-            if(itemResults.add(check.evaluate(item, factory)).failed()) {
-                return itemResults.build(item + " doesn't match " + check, false);
-            }
+    protected Result evaluate(D data, ResultFactory factory) {
+        V value;
+        try {
+            value = transformation.apply(data);
+        } catch (Exception | Error unchecked) {
+            return factory.exceptionResult(unchecked, false);
         }
-        return itemResults.build("All " + elementName + "s matched " + check, true);
+        Result result = check.evaluate(value, factory);
+        return factory.targetResult(this, data, result.passed(), result);
     }
 
     @Override
     public String toString() {
-        return "every " + elementName + " " + check;
+        return "" + check;
     }
 
     @Override
     public String description() {
-        return toString();
+        return "";
     }
+
 }

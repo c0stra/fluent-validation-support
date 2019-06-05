@@ -26,17 +26,17 @@ public class CheckDslTest {
 
     @Test
     public void testWithField() {
-        Check.that("A", new MyCheck().withHashCode(65).withToString("A"));
+        Assert.that("A", new MyCheck().withHashCode(65).withToString("A"));
     }
 
     @Test(expectedExceptions = AssertionFailure.class)
     public void testContradiction() {
-        Check.that("A", new MyCheck().withToString("A").withHashCode(10));
+        Assert.that("A", new MyCheck().withToString("A").withHashCode(10));
     }
 
     @Test
     public void testOrFields() {
-        Check.that("A", new MyCheck().withToString("B").or().withHashCode(65));
+        Assert.that("A", new MyCheck().withToString("B").or().withHashCode(65));
     }
 
 }

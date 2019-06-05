@@ -11,14 +11,14 @@ public class OperatorPrecedenceTest {
     public void testTopLevelAndAfterOr() {
         // (A or B) and C would return false.
         // Proper precedence A or (B and C) return true.
-        assertTrue(Check.test("A", equalTo("A").or(equalTo("B")).and(equalTo("C"))));
+        assertTrue(Check.that("A", equalTo("A").or(equalTo("B")).and(equalTo("C"))));
     }
 
     @Test
     public void testAndPropagatedAfterTwoOrS() {
         // ((A or B) or C) and D would return false.
         // Proper precedence A or B or (C and D) return true.
-        assertTrue(Check.test("B", equalTo("A").or(equalTo("B")).or(equalTo("C")).and(equalTo("D"))));
+        assertTrue(Check.that("B", equalTo("A").or(equalTo("B")).or(equalTo("C")).and(equalTo("D"))));
     }
 
 }

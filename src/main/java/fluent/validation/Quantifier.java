@@ -26,43 +26,46 @@
 package fluent.validation;
 
 import fluent.validation.result.CheckDescription;
+import fluent.validation.result.GroupResultBuilder;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-import java.util.function.Function;
+final class Quantifier<D> extends Check<Iterable<D>> implements CheckDescription {
 
-final class FunctionCheck<D, V> extends Check<D> implements CheckDescription {
+    private final String elementName;
+    private final Type type;
+    private final Check<? super D> check;
 
-    private final String name;
-    private final Function<? super D, V> function;
-    private final Check<? super V> check;
-
-    FunctionCheck(String name, Function<? super D, V> function, Check<? super V> check) {
-        this.name = name;
-        this.function = function;
+    Quantifier(String elementName, Type type, Check<? super D> check) {
+        this.elementName = elementName;
+        this.type = type;
         this.check = check;
     }
 
     @Override
-    protected Result evaluate(D data, ResultFactory factory) {
-        V value;
-        try {
-            value = function.apply(data);
-        } catch (RuntimeException | Error unchecked) {
-            return factory.exceptionResult(unchecked, false);
+    public Result evaluate(Iterable<D> data, ResultFactory factory) {
+        GroupResultBuilder itemResults = factory.groupBuilder(this);
+        boolean end = type == Type.exists;
+        for(D item : data) {
+            if(itemResults.add(check.evaluate(item, factory)).passed() == end) {
+                return end ? itemResults.build(elementName + " " + check + " found", true) : itemResults.build(item + " doesn't match " + check, false);
+            }
         }
-        Result result = check.evaluate(value, factory);
-        return factory.targetResult(this, data, result.passed(), result);
+        return end ? itemResults.build("No " + elementName + " " + check + " found", false) : itemResults.build("All " + elementName + "s matched " + check, true);
     }
 
     @Override
     public String toString() {
-        return name + ": " + check;
+        return type + " " + elementName + " " + check;
     }
 
     @Override
     public String description() {
-        return name;
+        return toString();
     }
 
+    enum Type {
+        exists,
+        every
+    }
 }

@@ -57,17 +57,6 @@ public abstract class Check<T> {
     protected abstract Result evaluate(T data, ResultFactory factory);
 
     /**
-     * Evaluation of the condition on provided data, able to provide full detail of the evaluation using
-     * provided detail collector.
-     *
-     * @param data Data to test by the condition.
-     * @return Evaluation result.
-     */
-    private boolean test(T data, ResultFactory factory) {
-        return evaluate(data, factory).passed();
-    }
-
-    /**
      * Compose this check with another one using logical AND operator.
      *
      * @param operand Another check.
@@ -90,27 +79,15 @@ public abstract class Check<T> {
     }
 
     /**
-     * Execute the check on provided data.
+     * Assert the data using provided check.
      *
      * @param data Tested data.
      * @param check Check to be applied.
      * @param <T> Type of the tested data.
-     * @return Result of the check application on the data.
      */
-    public static <T> boolean test(T data, Check<? super T> check) {
-        return test(data, check, ResultFactory.DEFAULT);
-    }
-
-    /**
-     * Execute the check on provided data.
-     *
-     * @param data Tested data.
-     * @param check Check to be applied.
-     * @param <T> Type of the tested data.
-     * @return Result of the check application on the data.
-     */
-    public static <T> boolean test(T data, Check<? super T> check, ResultFactory resultFactory) {
-        return check.test(data, resultFactory);
+    @End(message = "Check is not used. Pass it either to Assert.that(), Check.that() or Check.evaluate().")
+    public static <T> boolean that(T data, Check<? super T> check) {
+        return that(data, check, ResultFactory.DEFAULT);
     }
 
     /**
@@ -120,24 +97,17 @@ public abstract class Check<T> {
      * @param check Check to be applied.
      * @param <T> Type of the tested data.
      */
-    @End(message = "Check is not used. Pass it either to Check.test(data, check) or Check.that(data, check).")
-    public static <T> void that(T data, Check<? super T> check) {
-        that(data, check, ResultFactory.DEFAULT);
+    @End(message = "Check is not used. Pass it either to Assert.that(), Check.that() or Check.evaluate().")
+    public static <T> boolean that(T data, Check<? super T> check, ResultFactory resultFactory) {
+        return evaluate(data, check, resultFactory).passed();
     }
 
-    /**
-     * Assert the data using provided check.
-     *
-     * @param data Tested data.
-     * @param check Check to be applied.
-     * @param <T> Type of the tested data.
-     */
-    @End(message = "Check is not used. Pass it either to Check.test(data, check) or Check.that(data, check).")
-    public static <T> void that(T data, Check<? super T> check, ResultFactory resultFactory) {
-        Result result = check.evaluate(data, resultFactory);
-        if(result.failed()) {
-            throw new AssertionFailure(result);
-        }
+    public static <T> Result evaluate(T data, Check<? super T> check) {
+        return evaluate(data, check, ResultFactory.DEFAULT);
+    }
+
+    public static <T> Result evaluate(T data, Check<? super T> check, ResultFactory resultFactory) {
+        return check.evaluate(data, resultFactory);
     }
 
 }

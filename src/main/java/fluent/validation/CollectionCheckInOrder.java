@@ -63,6 +63,9 @@ final class CollectionCheckInOrder<D> extends Check<Iterable<D>> implements Chec
 
     @Override
     public Result evaluate(Iterable<D> data, ResultFactory factory) {
+        if(data == null) {
+            return factory.predicateResult(this, null, false);
+        }
         GroupResultBuilder resultBuilder = factory.groupBuilder(this);
         Iterator<D> d = data.iterator();
         for(Check<? super D> check : checks) {

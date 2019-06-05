@@ -35,7 +35,7 @@ public abstract class Definition implements Conclusion {
 
     protected Rule when(Check<? super Context> check) {
         return consumer -> {
-            if(Check.test(context, check)) consumer.conclude(true, context);
+            if(Check.that(context, check)) consumer.conclude(true, context);
         };
     }
 

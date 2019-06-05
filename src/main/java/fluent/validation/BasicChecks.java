@@ -26,11 +26,10 @@
 package fluent.validation;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
+import static fluent.validation.Repeater.repeat;
 import static java.lang.Math.abs;
 import static java.util.Arrays.asList;
 
@@ -70,7 +69,7 @@ public final class BasicChecks {
      * @return New expectation.
      */
     public static <D> Check<D> nullableCondition(Predicate<D> predicate, String expectationDescription) {
-        return new PredicateCheck<>(predicate, expectationDescription);
+        return new NamedCheck<>(expectationDescription, new PredicateCheck<>(predicate));
     }
 
     public static <D> Check<D> require(Check<? super D> requirement, Check<? super D> check) {
@@ -158,7 +157,7 @@ public final class BasicChecks {
      */
 
     public static <D> Check<D> equalTo(D expectedValue) {
-        return nullableCondition(Predicate.isEqual(expectedValue), "<" + expectedValue + ">");
+        return nullableCondition(expectedValue == null ? Objects::isNull : expectedValue::equals, "<" + expectedValue + ">");
     }
 
     public static <D> Check<D> is(D expectedValue) {
@@ -225,67 +224,22 @@ public final class BasicChecks {
      * ------------------------------------------------------------------------------------------------------
      */
 
-    public static <D, V> Check<D> compose(String name, Function<? super D, V> function, Check<? super V> check) {
-        return new FunctionCheck<>(name, function, check);
+    public static <D, V> Check<D> compose(String name, Transformation<? super D, V> transformation, Check<? super V> check) {
+        return new NamedCheck<>(name, new TransformedCheck<>(transformation, check));
     }
 
-    public static <D, V> Builder<V, Check<D>> has(String name, Function<? super D, V> function) {
-        return condition -> requireNotNull(compose(name, function, condition));
+    public static <D, V> Builder<V, Check<D>> has(String name, Transformation<? super D, V> transformation) {
+        return condition -> requireNotNull(compose(name, transformation, condition));
     }
 
-    public static <D, V> Builder<V, Check<D>> nullableHas(String name, Function<? super D, V> function) {
-        return condition -> compose(name, function, condition);
+    public static <D, V> Builder<V, Check<D>> nullableHas(String name, Transformation<? super D, V> transformation) {
+        return condition -> compose(name, transformation, condition);
     }
 
     public static <V> Builder<V, Check<V>> as(Class<V> type) {
         return condition -> require(instanceOf(type), compose("as " + type.getSimpleName(), type::cast, condition));
     }
 
-
-    /* ------------------------------------------------------------------------------------------------------
-     * String conditions.
-     * ------------------------------------------------------------------------------------------------------
-     */
-
-    public static Check<String> equalToCaseInsensitive(String expectedValue) {
-        return condition(expectedValue::equalsIgnoreCase, "any case " + expectedValue);
-    }
-
-    public static Check<String> emptyString() {
-        return nullableCondition(data -> Objects.isNull(data) || data.isEmpty(), "is empty string");
-    }
-
-    public static Check<String> startsWith(String prefix) {
-        return condition(data -> data.startsWith(prefix), "starts with <" + prefix + ">");
-    }
-
-    public static Check<String> startsWithCaseInsensitive(String prefix) {
-        return condition(data -> data.toLowerCase().startsWith(prefix.toLowerCase()), "starts with " + prefix);
-    }
-
-    public static Check<String> endsWith(String suffix) {
-        return condition(data -> data.startsWith(suffix), "ends with %s" + suffix);
-    }
-
-    public static Check<String> endsWithCaseInsensitive(String suffix) {
-        return condition(data -> data.toLowerCase().startsWith(suffix.toLowerCase()), "ends with " + suffix);
-    }
-
-    public static Check<String> contains(String substring) {
-        return condition(data -> data.contains(substring), "contains "+ substring);
-    }
-
-    public static Check<String> containsCaseInsensitive(String substring) {
-        return condition(data -> data.toLowerCase().contains(substring.toLowerCase()), "contains " + substring);
-    }
-
-    public static Check<String> matches(Pattern pattern) {
-        return condition(pattern.asPredicate(), "matches /" + pattern + '/');
-    }
-
-    public static Check<String> matchesPattern(String pattern) {
-        return matches(Pattern.compile(pattern));
-    }
 
     public static Check<Throwable> message(Check<? super String> check) {
         return compose("message", Throwable::getMessage, check);
@@ -393,6 +347,14 @@ public final class BasicChecks {
 
     public static <D> CheckDsl.Final<D> dsl() {
         return new CheckDsl.Final<>();
+    }
+
+    public static <D> Check<D> repeatMax(Check<D> itemCheck, int max) {
+        return has("", (D i) -> repeat(i, max)).matching(CollectionChecks.exists("Attempt", itemCheck));
+    }
+
+    public static <D> Check<D> repeatMax(Check<D> itemCheck, int max, Duration delay) {
+        return has("", (D i) -> repeat(i, max, delay)).matching(CollectionChecks.exists("Attempt", itemCheck));
     }
 
 }

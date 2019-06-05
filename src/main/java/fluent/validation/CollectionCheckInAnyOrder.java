@@ -57,6 +57,9 @@ final class CollectionCheckInAnyOrder<D> extends Check<Iterable<D>> implements C
 
     @Override
     public Result evaluate(Iterable<D> data, ResultFactory factory) {
+        if(data == null) {
+            return factory.predicateResult(this, null, false);
+        }
         GroupResultBuilder resultBuilder = factory.groupBuilder(this);
         final List<Check<? super D>> copy = new LinkedList<>(this.checks);
         for(D item : data) {
@@ -79,4 +82,5 @@ final class CollectionCheckInAnyOrder<D> extends Check<Iterable<D>> implements C
     public String description() {
         return toString();
     }
+
 }

@@ -26,38 +26,33 @@
 package fluent.validation;
 
 import fluent.validation.result.CheckDescription;
-import fluent.validation.result.GroupResultBuilder;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-final class Exists<D> extends Check<Iterable<D>> implements CheckDescription {
+final class NamedCheck<D> extends Check<D> implements CheckDescription {
 
-    private final String elementName;
-    private final Check<? super D> check;
+    private final String name;
+    private final Check<D> check;
 
-    Exists(String elementName, Check<? super D> check) {
-        this.elementName = elementName;
+    NamedCheck(String name, Check<D> check) {
+        this.name = name;
         this.check = check;
     }
 
     @Override
-    public Result evaluate(Iterable<D> data, ResultFactory factory) {
-        GroupResultBuilder itemResults = factory.groupBuilder(this);
-        for(D item : data) {
-            if(itemResults.add(check.evaluate(item, factory)).passed()) {
-                return itemResults.build(elementName + " " + check + " found", true);
-            }
-        }
-        return itemResults.build("No " + elementName + " " + check + " found", false);
+    protected Result evaluate(D data, ResultFactory factory) {
+        Result result = check.evaluate(data, factory);
+        return factory.namedResult(this, result, result.passed());
     }
 
     @Override
     public String toString() {
-        return "exists " + elementName + " " + check;
+        return name + " " + check;
     }
 
     @Override
     public String description() {
-        return toString();
+        return name;
     }
+
 }

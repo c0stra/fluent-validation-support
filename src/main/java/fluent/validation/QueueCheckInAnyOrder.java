@@ -57,6 +57,9 @@ final class QueueCheckInAnyOrder<D> extends Check<Queue<D>> implements CheckDesc
 
     @Override
     public Result evaluate(Queue<D> data, ResultFactory factory) {
+        if(data == null) {
+            return factory.predicateResult(this, null, false);
+        }
         GroupResultBuilder resultBuilder = factory.groupBuilder(this);
         final List<Check<? super D>> copy = new LinkedList<>(this.checks);
         for(D item = data.poll(); item != null; item = data.poll()) {

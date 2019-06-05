@@ -10,6 +10,7 @@ import java.util.Collections;
 
 import static fluent.validation.BasicChecks.*;
 import static fluent.validation.CollectionChecks.*;
+import static fluent.validation.StringChecks.startsWith;
 
 public class ChecksErrorMessageTest {
 
@@ -33,8 +34,8 @@ public class ChecksErrorMessageTest {
 
     @Test(dataProvider = "requirements")
     public <T> void test(Requirement<T, String> requirement) {
-        Check.that(
-                () -> Check.that(requirement.data, requirement.check),
+        Assert.that(
+                () -> Assert.that(requirement.data, requirement.check),
                 throwing(require(isAn(AssertionFailure.class), has("Error message", Throwable::getMessage).matching(
                         new Check<String>() {
                             @Override protected Result evaluate(String data, ResultFactory factory) {

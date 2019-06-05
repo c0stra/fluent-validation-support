@@ -30,28 +30,24 @@ import fluent.validation.result.ExceptionResult;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-import java.util.function.Predicate;
-
 final class PredicateCheck<D> extends Check<D> implements CheckDescription {
 
     private final Predicate<D> predicate;
-    private final String expectationDescription;
 
-    PredicateCheck(Predicate<D> predicate, String expectationDescription) {
+    PredicateCheck(Predicate<D> predicate) {
         this.predicate = predicate;
-        this.expectationDescription = expectationDescription;
     }
 
     @Override
     public String toString() {
-        return expectationDescription;
+        return "";
     }
 
     @Override
     protected Result evaluate(D data, ResultFactory factory) {
         try {
             return factory.predicateResult(this, data, predicate.test(data));
-        } catch (RuntimeException | Error throwable) {
+        } catch (Exception | Error throwable) {
             return new ExceptionResult(throwable);
         }
     }

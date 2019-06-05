@@ -84,7 +84,7 @@ public final class StringChecks {
     }
 
     public static Check<String> matches(Pattern pattern) {
-        return condition(pattern.asPredicate(), "matches /" + pattern + '/');
+        return condition(v -> pattern.matcher(v).find(), "matches /" + pattern + '/');
     }
 
     public static Check<String> matchesPattern(String pattern) {

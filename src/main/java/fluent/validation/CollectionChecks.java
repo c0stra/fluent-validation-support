@@ -27,11 +27,11 @@ public final class CollectionChecks {
     }
 
     public static <D> Check<Iterable<D>> exists(String elementName, Check<? super D> check) {
-        return new Exists<>(elementName, check);
+        return new Quantifier<>(elementName, Quantifier.Type.exists, check);
     }
 
     public static <D> Check<Iterable<D>> every(String elementName, Check<? super D> check) {
-        return new Every<>(elementName, check);
+        return new Quantifier<>(elementName, Quantifier.Type.every, check);
     }
 
     public static <T> Check<Iterable<T>> collectionStartsWith(Collection<Check<? super T>> prefix) {
@@ -163,6 +163,10 @@ public final class CollectionChecks {
     @SafeVarargs
     public static <D> Check<Collection<D>> containsAll(D... items) {
         return containsAll(asList(items));
+    }
+
+    public static <K, V> Check<Map<K, V>> mapHas(K key, Check<? super V> check) {
+        return new MapItemCheck<>(key, check);
     }
 
 }

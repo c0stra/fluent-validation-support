@@ -69,7 +69,7 @@ public class ChecksTest {
 
     @Test(dataProvider = "requirements")
     public <T> void test(Requirement<T, Boolean> requirement) {
-        assertEquals((Boolean) Check.test(requirement.data, requirement.check), requirement.expectedResult);
+        assertEquals((Boolean) Check.that(requirement.data, requirement.check), requirement.expectedResult);
     }
 
     private static <T> Object[] requirement(T data, Check<? super T> check, boolean expectedResult) {

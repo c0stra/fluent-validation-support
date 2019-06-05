@@ -4,6 +4,12 @@ import java.util.List;
 
 public interface ResultFactory {
 
+    Result namedResult(CheckDescription name, Result dependency, boolean result);
+
+    default Result namedResult(CheckDescription name, Result dependency) {
+        return namedResult(name, dependency, dependency.passed());
+    }
+
     Result predicateResult(CheckDescription expectation, Object actual, boolean result);
 
     Result targetResult(CheckDescription target, Object actual, boolean result, Result dependency);
@@ -15,6 +21,10 @@ public interface ResultFactory {
     GroupResultBuilder groupBuilder(CheckDescription description);
 
     ResultFactory DEFAULT = new ResultFactory() {
+        @Override public Result namedResult(CheckDescription name, Result dependency, boolean result) {
+            return new TargetResult(name, result, dependency);
+        }
+
         @Override public Result predicateResult(CheckDescription expectation, Object actual, boolean result) {
             return new PredicateResult(expectation, actual, result);
         }
@@ -31,8 +41,7 @@ public interface ResultFactory {
             return new ExceptionResult(throwable);
         }
 
-        @Override
-        public GroupResultBuilder groupBuilder(CheckDescription description) {
+        @Override public GroupResultBuilder groupBuilder(CheckDescription description) {
             return new GroupResult.Builder(description);
         }
     };

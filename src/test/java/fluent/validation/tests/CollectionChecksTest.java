@@ -76,7 +76,7 @@ public class CollectionChecksTest {
 
     @Test(dataProvider = "collectionCheckData")
     public void collectionCheckTest(Check<Iterable<String>> check, List<String> data, boolean expectedResult) {
-        assertEquals(Check.test(data, check), expectedResult);
+        assertEquals(Check.that(data, check), expectedResult);
     }
 
     @DataProvider
@@ -141,7 +141,7 @@ public class CollectionChecksTest {
 
     @Test(dataProvider = "queueCheckData")
     public void queueCheckTest(Check<Queue<String>> check, Queue<String> data, boolean expectedResult) {
-        assertEquals(Check.test(data, check), expectedResult);
+        assertEquals(Check.that(data, check), expectedResult);
     }
 
     private static Queue<String> asQueue(String... values) {
@@ -150,7 +150,7 @@ public class CollectionChecksTest {
 
     @Test
     public void arrayCheck() {
-        assertTrue(Check.test(new String[] {"A", "B"}, arrayEqualTo(items("A", "B"))));
+        assertTrue(Check.that(new String[] {"A", "B"}, arrayEqualTo(items("A", "B"))));
     }
 
 }
