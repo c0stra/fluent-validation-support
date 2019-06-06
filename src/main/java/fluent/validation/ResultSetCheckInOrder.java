@@ -25,7 +25,6 @@
 
 package fluent.validation;
 
-import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Aggregator;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
@@ -38,7 +37,7 @@ import java.sql.SQLException;
  *   1st item matches 1st condition, 2nd item matches 2nd condition, etc. and there must not be any item missing or
  *   extra (length of actual collection needs to match length of collection of conditions).
  */
-final class ResultSetCheckInOrder extends Check<ResultSet> implements CheckDescription {
+final class ResultSetCheckInOrder extends Check<ResultSet> {
 
     private final Iterable<Check<? super ResultSet>> checks;
     private final boolean full;
@@ -89,8 +88,4 @@ final class ResultSetCheckInOrder extends Check<ResultSet> implements CheckDescr
         return "Items matching " + checks;
     }
 
-    @Override
-    public String description() {
-        return toString();
-    }
 }

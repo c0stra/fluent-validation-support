@@ -25,12 +25,11 @@
 
 package fluent.validation;
 
-import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Aggregator;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-final class Quantifier<D> extends Check<Iterable<D>> implements CheckDescription {
+final class Quantifier<D> extends Check<Iterable<D>> {
 
     private final String elementName;
     private final Type type;
@@ -59,13 +58,6 @@ final class Quantifier<D> extends Check<Iterable<D>> implements CheckDescription
         return type + " " + elementName + " " + check;
     }
 
-    @Override
-    public String description() {
-        return toString();
-    }
+    enum Type {exists, every}
 
-    enum Type {
-        exists,
-        every
-    }
 }

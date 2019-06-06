@@ -1,11 +1,11 @@
 package fluent.validation.result;
 
-public class ActualValueInResult extends Result {
+final class ActualValueInResult extends Result {
 
     private final Object actualValue;
     private final Result result;
 
-    public ActualValueInResult(Object actualValue, Result result) {
+    ActualValueInResult(Object actualValue, Result result) {
         super(result.passed());
         this.actualValue = actualValue;
         this.result = result;

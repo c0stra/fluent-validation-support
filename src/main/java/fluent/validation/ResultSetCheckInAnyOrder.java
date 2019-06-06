@@ -25,7 +25,6 @@
 
 package fluent.validation;
 
-import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Aggregator;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
@@ -34,7 +33,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-final class ResultSetCheckInAnyOrder extends Check<ResultSet> implements CheckDescription {
+final class ResultSetCheckInAnyOrder extends Check<ResultSet> {
 
     private final List<Check<? super ResultSet>> checks;
     private final boolean full;
@@ -80,7 +79,8 @@ final class ResultSetCheckInAnyOrder extends Check<ResultSet> implements CheckDe
     }
 
     @Override
-    public String description() {
-        return toString();
+    public String toString() {
+        return "Records matching in any order " + checks;
     }
+
 }

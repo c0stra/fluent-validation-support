@@ -17,30 +17,23 @@ public class ErrorMessageResult extends Result {
     @Override
     public void accept(ResultVisitor visitor) {
         result.accept(new ResultVisitor() {
-
-            @Override
-            public void actual(Object actualValue, Result result) {
+            @Override public void actual(Object actualValue, Result result) {
 
             }
-
-            @Override
-            public void expectation(Object expectation, boolean result) {
+            @Override public void expectation(Object expectation, boolean result) {
                 visitor.expectation("---\n" + expectation + "\n---", result);
             }
-
-            @Override
-            public void transformation(Object name, Result dependency, boolean value) {
+            @Override public void transformation(Object name, Result dependency, boolean value) {
                 visitor.transformation(name, dependency, value);
             }
-
-            @Override
-            public void aggregation(Object prefix, String glue, List<Result> itemResults, boolean result) {
+            @Override public void aggregation(Object prefix, String glue, List<Result> itemResults, boolean result) {
                 visitor.aggregation(prefix, glue, itemResults, result);
             }
-
-            @Override
-            public void error(Throwable throwable) {
+            @Override public void error(Throwable throwable) {
                 visitor.error(throwable);
+            }
+            @Override public void invert(Result result) {
+                visitor.invert(result);
             }
 
         });

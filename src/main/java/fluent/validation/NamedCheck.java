@@ -25,11 +25,10 @@
 
 package fluent.validation;
 
-import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-final class NamedCheck<D> extends Check<D> implements CheckDescription {
+final class NamedCheck<D> extends Check<D> {
 
     private final String name;
     private final Check<D> check;
@@ -48,11 +47,6 @@ final class NamedCheck<D> extends Check<D> implements CheckDescription {
     @Override
     public String toString() {
         return name + " " + check;
-    }
-
-    @Override
-    public String description() {
-        return name;
     }
 
 }

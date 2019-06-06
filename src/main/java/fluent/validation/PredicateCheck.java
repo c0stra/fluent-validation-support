@@ -25,11 +25,10 @@
 
 package fluent.validation;
 
-import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-final class PredicateCheck<D> extends Check<D> implements CheckDescription {
+final class PredicateCheck<D> extends Check<D> {
 
     private final Object expectation;
     private final Predicate<D> predicate;
@@ -41,7 +40,7 @@ final class PredicateCheck<D> extends Check<D> implements CheckDescription {
 
     @Override
     public String toString() {
-        return "";
+        return String.valueOf(expectation);
     }
 
     @Override
@@ -51,11 +50,6 @@ final class PredicateCheck<D> extends Check<D> implements CheckDescription {
         } catch (Exception | Error throwable) {
             return factory.error(throwable);
         }
-    }
-
-    @Override
-    public String description() {
-        return toString();
     }
 
 }

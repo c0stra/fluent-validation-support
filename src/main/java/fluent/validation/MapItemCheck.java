@@ -25,13 +25,12 @@
 
 package fluent.validation;
 
-import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
 import java.util.Map;
 
-final class MapItemCheck<K, V> extends Check<Map<K, V>> implements CheckDescription {
+final class MapItemCheck<K, V> extends Check<Map<K, V>> {
 
     private final K key;
     private final Check<? super V> check;
@@ -51,11 +50,6 @@ final class MapItemCheck<K, V> extends Check<Map<K, V>> implements CheckDescript
     @Override
     public String toString() {
         return "" + check;
-    }
-
-    @Override
-    public String description() {
-        return "";
     }
 
 }

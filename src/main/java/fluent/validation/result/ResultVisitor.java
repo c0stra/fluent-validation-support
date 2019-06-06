@@ -18,4 +18,6 @@ public interface ResultVisitor {
     void aggregation(Object prefix, String glue, List<Result> items, boolean value);
 
     void error(Throwable error);
+
+    void invert(Result result);
 }

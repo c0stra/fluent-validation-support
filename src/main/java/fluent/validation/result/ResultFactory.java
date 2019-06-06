@@ -15,6 +15,8 @@ public interface ResultFactory {
 
     Result error(Throwable throwable);
 
+    Result invert(Result result);
+
     default Aggregator aggregator(Object prefix, String glue) {
         return new Aggregator() {
             private final List<Result> items = new ArrayList<>();
@@ -47,6 +49,9 @@ public interface ResultFactory {
         }
         @Override public Result error(Throwable throwable) {
             return new ErrorInResult(throwable);
+        }
+        @Override public Result invert(Result result) {
+            return new InvertFailureIndicatorInResult(result);
         }
     };
 

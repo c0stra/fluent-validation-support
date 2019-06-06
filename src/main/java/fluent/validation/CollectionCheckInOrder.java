@@ -36,7 +36,7 @@ import java.util.Iterator;
  *
  * @param <D> Type of the items in the collection.
  */
-final class CollectionCheckInOrder<D> extends Check<Iterable<D>> implements CheckDescription {
+final class CollectionCheckInOrder<D> extends Check<Iterable<D>> {
 
     private final Iterable<Check<? super D>> checks;
     private final boolean full;
@@ -84,8 +84,4 @@ final class CollectionCheckInOrder<D> extends Check<Iterable<D>> implements Chec
         return "Items matching " + checks;
     }
 
-    @Override
-    public String description() {
-        return toString();
-    }
 }

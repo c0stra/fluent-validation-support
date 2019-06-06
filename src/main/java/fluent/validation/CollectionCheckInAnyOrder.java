@@ -25,14 +25,13 @@
 
 package fluent.validation;
 
-import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Aggregator;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
 import java.util.*;
 
-final class CollectionCheckInAnyOrder<D> extends Check<Iterable<D>> implements CheckDescription {
+final class CollectionCheckInAnyOrder<D> extends Check<Iterable<D>> {
 
     private final List<Check<? super D>> checks;
     private final boolean full;
@@ -76,11 +75,6 @@ final class CollectionCheckInAnyOrder<D> extends Check<Iterable<D>> implements C
     @Override
     public String toString() {
         return "Items matching in any order " + checks;
-    }
-
-    @Override
-    public String description() {
-        return toString();
     }
 
 }

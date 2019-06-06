@@ -2,23 +2,25 @@ package fluent.validation.result;
 
 import java.util.List;
 
-public class MismatchResultVisitor implements ResultVisitor {
+public final class MismatchResultVisitor implements ResultVisitor {
 
+    private final boolean failureIndicator;
     private final Object actualValueDescription;
     private final StringBuilder builder;
 
-    private MismatchResultVisitor(Object actualValueDescription, StringBuilder builder) {
+    private MismatchResultVisitor(boolean failureIndicator, Object actualValueDescription, StringBuilder builder) {
+        this.failureIndicator = failureIndicator;
         this.actualValueDescription = actualValueDescription;
         this.builder = builder;
     }
 
     public MismatchResultVisitor(Object actualValueDescription) {
-        this(actualValueDescription, new StringBuilder());
+        this(false, actualValueDescription, new StringBuilder());
     }
 
     @Override
     public void actual(Object actualValue, Result result) {
-        result.accept(new MismatchResultVisitor(actualValue, builder));
+        result.accept(new MismatchResultVisitor(failureIndicator, actualValue, builder));
     }
 
     @Override
@@ -41,6 +43,11 @@ public class MismatchResultVisitor implements ResultVisitor {
     @Override
     public void error(Throwable throwable) {
 
+    }
+
+    @Override
+    public void invert(Result result) {
+        result.accept(new MismatchResultVisitor(!failureIndicator, actualValueDescription, builder));
     }
 
     @Override

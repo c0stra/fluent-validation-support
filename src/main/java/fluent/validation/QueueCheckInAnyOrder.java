@@ -25,14 +25,13 @@
 
 package fluent.validation;
 
-import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Aggregator;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
 import java.util.*;
 
-final class QueueCheckInAnyOrder<D> extends Check<Queue<D>> implements CheckDescription {
+final class QueueCheckInAnyOrder<D> extends Check<Queue<D>>  {
 
     private final List<Check<? super D>> checks;
     private final boolean full;
@@ -74,7 +73,8 @@ final class QueueCheckInAnyOrder<D> extends Check<Queue<D>> implements CheckDesc
     }
 
     @Override
-    public String description() {
-        return toString();
+    public String toString() {
+        return "Items in queue matching in any order " + checks;
     }
+
 }

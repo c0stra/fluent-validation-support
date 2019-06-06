@@ -1,6 +1,5 @@
 package fluent.validation;
 
-import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
@@ -8,7 +7,7 @@ import static fluent.validation.BasicChecks.allOf;
 import static fluent.validation.BasicChecks.equalTo;
 import static fluent.validation.BasicChecks.has;
 
-class ThrowingCheck extends Check<Runnable> implements CheckDescription {
+class ThrowingCheck extends Check<Runnable> {
 
     private final Check<? super Throwable> check;
 
@@ -40,8 +39,4 @@ class ThrowingCheck extends Check<Runnable> implements CheckDescription {
         return "throwing " + check;
     }
 
-    @Override
-    public String description() {
-        return "throw exception";
-    }
 }

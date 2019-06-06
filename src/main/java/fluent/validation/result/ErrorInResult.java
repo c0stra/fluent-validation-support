@@ -1,9 +1,9 @@
 package fluent.validation.result;
 
-public class ErrorInResult extends Result {
+final class ErrorInResult extends Result {
     private final Throwable error;
 
-    public ErrorInResult(Throwable error) {
+    ErrorInResult(Throwable error) {
         super(false);
         this.error = error;
     }

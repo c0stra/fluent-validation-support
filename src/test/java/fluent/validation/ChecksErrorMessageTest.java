@@ -41,6 +41,9 @@ public class ChecksErrorMessageTest {
                             @Override protected Result evaluate(String data, ResultFactory factory) {
                                 return new ErrorMessageResult(equalTo(requirement.expectedResult).evaluate(data, factory));
                             }
+                            @Override public String toString() {
+                                return "";
+                            }
                         }))));
     }
 

@@ -57,6 +57,12 @@ public abstract class Check<T> {
     protected abstract Result evaluate(T data, ResultFactory factory);
 
     /**
+     * Enforce to implement toString() in every subclass.
+     * @return String representation of the check.
+     */
+    public abstract String toString();
+
+    /**
      * Compose this check with another one using logical AND operator.
      *
      * @param operand Another check.

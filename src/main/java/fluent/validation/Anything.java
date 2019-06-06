@@ -25,11 +25,10 @@
 
 package fluent.validation;
 
-import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-final class Anything<T> extends Check<T> implements CheckDescription {
+final class Anything<T> extends Check<T> {
 
     @Override
     public Result evaluate(T data, ResultFactory factory) {
@@ -47,8 +46,4 @@ final class Anything<T> extends Check<T> implements CheckDescription {
         return "anything";
     }
 
-    @Override
-    public String description() {
-        return toString();
-    }
 }

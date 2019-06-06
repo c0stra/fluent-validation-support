@@ -36,7 +36,7 @@ import java.util.Queue;
  *
  * @param <D> Type of the items in the collection.
  */
-final class QueueCheckInOrder<D> extends Check<Queue<D>> implements CheckDescription {
+final class QueueCheckInOrder<D> extends Check<Queue<D>> {
 
     private final Iterable<Check<? super D>> checks;
     private final boolean full;
@@ -79,11 +79,7 @@ final class QueueCheckInOrder<D> extends Check<Queue<D>> implements CheckDescrip
 
     @Override
     public String toString() {
-        return "Items matching " + checks;
+        return "Items in queue matching " + checks;
     }
 
-    @Override
-    public String description() {
-        return toString();
-    }
 }

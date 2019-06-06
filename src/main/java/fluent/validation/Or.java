@@ -25,13 +25,12 @@
 
 package fluent.validation;
 
-import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
 import static java.util.Arrays.asList;
 
-final class Or<D> extends Check<D> implements CheckDescription {
+final class Or<D> extends Check<D> {
 
     private final Check<? super D> left;
     private final Check<? super D> right;
@@ -60,8 +59,4 @@ final class Or<D> extends Check<D> implements CheckDescription {
         return left.or(right.and(operand));
     }
 
-    @Override
-    public String description() {
-        return "or";
-    }
 }
