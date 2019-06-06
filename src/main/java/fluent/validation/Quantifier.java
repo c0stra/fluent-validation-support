@@ -26,7 +26,7 @@
 package fluent.validation;
 
 import fluent.validation.result.CheckDescription;
-import fluent.validation.result.GroupResultBuilder;
+import fluent.validation.result.Aggregator;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
@@ -44,7 +44,7 @@ final class Quantifier<D> extends Check<Iterable<D>> implements CheckDescription
 
     @Override
     public Result evaluate(Iterable<D> data, ResultFactory factory) {
-        GroupResultBuilder itemResults = factory.groupBuilder(this);
+        Aggregator itemResults = factory.aggregator(this);
         boolean end = type == Type.exists;
         for(D item : data) {
             if(itemResults.add(check.evaluate(item, factory)).passed() == end) {

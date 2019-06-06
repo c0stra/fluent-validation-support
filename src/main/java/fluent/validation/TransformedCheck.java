@@ -45,10 +45,10 @@ final class TransformedCheck<D, V> extends Check<D> implements CheckDescription 
         try {
             value = transformation.apply(data);
         } catch (Exception | Error unchecked) {
-            return factory.exceptionResult(unchecked, false);
+            return factory.error(unchecked);
         }
         Result result = check.evaluate(value, factory);
-        return factory.targetResult(this, data, result.passed(), result);
+        return factory.actual(data, result);
     }
 
     @Override

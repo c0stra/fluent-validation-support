@@ -1,8 +1,10 @@
 package fluent.validation;
 
+import java.time.Duration;
 import java.util.*;
 
 import static fluent.validation.BasicChecks.*;
+import static fluent.validation.Repeater.repeat;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
@@ -32,6 +34,14 @@ public final class CollectionChecks {
 
     public static <D> Check<Iterable<D>> every(String elementName, Check<? super D> check) {
         return new Quantifier<>(elementName, Quantifier.Type.every, check);
+    }
+
+    public static <D> Check<D> repeatMax(Check<D> itemCheck, int max) {
+        return has("", (D i) -> repeat(i, max)).matching(CollectionChecks.exists("Attempt", itemCheck));
+    }
+
+    public static <D> Check<D> repeatMax(Check<D> itemCheck, int max, Duration delay) {
+        return has("", (D i) -> repeat(i, max, delay)).matching(CollectionChecks.exists("Attempt", itemCheck));
     }
 
     public static <T> Check<Iterable<T>> collectionStartsWith(Collection<Check<? super T>> prefix) {

@@ -33,7 +33,7 @@ final class Anything<T> extends Check<T> implements CheckDescription {
 
     @Override
     public Result evaluate(T data, ResultFactory factory) {
-        return factory.predicateResult(this, data, true);
+        return factory.expectation(toString(), true);
     }
 
     @SuppressWarnings("unchecked")

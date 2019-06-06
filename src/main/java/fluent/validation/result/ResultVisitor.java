@@ -4,14 +4,18 @@ import java.util.List;
 
 public interface ResultVisitor {
 
-    void predicateResult(Object expectation, Object actual, boolean result);
+    default ResultVisitor visit(Result result) {
+        result.accept(this);
+        return this;
+    }
 
-    void targetResult(CheckDescription target, boolean result, Result dependency);
+    void actual(Object actualValue, Result result);
 
-    void groupResult(Object description, Object actualValueDescription, boolean result, List<Result> itemResults);
+    void expectation(Object expectation, boolean value);
 
-    void exceptionResult(Throwable throwable, boolean result);
+    void transformation(Object name, Result result, boolean value);
 
-    void binaryOperationResult(String operator, boolean passed, Result leftResult, Result rightResult);
+    void aggregation(Object prefix, String glue, List<Result> items, boolean value);
 
+    void error(Throwable error);
 }

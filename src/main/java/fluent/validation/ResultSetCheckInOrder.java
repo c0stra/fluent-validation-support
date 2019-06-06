@@ -26,7 +26,7 @@
 package fluent.validation;
 
 import fluent.validation.result.CheckDescription;
-import fluent.validation.result.GroupResultBuilder;
+import fluent.validation.result.Aggregator;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
@@ -50,7 +50,7 @@ final class ResultSetCheckInOrder extends Check<ResultSet> implements CheckDescr
         this.exact = exact;
     }
 
-    private boolean match(Check<? super ResultSet> check, ResultSet data, GroupResultBuilder resultBuilder, ResultFactory factory) throws SQLException {
+    private boolean match(Check<? super ResultSet> check, ResultSet data, Aggregator resultBuilder, ResultFactory factory) throws SQLException {
         while (data.next()){
             if(resultBuilder.add(check.evaluate(data, factory)).passed()) {
                 return true;
@@ -65,9 +65,9 @@ final class ResultSetCheckInOrder extends Check<ResultSet> implements CheckDescr
     @Override
     public Result evaluate(ResultSet data, ResultFactory factory) {
         if(data == null) {
-            return factory.predicateResult(this, null, false);
+            return factory.expectation(this, false);
         }
-        GroupResultBuilder resultBuilder = factory.groupBuilder(this);
+        Aggregator resultBuilder = factory.aggregator(this);
         try {
             for(Check<? super ResultSet> check : checks) {
                 if(!match(check, data, resultBuilder, factory)) {

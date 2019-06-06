@@ -26,7 +26,7 @@
 package fluent.validation;
 
 import fluent.validation.result.CheckDescription;
-import fluent.validation.result.GroupResultBuilder;
+import fluent.validation.result.Aggregator;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
@@ -46,7 +46,7 @@ final class ResultSetCheckInAnyOrder extends Check<ResultSet> implements CheckDe
         this.exact = exact;
     }
 
-    private boolean matchesAnyAndRemoves(ResultSet item, List<Check<? super ResultSet>> checks, GroupResultBuilder resultBuilder, ResultFactory factory) {
+    private boolean matchesAnyAndRemoves(ResultSet item, List<Check<? super ResultSet>> checks, Aggregator resultBuilder, ResultFactory factory) {
         Iterator<Check<? super ResultSet>> c = checks.iterator();
         while (c.hasNext()) {
             if (resultBuilder.add(c.next().evaluate(item, factory)).passed()) {
@@ -60,9 +60,9 @@ final class ResultSetCheckInAnyOrder extends Check<ResultSet> implements CheckDe
     @Override
     public Result evaluate(ResultSet data, ResultFactory factory) {
         if(data == null) {
-            return factory.predicateResult(this, null, false);
+            return factory.expectation(this, false);
         }
-        GroupResultBuilder resultBuilder = factory.groupBuilder(this);
+        Aggregator resultBuilder = factory.aggregator(this);
         final List<Check<? super ResultSet>> copy = new LinkedList<>(this.checks);
         try {
             while (data.next()) {

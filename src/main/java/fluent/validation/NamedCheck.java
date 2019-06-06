@@ -42,7 +42,7 @@ final class NamedCheck<D> extends Check<D> implements CheckDescription {
     @Override
     protected Result evaluate(D data, ResultFactory factory) {
         Result result = check.evaluate(data, factory);
-        return factory.namedResult(this, result, result.passed());
+        return factory.named(name, result, result.passed());
     }
 
     @Override

@@ -26,15 +26,16 @@
 package fluent.validation;
 
 import fluent.validation.result.CheckDescription;
-import fluent.validation.result.ExceptionResult;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
 final class PredicateCheck<D> extends Check<D> implements CheckDescription {
 
+    private final Object expectation;
     private final Predicate<D> predicate;
 
-    PredicateCheck(Predicate<D> predicate) {
+    PredicateCheck(Object expectation, Predicate<D> predicate) {
+        this.expectation = expectation;
         this.predicate = predicate;
     }
 
@@ -46,9 +47,9 @@ final class PredicateCheck<D> extends Check<D> implements CheckDescription {
     @Override
     protected Result evaluate(D data, ResultFactory factory) {
         try {
-            return factory.predicateResult(this, data, predicate.test(data));
+            return factory.expectation(expectation, predicate.test(data));
         } catch (Exception | Error throwable) {
-            return new ExceptionResult(throwable);
+            return factory.error(throwable);
         }
     }
 

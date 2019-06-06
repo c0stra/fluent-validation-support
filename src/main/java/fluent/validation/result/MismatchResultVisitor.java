@@ -4,35 +4,43 @@ import java.util.List;
 
 public class MismatchResultVisitor implements ResultVisitor {
 
-    private final StringBuilder builder = new StringBuilder();
+    private final Object actualValueDescription;
+    private final StringBuilder builder;
 
-    @Override
-    public void predicateResult(Object expectation, Object actual, boolean result) {
-        builder.append("expected: ").append(expectation).append(" but actual: <").append(actual).append('>');//.append('\n');
+    private MismatchResultVisitor(Object actualValueDescription, StringBuilder builder) {
+        this.actualValueDescription = actualValueDescription;
+        this.builder = builder;
+    }
+
+    public MismatchResultVisitor(Object actualValueDescription) {
+        this(actualValueDescription, new StringBuilder());
     }
 
     @Override
-    public void targetResult(CheckDescription target, boolean result, Result dependency) {
-        builder.append(target.description()).append(' ');
+    public void actual(Object actualValue, Result result) {
+        result.accept(new MismatchResultVisitor(actualValue, builder));
+    }
+
+    @Override
+    public void expectation(Object expectation, boolean result) {
+        builder.append("expected: ").append(expectation).append(" but actual: <").append(actualValueDescription).append('>');//.append('\n');
+    }
+
+    @Override
+    public void transformation(Object name, Result dependency, boolean result) {
+        builder.append(name).append(' ');
         dependency.accept(this);
     }
 
     @Override
-    public void groupResult(Object description, Object actualValueDescription, boolean result, List<Result> itemResults) {
+    public void aggregation(Object description, String glue, List<Result> itemResults, boolean result) {
         builder.append(description).append(" but ").append(actualValueDescription);
         itemResults.stream().filter(Result::passed).forEach(r -> r.accept(this));
     }
 
     @Override
-    public void exceptionResult(Throwable throwable, boolean result) {
+    public void error(Throwable throwable) {
 
-    }
-
-    @Override
-    public void binaryOperationResult(String operator, boolean passed, Result leftResult, Result rightResult) {
-        leftResult.accept(this);
-        builder.append(' ').append(operator).append(' ');
-        rightResult.accept(this);
     }
 
     @Override

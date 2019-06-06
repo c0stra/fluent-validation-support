@@ -1,48 +1,52 @@
 package fluent.validation.result;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface ResultFactory {
 
-    Result namedResult(CheckDescription name, Result dependency, boolean result);
+    Result actual(Object actualValue, Result result);
 
-    default Result namedResult(CheckDescription name, Result dependency) {
-        return namedResult(name, dependency, dependency.passed());
+    Result expectation(Object expectation, boolean value);
+
+    Result named(Object name, Result result, boolean value);
+
+    Result aggregation(Object prefix, String glue, List<Result> items, boolean value);
+
+    Result error(Throwable throwable);
+
+    default Aggregator aggregator(Object prefix, String glue) {
+        return new Aggregator() {
+            private final List<Result> items = new ArrayList<>();
+            @Override public Result add(Result itemResult) {
+                items.add(itemResult);
+                return itemResult;
+            }
+            @Override public Result build(Object actualValueDescription, boolean result) {
+                return actual(actualValueDescription, aggregation(prefix, glue, items, result));
+            }
+        };
     }
 
-    Result predicateResult(CheckDescription expectation, Object actual, boolean result);
-
-    Result targetResult(CheckDescription target, Object actual, boolean result, Result dependency);
-
-    Result groupResult(CheckDescription description, Object actualValueDescription, boolean result, List<Result> itemResults);
-
-    Result exceptionResult(Throwable throwable, boolean result);
-
-    GroupResultBuilder groupBuilder(CheckDescription description);
+    default Aggregator aggregator(Object prefix) {
+        return aggregator(prefix, ", ");
+    }
 
     ResultFactory DEFAULT = new ResultFactory() {
-        @Override public Result namedResult(CheckDescription name, Result dependency, boolean result) {
-            return new TargetResult(name, result, dependency);
+        @Override public Result actual(Object actualValue, Result result) {
+            return new ActualValueInResult(actualValue, result);
         }
-
-        @Override public Result predicateResult(CheckDescription expectation, Object actual, boolean result) {
-            return new PredicateResult(expectation, actual, result);
+        @Override public Result expectation(Object expectation, boolean value) {
+            return new ExpectationInResult(expectation, value);
         }
-
-        @Override public Result targetResult(CheckDescription target, Object actual, boolean result, Result dependency) {
-            return new TargetResult(target, result, dependency);
+        @Override public Result named(Object name, Result result, boolean value) {
+            return new TransformationInResult(name, result, value);
         }
-
-        @Override public Result groupResult(CheckDescription description, Object actualValueDescription, boolean result, List<Result> itemResults) {
-            return new GroupResult(result, description, actualValueDescription, itemResults);
+        @Override public Result aggregation(Object prefix, String glue, List<Result> items, boolean value) {
+            return new AggregationInResult(prefix, glue, items, value);
         }
-
-        @Override public Result exceptionResult(Throwable throwable, boolean result) {
-            return new ExceptionResult(throwable);
-        }
-
-        @Override public GroupResultBuilder groupBuilder(CheckDescription description) {
-            return new GroupResult.Builder(description);
+        @Override public Result error(Throwable throwable) {
+            return new ErrorInResult(throwable);
         }
     };
 

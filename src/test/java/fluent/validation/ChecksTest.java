@@ -1,16 +1,16 @@
 package fluent.validation;
 
+import org.mockito.Mockito;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.Collections;
+import java.time.Duration;
 
 import static fluent.validation.BasicChecks.*;
-import static fluent.validation.StringChecks.*;
-import static fluent.validation.ComparisonChecks.*;
-import static fluent.validation.NumericChecks.*;
 import static fluent.validation.CollectionChecks.*;
 import static java.util.Arrays.asList;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
 public class ChecksTest {
@@ -64,6 +64,9 @@ public class ChecksTest {
                 requirement(asList("B", "B", "B"), every("String", equalTo("B")), true),
                 requirement(asList("D", "B", "D"), every("String", equalTo("D")), false),
 
+
+                requirement("A", repeatMax(condition(mock(false, false, true), "matching check"), 3, Duration.ZERO), true),
+                requirement("A", repeatMax(condition(mock(false, false, true), "matching check"), 2, Duration.ZERO), false)
         };
     }
 
@@ -77,4 +80,13 @@ public class ChecksTest {
                 "check `" + check + "` should return " + expectedResult + " when applied on `" + data + "`")};
     }
 
+    private static Predicate<Object> mock(Boolean value, Boolean... values) {
+        Predicate<Object> mock = Mockito.mock(Predicate.class);
+        try {
+            when(mock.test(any())).thenReturn(value, values);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return mock;
+    }
 }

@@ -20,10 +20,10 @@ class ThrowingCheck extends Check<Runnable> implements CheckDescription {
     public Result evaluate(Runnable data, ResultFactory factory) {
         try {
             data.run();
-            return factory.predicateResult(this, "no exception thrown", false);
+            return factory.expectation("no exception thrown", false);
         } catch (Throwable throwable) {
             Result result = check.evaluate(throwable, factory);
-            return factory.targetResult(this, throwable, result.passed(), result);
+            return factory.named("throwing", factory.actual(throwable, result), result.passed());
         }
     }
 

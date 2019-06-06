@@ -45,7 +45,7 @@ final class And<D> extends Check<D> implements CheckDescription {
     public Result evaluate(D data, ResultFactory factory) {
         Result leftResult = left.evaluate(data, factory);
         Result rightResult = right.evaluate(data, factory);
-        return factory.groupResult(this, data, leftResult.passed() && rightResult.passed(), asList(leftResult, rightResult));
+        return factory.aggregation("", " and ", asList(leftResult, rightResult), leftResult.passed() && rightResult.passed());
     }
 
     @Override

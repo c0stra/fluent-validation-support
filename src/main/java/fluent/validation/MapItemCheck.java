@@ -45,7 +45,7 @@ final class MapItemCheck<K, V> extends Check<Map<K, V>> implements CheckDescript
     protected Result evaluate(Map<K, V> data, ResultFactory factory) {
         V value = data.get(key);
         Result result = check.evaluate(value, factory);
-        return factory.targetResult(this, data, result.passed(), result);
+        return factory.named(key, result, result.passed());
     }
 
     @Override

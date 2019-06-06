@@ -48,7 +48,7 @@ final class CollectionCheckInOrder<D> extends Check<Iterable<D>> implements Chec
         this.exact = exact;
     }
 
-    private boolean match(Check<? super D> check, Iterator<D> d, GroupResultBuilder resultBuilder, ResultFactory factory) {
+    private boolean match(Check<? super D> check, Iterator<D> d, Aggregator resultBuilder, ResultFactory factory) {
         while (d.hasNext()) {
             D item = d.next();
             if(resultBuilder.add(check.evaluate(item, factory)).passed()) {
@@ -64,9 +64,9 @@ final class CollectionCheckInOrder<D> extends Check<Iterable<D>> implements Chec
     @Override
     public Result evaluate(Iterable<D> data, ResultFactory factory) {
         if(data == null) {
-            return factory.predicateResult(this, null, false);
+            return factory.expectation(this, false);
         }
-        GroupResultBuilder resultBuilder = factory.groupBuilder(this);
+        Aggregator resultBuilder = factory.aggregator(this);
         Iterator<D> d = data.iterator();
         for(Check<? super D> check : checks) {
             if(!match(check, d, resultBuilder, factory)) {

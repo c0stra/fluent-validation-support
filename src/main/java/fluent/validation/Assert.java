@@ -1,6 +1,6 @@
 package fluent.validation;
 
-import fluent.api.End;
+import fluent.validation.result.MismatchResultVisitor;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
@@ -28,7 +28,7 @@ public final class Assert {
     public static <T> void that(T data, Check<? super T> check, ResultFactory resultFactory) {
         Result result = Check.evaluate(data, check, resultFactory);
         if(result.failed()) {
-            throw new AssertionFailure(result);
+            throw new AssertionFailure(new MismatchResultVisitor(data).visit(result));
         }
     }
 

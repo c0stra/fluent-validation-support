@@ -48,7 +48,7 @@ final class QueueCheckInOrder<D> extends Check<Queue<D>> implements CheckDescrip
         this.exact = exact;
     }
 
-    private boolean match(Check<? super D> check, Queue<D> data, GroupResultBuilder resultBuilder, ResultFactory factory) {
+    private boolean match(Check<? super D> check, Queue<D> data, Aggregator resultBuilder, ResultFactory factory) {
         for(D item = data.poll(); item != null; item = data.poll()) {
             if(resultBuilder.add(check.evaluate(item, factory)).passed()) {
                 return true;
@@ -63,9 +63,9 @@ final class QueueCheckInOrder<D> extends Check<Queue<D>> implements CheckDescrip
     @Override
     public Result evaluate(Queue<D> data, ResultFactory factory) {
         if(data == null) {
-            return factory.predicateResult(this, null, false);
+            return factory.expectation(this, false);
         }
-        GroupResultBuilder resultBuilder = factory.groupBuilder(this);
+        Aggregator resultBuilder = factory.aggregator(this);
         for(Check<? super D> check : checks) {
             if(!match(check, data, resultBuilder, factory)) {
                 return resultBuilder.build(check + " not matched by any item", false);

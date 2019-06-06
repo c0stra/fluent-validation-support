@@ -26,7 +26,7 @@
 package fluent.validation;
 
 import fluent.validation.result.CheckDescription;
-import fluent.validation.result.GroupResultBuilder;
+import fluent.validation.result.Aggregator;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
@@ -44,7 +44,7 @@ final class QueueCheckInAnyOrder<D> extends Check<Queue<D>> implements CheckDesc
         this.exact = exact;
     }
 
-    private boolean matchesAnyAndRemoves(D item, List<Check<? super D>> checks, GroupResultBuilder resultBuilder, ResultFactory factory) {
+    private boolean matchesAnyAndRemoves(D item, List<Check<? super D>> checks, Aggregator resultBuilder, ResultFactory factory) {
         Iterator<Check<? super D>> c = checks.iterator();
         while (c.hasNext()) {
             if (resultBuilder.add(c.next().evaluate(item, factory)).passed()) {
@@ -58,9 +58,9 @@ final class QueueCheckInAnyOrder<D> extends Check<Queue<D>> implements CheckDesc
     @Override
     public Result evaluate(Queue<D> data, ResultFactory factory) {
         if(data == null) {
-            return factory.predicateResult(this, null, false);
+            return factory.expectation(this, false);
         }
-        GroupResultBuilder resultBuilder = factory.groupBuilder(this);
+        Aggregator resultBuilder = factory.aggregator(this);
         final List<Check<? super D>> copy = new LinkedList<>(this.checks);
         for(D item = data.poll(); item != null; item = data.poll()) {
             if(copy.isEmpty()) {

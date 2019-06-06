@@ -26,10 +26,8 @@
 package fluent.validation;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.util.*;
 
-import static fluent.validation.Repeater.repeat;
 import static java.lang.Math.abs;
 import static java.util.Arrays.asList;
 
@@ -69,7 +67,7 @@ public final class BasicChecks {
      * @return New expectation.
      */
     public static <D> Check<D> nullableCondition(Predicate<D> predicate, String expectationDescription) {
-        return new NamedCheck<>(expectationDescription, new PredicateCheck<>(predicate));
+        return new PredicateCheck<>(expectationDescription, predicate);
     }
 
     public static <D> Check<D> require(Check<? super D> requirement, Check<? super D> check) {
@@ -347,14 +345,6 @@ public final class BasicChecks {
 
     public static <D> CheckDsl.Final<D> dsl() {
         return new CheckDsl.Final<>();
-    }
-
-    public static <D> Check<D> repeatMax(Check<D> itemCheck, int max) {
-        return has("", (D i) -> repeat(i, max)).matching(CollectionChecks.exists("Attempt", itemCheck));
-    }
-
-    public static <D> Check<D> repeatMax(Check<D> itemCheck, int max, Duration delay) {
-        return has("", (D i) -> repeat(i, max, delay)).matching(CollectionChecks.exists("Attempt", itemCheck));
     }
 
 }

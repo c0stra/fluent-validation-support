@@ -27,7 +27,6 @@ package fluent.validation.evaluation;
 
 import fluent.validation.Check;
 import fluent.validation.result.CheckDescription;
-import fluent.validation.result.PredicateResult;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
@@ -37,7 +36,7 @@ public class Statement extends Check<Context> implements Conclusion, CheckDescri
 
     @Override
     protected Result evaluate(Context data, ResultFactory factory) {
-        return factory.predicateResult(this, this, data.isValid(this));
+        return factory.expectation(this, data.isValid(this));
     }
 
     @Override

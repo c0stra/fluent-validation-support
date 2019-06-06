@@ -18,11 +18,4 @@ public abstract class Result {
 
     public abstract void accept(ResultVisitor visitor);
 
-    @Override
-    public String toString() {
-        ResultVisitor visitor = new MismatchResultVisitor();
-        accept(visitor);
-        return visitor.toString();
-    }
-
 }

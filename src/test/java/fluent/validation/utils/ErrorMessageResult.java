@@ -1,6 +1,5 @@
 package fluent.validation.utils;
 
-import fluent.validation.result.CheckDescription;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultVisitor;
 
@@ -20,28 +19,28 @@ public class ErrorMessageResult extends Result {
         result.accept(new ResultVisitor() {
 
             @Override
-            public void predicateResult(Object expectation, Object actual, boolean result) {
-                visitor.predicateResult("---\n" + expectation + "\n---", "---\n" + actual + "\n---", result);
+            public void actual(Object actualValue, Result result) {
+
             }
 
             @Override
-            public void targetResult(CheckDescription target, boolean result, Result dependency) {
-                visitor.targetResult(target, result, dependency);
+            public void expectation(Object expectation, boolean result) {
+                visitor.expectation("---\n" + expectation + "\n---", result);
             }
 
             @Override
-            public void groupResult(Object description, Object actualValueDescription, boolean result, List<Result> itemResults) {
-                visitor.groupResult(description, actualValueDescription, result, itemResults);
+            public void transformation(Object name, Result dependency, boolean value) {
+                visitor.transformation(name, dependency, value);
             }
 
             @Override
-            public void exceptionResult(Throwable throwable, boolean result) {
-                visitor.exceptionResult(throwable, result);
+            public void aggregation(Object prefix, String glue, List<Result> itemResults, boolean result) {
+                visitor.aggregation(prefix, glue, itemResults, result);
             }
 
             @Override
-            public void binaryOperationResult(String operator, boolean passed, Result leftResult, Result rightResult) {
-                visitor.binaryOperationResult(operator, passed, leftResult, rightResult);
+            public void error(Throwable throwable) {
+                visitor.error(throwable);
             }
 
         });
