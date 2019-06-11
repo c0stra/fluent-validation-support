@@ -1,8 +1,7 @@
 package fluent.validation;
 
-import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
-import fluent.validation.utils.ErrorMessageResult;
+import fluent.validation.utils.ErrorMessageMismatchVisitor;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -36,15 +35,10 @@ public class ChecksErrorMessageTest {
     public <T> void test(Requirement<T, String> requirement) {
         Assert.that(
                 () -> Assert.that(requirement.data, requirement.check),
-                throwing(require(isAn(AssertionFailure.class), has("Error message", Throwable::getMessage).matching(
-                        new Check<String>() {
-                            @Override protected Result evaluate(String data, ResultFactory factory) {
-                                return new ErrorMessageResult(equalTo(requirement.expectedResult).evaluate(data, factory));
-                            }
-                            @Override public String toString() {
-                                return "";
-                            }
-                        }))));
+                throwing(require(isAn(AssertionFailure.class), has("Error message", Throwable::getMessage).equalTo(requirement.expectedResult))),
+                ResultFactory.DEFAULT,
+                new ErrorMessageMismatchVisitor()
+        );
     }
 
     private static <T> Object[] requirement(T data, Check<? super T> check, String expectedMessage) {

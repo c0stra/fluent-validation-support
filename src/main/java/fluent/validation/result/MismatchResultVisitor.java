@@ -1,6 +1,10 @@
 package fluent.validation.result;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.joining;
 
 public final class MismatchResultVisitor implements ResultVisitor {
 
@@ -14,8 +18,12 @@ public final class MismatchResultVisitor implements ResultVisitor {
         this.builder = builder;
     }
 
-    public MismatchResultVisitor(Object actualValueDescription) {
+    private MismatchResultVisitor(Object actualValueDescription) {
         this(false, actualValueDescription, new StringBuilder());
+    }
+
+    public MismatchResultVisitor() {
+        this(null);
     }
 
     @Override
@@ -36,8 +44,12 @@ public final class MismatchResultVisitor implements ResultVisitor {
 
     @Override
     public void aggregation(Object description, String glue, List<Result> itemResults, boolean result) {
-        builder.append(description).append(" but ").append(actualValueDescription);
-        itemResults.stream().filter(Result::passed).forEach(r -> r.accept(this));
+        new ExpectationVisitor(builder).aggregation(description, glue, itemResults, result);
+        builder.append(" but ").append(actualValueDescription).append(" caused by:");
+        itemResults.stream().filter(r -> r.passed() == failureIndicator).forEach(r -> {
+            builder.append("\n");
+            r.accept(this);
+        });
     }
 
     @Override

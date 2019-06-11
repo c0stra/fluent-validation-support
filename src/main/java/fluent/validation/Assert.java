@@ -3,6 +3,7 @@ package fluent.validation;
 import fluent.validation.result.MismatchResultVisitor;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
+import fluent.validation.result.ResultVisitor;
 
 public final class Assert {
     private Assert() {}
@@ -26,9 +27,13 @@ public final class Assert {
      * @param <T> Type of the tested data.
      */
     public static <T> void that(T data, Check<? super T> check, ResultFactory resultFactory) {
-        Result result = Check.evaluate(data, check, resultFactory);
+        that(data, check, resultFactory, new MismatchResultVisitor());
+    }
+
+    public static <T> void that(T data, Check<? super T> check, ResultFactory resultFactory, ResultVisitor visitor) {
+        Result result = resultFactory.actual(data, Check.evaluate(data, check, resultFactory));
         if(result.failed()) {
-            throw new AssertionFailure(new MismatchResultVisitor(data).visit(result));
+            throw new AssertionFailure(visitor.visit(result));
         }
     }
 
