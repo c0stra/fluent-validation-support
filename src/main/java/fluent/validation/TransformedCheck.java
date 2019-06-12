@@ -46,8 +46,7 @@ final class TransformedCheck<D, V> extends Check<D> {
         } catch (Exception | Error unchecked) {
             return factory.error(unchecked);
         }
-        Result result = check.evaluate(value, factory);
-        return factory.actual(data, result);
+        return factory.actual(value, check.evaluate(value, factory));
     }
 
     @Override

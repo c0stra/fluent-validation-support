@@ -16,18 +16,27 @@ public class ChecksErrorMessageTest {
     @DataProvider
     public static Object[][] requirements() {
         return new Object[][]{
-                requirement("A", equalTo("B"), "expected: <B> but actual: <A>"),
-                requirement(1.0, equalTo(2.0), "expected: <2.0 ±1.0E-7> but actual: <1.0>"),
-                requirement("A", not("A"), "not expected: <A> but actual: <A>"),
-                requirement("A", not(allOf(equalTo("A"), startsWith("A"))), "not expected: <A> and starts with <A> but actual: <A>"),
-                requirement("A", allOf(not("A"), not("B")), "Expected: not <A> and not <B> but actual: <A>"),
-                requirement(null, notNull(), "not expected: <null> but actual: <null>"),
-                requirement(null, not(anything()), "not expected: anything but actual: <null>"),
-                requirement("A", allOf(equalTo("A"), equalTo("B")), "expected: <A> and <B> but actual: <A>"),
-                requirement("A", allOf(equalTo("C"), equalTo("B")), "expected: <C> and <B> but actual: <A>"),
-                requirement("A", has("toString", Object::toString).equalTo("B"), "toString expected: <B> but actual: <A>"),
-                requirement("A", createBuilderWith(has("toString", Object::toString).equalTo("B")).and(has("length", String::length).equalTo(4)), "toString expected: <B> but actual: <A> and length expected: <4> but actual: <1>"),
-                requirement(Collections.singleton("A"), exists("String", equalTo("B")), "exists String <B> but No String <B> found")
+                requirement("A", equalTo("B"), "expected: <B> but was: <A>"),
+                requirement(1.0, equalTo(2.0), "expected: <2.0 ±1.0E-7> but was: <1.0>"),
+                requirement("A", not("A"), "expected: not <A> but was: <A>"),
+                requirement("A", not(allOf(equalTo("A"), startsWith("A"))), "expected: not (<A> and starts with <A>) but was: A\n" +
+                        "\t+ expected: <A> but was: <A>\n" +
+                        "\t+ expected: starts with <A> but was: <A>"),
+                requirement("A", allOf(not("A"), not("B")), "expected: (not <A> and not <B>) but was: A\n" +
+                        "\t+ expected: not <A> but was: <A>"),
+                requirement(null, notNull(), "expected: not <null> but was: <null>"),
+                requirement(null, not(anything()), "expected: not anything but was: <null>"),
+                requirement("A", allOf(equalTo("A"), equalTo("B")), "expected: (<A> and <B>) but was: A\n" +
+                        "\t+ expected: <B> but was: <A>"),
+                requirement("A", allOf(equalTo("C"), equalTo("B")), "expected: (<C> and <B>) but was: A\n" +
+                        "\t+ expected: <C> but was: <A>\n" +
+                        "\t+ expected: <B> but was: <A>"),
+                requirement("A", has("toString", Object::toString).equalTo("B"), "expected: toString <B> but was: <A>"),
+                requirement("A", createBuilderWith(has("toString", Object::toString).equalTo("B")).and(has("length", String::length).equalTo(4)), "expected: (toString <B> and length <4>) but was: A\n" +
+                        "\t+ expected: toString <B> but was: <A>\n" +
+                        "\t+ expected: length <4> but was: <1>"),
+                requirement(Collections.singleton("A"), exists("String", equalTo("B")), "expected: (<B>) but was: No String <B> found\n" +
+                        "\t+ expected: <B> but was: <No String <B> found>")
         };
     }
 
