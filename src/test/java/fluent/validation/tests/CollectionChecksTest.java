@@ -1,15 +1,23 @@
 package fluent.validation.tests;
 
+import fluent.validation.Assert;
 import fluent.validation.Check;
+import fluent.validation.CheckInterruptedException;
+import fluent.validation.CollectionChecks;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import static fluent.validation.CollectionChecks.*;
 import static java.util.Arrays.asList;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
 
 public class CollectionChecksTest {
@@ -151,6 +159,13 @@ public class CollectionChecksTest {
     @Test
     public void arrayCheck() {
         assertTrue(Check.that(new String[] {"A", "B"}, arrayEqualTo(items("A", "B"))));
+    }
+
+    @Test(expectedExceptions = CheckInterruptedException.class)
+    public void testInterruptedExceptionInBlockingQueue() throws InterruptedException {
+        BlockingQueue<Object> queue = mock(BlockingQueue.class);
+        when(queue.poll(10, TimeUnit.MILLISECONDS)).thenThrow(new InterruptedException());
+        Assert.that(queue, queueEqualTo(items("A"), Duration.ofMillis(10)));
     }
 
 }

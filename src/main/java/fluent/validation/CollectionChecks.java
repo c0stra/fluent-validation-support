@@ -2,6 +2,7 @@ package fluent.validation;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
 
 import static fluent.validation.BasicChecks.*;
 import static fluent.validation.Repeater.repeat;
@@ -29,7 +30,7 @@ public final class CollectionChecks {
     }
 
     public static <D> Check<Iterable<D>> exists(String elementName, Check<? super D> check) {
-        return new Quantifier<>(elementName, Quantifier.Type.exists, check);
+        return collectionContains(Collections.singleton(check));
     }
 
     public static <D> Check<Iterable<D>> every(String elementName, Check<? super D> check) {
@@ -118,6 +119,32 @@ public final class CollectionChecks {
     public static <D> Check<Queue<D>> queueEqualInAnyOrderTo(Collection<Check<? super D>> itemConditions) {
         return new QueueCheckInAnyOrder<>(itemConditions, true, true);
     }
+
+
+    public static <T> Check<BlockingQueue<T>> queueStartsWith(Collection<Check<? super T>> prefix, Duration timeout) {
+        return new BlockingQueueCheckInOrder<>(prefix, timeout.toMillis(), false, true);
+    }
+
+    public static <T> Check<BlockingQueue<T>> queueStartsInAnyOrderWith(Collection<Check<? super T>> prefix, Duration timeout) {
+        return new BlockingQueueCheckInAnyOrder<>(prefix, timeout.toMillis(), false, true);
+    }
+
+    public static <D> Check<BlockingQueue<D>> queueContains(Collection<Check<? super D>> itemConditions, Duration timeout) {
+        return new BlockingQueueCheckInOrder<>(itemConditions, timeout.toMillis(), false, false);
+    }
+
+    public static <D> Check<BlockingQueue<D>> queueContainsInAnyOrder(Collection<Check<? super D>> itemChecks, Duration timeout) {
+        return new BlockingQueueCheckInAnyOrder<>(itemChecks, timeout.toMillis(), false, false);
+    }
+
+    public static <D> Check<BlockingQueue<D>> queueEqualTo(Iterable<Check<? super D>> itemConditions, Duration timeout) {
+        return new BlockingQueueCheckInOrder<>(itemConditions, timeout.toMillis(), true, true);
+    }
+
+    public static <D> Check<BlockingQueue<D>> queueEqualInAnyOrderTo(Collection<Check<? super D>> itemConditions, Duration timeout) {
+        return new BlockingQueueCheckInAnyOrder<>(itemConditions, timeout.toMillis(), true, true);
+    }
+
 
     /**
      * Create matcher of empty collection.
