@@ -26,10 +26,10 @@
 package fluent.validation;
 
 /**
- * Simple builder of a condition. It is general interface, that can be used in different situations, like composing
- * a complex condition using partial ones, or collecting a complex set of conditions.
+ * Simple builder of a check. It is general interface, that can be used in different situations, like composing
+ * a complex check using partial ones, or collecting a complex set of conditions.
  *
- * @param <V> Type of the value, for which this builder receives a condition.
+ * @param <V> Type of the value, for which this builder receives a check.
  * @param <R> Return type.
  */
 public interface Builder<V, R> {

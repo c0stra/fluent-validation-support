@@ -165,7 +165,7 @@ public final class CollectionChecks {
      * @return Subset expectation.
      */
     public static <D> Check<Collection<D>> subsetOf(Collection<D> superSet) {
-        return condition(superSet::containsAll, "Superset of " + superSet);
+        return check(superSet::containsAll, "Superset of " + superSet);
     }
 
     /**
@@ -190,11 +190,11 @@ public final class CollectionChecks {
      * @return Collection size expectation.
      */
     public static <D> Check<Collection<D>> hasSize(int size) {
-        return condition(data -> data.size() == size, "has size " + size);
+        return check(data -> data.size() == size, "has size " + size);
     }
 
     public static <D> Check<Collection<D>> containsAll(Collection<D> items) {
-        return condition(data -> data.containsAll(items), "Has items " + items);
+        return check(data -> data.containsAll(items), "Has items " + items);
     }
 
     @SafeVarargs

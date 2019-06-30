@@ -27,7 +27,7 @@ package fluent.validation;
 
 import java.math.BigDecimal;
 
-import static fluent.validation.BasicChecks.condition;
+import static fluent.validation.BasicChecks.check;
 import static java.lang.Math.abs;
 
 /**
@@ -54,15 +54,15 @@ public final class NumericChecks {
      */
 
     public static Check<Double> closeTo(double operand, double precision) {
-        return condition(data -> abs(operand - data) < precision, "<" + operand + " ±" + precision + ">");
+        return check(data -> abs(operand - data) < precision, "<" + operand + " ±" + precision + ">");
     }
 
     public static Check<Float> closeTo(float operand, float precision) {
-        return condition(data -> abs(operand - data) < precision, operand + " ±" + precision);
+        return check(data -> abs(operand - data) < precision, operand + " ±" + precision);
     }
 
     public static Check<BigDecimal> closeTo(BigDecimal operand, BigDecimal precision) {
-        return condition(data -> operand.subtract(data).abs().compareTo(precision) < 0, operand + " ±" + precision);
+        return check(data -> operand.subtract(data).abs().compareTo(precision) < 0, operand + " ±" + precision);
     }
 
     public static Check<Double> equalTo(Double expectedValue) {

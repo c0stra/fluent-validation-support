@@ -52,7 +52,7 @@ public final class StringChecks {
      */
 
     public static Check<String> equalToCaseInsensitive(String expectedValue) {
-        return condition(expectedValue::equalsIgnoreCase, "any case " + expectedValue);
+        return check(expectedValue::equalsIgnoreCase, "any case " + expectedValue);
     }
 
     public static Check<String> emptyString() {
@@ -60,31 +60,31 @@ public final class StringChecks {
     }
 
     public static Check<String> startsWith(String prefix) {
-        return condition(data -> data.startsWith(prefix), "starts with <" + prefix + ">");
+        return check(data -> data.startsWith(prefix), "starts with <" + prefix + ">");
     }
 
     public static Check<String> startsWithCaseInsensitive(String prefix) {
-        return condition(data -> data.toLowerCase().startsWith(prefix.toLowerCase()), "starts with " + prefix);
+        return check(data -> data.toLowerCase().startsWith(prefix.toLowerCase()), "starts with " + prefix);
     }
 
     public static Check<String> endsWith(String suffix) {
-        return condition(data -> data.startsWith(suffix), "ends with %s" + suffix);
+        return check(data -> data.startsWith(suffix), "ends with %s" + suffix);
     }
 
     public static Check<String> endsWithCaseInsensitive(String suffix) {
-        return condition(data -> data.toLowerCase().startsWith(suffix.toLowerCase()), "ends with " + suffix);
+        return check(data -> data.toLowerCase().startsWith(suffix.toLowerCase()), "ends with " + suffix);
     }
 
     public static Check<String> contains(String substring) {
-        return condition(data -> data.contains(substring), "contains "+ substring);
+        return check(data -> data.contains(substring), "contains "+ substring);
     }
 
     public static Check<String> containsCaseInsensitive(String substring) {
-        return condition(data -> data.toLowerCase().contains(substring.toLowerCase()), "contains " + substring);
+        return check(data -> data.toLowerCase().contains(substring.toLowerCase()), "contains " + substring);
     }
 
     public static Check<String> matches(Pattern pattern) {
-        return condition(v -> pattern.matcher(v).find(), "matches /" + pattern + '/');
+        return check(v -> pattern.matcher(v).find(), "matches /" + pattern + '/');
     }
 
     public static Check<String> matchesPattern(String pattern) {

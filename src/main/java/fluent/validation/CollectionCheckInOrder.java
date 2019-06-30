@@ -31,7 +31,7 @@ import java.util.Iterator;
 
 /**
  * Check, making sure, that an actual collection meets provided conditions in exact order:
- *   1st item matches 1st condition, 2nd item matches 2nd condition, etc. and there must not be any item missing or
+ *   1st item matches 1st check, 2nd item matches 2nd check, etc. and there must not be any item missing or
  *   extra (length of actual collection needs to match length of collection of conditions).
  *
  * @param <D> Type of the items in the collection.

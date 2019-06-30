@@ -65,8 +65,8 @@ public class ChecksTest {
                 requirement(asList("D", "B", "D"), every("String", equalTo("D")), false),
 
 
-                requirement("A", repeatMax(condition(mock(false, false, true), "matching check"), 3, Duration.ZERO), true),
-                requirement("A", repeatMax(condition(mock(false, false, true), "matching check"), 2, Duration.ZERO), false)
+                requirement("A", repeatMax(check(mock(false, false, true), "matching check"), 3, Duration.ZERO), true),
+                requirement("A", repeatMax(check(mock(false, false, true), "matching check"), 2, Duration.ZERO), false)
         };
     }
 

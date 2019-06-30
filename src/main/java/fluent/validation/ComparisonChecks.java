@@ -52,19 +52,19 @@ public final class ComparisonChecks {
      */
 
     public static <D> Check<D> lessThan(D operand, Comparator<D> comparator) {
-        return condition(data -> comparator.compare(data, operand) < 0, "< " + operand);
+        return check(data -> comparator.compare(data, operand) < 0, "< " + operand);
     }
 
     public static <D> Check<D> moreThan(D operand, Comparator<D> comparator) {
-        return condition(data -> comparator.compare(data, operand) > 0, "> " + operand);
+        return check(data -> comparator.compare(data, operand) > 0, "> " + operand);
     }
 
     public static <D> Check<D> equalOrLessThan(D operand, Comparator<D> comparator) {
-        return condition(data -> comparator.compare(data, operand) < 0, "<= " + operand);
+        return check(data -> comparator.compare(data, operand) < 0, "<= " + operand);
     }
 
     public static <D> Check<D> equalOrMoreThan(D operand, Comparator<D> comparator) {
-        return condition(data -> comparator.compare(data, operand) > 0, ">= " + operand);
+        return check(data -> comparator.compare(data, operand) > 0, ">= " + operand);
     }
 
     public static <D extends Comparable<D>> Check<D> lessThan(D operand) {

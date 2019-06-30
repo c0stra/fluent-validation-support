@@ -34,7 +34,7 @@ import fluent.validation.result.ResultFactory;
  *
  * It tests, if value meets a criteria described by the check.
  *
- * But the main purpose of this class is to provide transparency during any complex condition evaluation, similar to
+ * But the main purpose of this class is to provide transparency during any complex check evaluation, similar to
  * Hamcrest Matchers.
  * If you are familiar with Hamcrest matchers, it should be easy to get familiar with Checks too. There are only
  * following differences:
@@ -45,7 +45,7 @@ import fluent.validation.result.ResultFactory;
  * 3. Thanks to it being generic, it's very simple to simplify creation of any custom, or composed conditions with
  *    advantage of Java 8 functional interfaces (lambdas).
  *
- * @param <T> Type of the data to be tested using this condition.
+ * @param <T> Type of the data to be tested using this check.
  */
 public abstract class Check<T> {
 

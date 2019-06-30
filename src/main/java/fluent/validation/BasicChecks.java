@@ -78,7 +78,7 @@ public final class BasicChecks {
         return require(notNull(), check);
     }
 
-    public static <D> Check<D> condition(Predicate<D> predicate, String expectationDescription) {
+    public static <D> Check<D> check(Predicate<D> predicate, String expectationDescription) {
         return requireNotNull(nullableCondition(predicate, expectationDescription));
     }
 
@@ -249,19 +249,19 @@ public final class BasicChecks {
      */
 
     public static <D> Check<D> lessThan(D operand, Comparator<D> comparator) {
-        return condition(data -> comparator.compare(data, operand) < 0, "< " + operand);
+        return check(data -> comparator.compare(data, operand) < 0, "< " + operand);
     }
 
     public static <D> Check<D> moreThan(D operand, Comparator<D> comparator) {
-        return condition(data -> comparator.compare(data, operand) > 0, "> " + operand);
+        return check(data -> comparator.compare(data, operand) > 0, "> " + operand);
     }
 
     public static <D> Check<D> equalOrLessThan(D operand, Comparator<D> comparator) {
-        return condition(data -> comparator.compare(data, operand) < 0, "<= " + operand);
+        return check(data -> comparator.compare(data, operand) < 0, "<= " + operand);
     }
 
     public static <D> Check<D> equalOrMoreThan(D operand, Comparator<D> comparator) {
-        return condition(data -> comparator.compare(data, operand) > 0, ">= " + operand);
+        return check(data -> comparator.compare(data, operand) > 0, ">= " + operand);
     }
 
     public static <D extends Comparable<D>> Check<D> lessThan(D operand) {
@@ -300,15 +300,15 @@ public final class BasicChecks {
      */
 
     public static Check<Double> closeTo(double operand, double precision) {
-        return condition(data -> abs(operand - data) < precision, "<" + operand + " ±" + precision + ">");
+        return check(data -> abs(operand - data) < precision, "<" + operand + " ±" + precision + ">");
     }
 
     public static Check<Float> closeTo(float operand, float precision) {
-        return condition(data -> abs(operand - data) < precision, operand + " ±" + precision);
+        return check(data -> abs(operand - data) < precision, operand + " ±" + precision);
     }
 
     public static Check<BigDecimal> closeTo(BigDecimal operand, BigDecimal precision) {
-        return condition(data -> operand.subtract(data).abs().compareTo(precision) < 0, operand + " ±" + precision);
+        return check(data -> operand.subtract(data).abs().compareTo(precision) < 0, operand + " ±" + precision);
     }
 
     public static Check<Double> equalTo(Double expectedValue) {
