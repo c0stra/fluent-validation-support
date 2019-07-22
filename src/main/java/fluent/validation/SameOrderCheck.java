@@ -29,9 +29,7 @@ import fluent.validation.result.Aggregator;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-import java.util.concurrent.BlockingQueue;
-
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import java.util.Iterator;
 
 /**
  * Check, making sure, that an actual collection meets provided conditions in exact order:
@@ -40,30 +38,23 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  *
  * @param <D> Type of the items in the collection.
  */
-final class BlockingQueueCheckInOrder<D> extends Check<BlockingQueue<D>> {
+final class SameOrderCheck<D> extends Check<Iterator<D>> {
 
+    private final String elementName;
     private final Iterable<Check<? super D>> checks;
-    private final long timeoutMillis;
     private final boolean full;
     private final boolean exact;
 
-    BlockingQueueCheckInOrder(Iterable<Check<? super D>> checks, long timeoutMillis, boolean full, boolean exact) {
+    SameOrderCheck(String elementName, Iterable<Check<? super D>> checks, boolean full, boolean exact) {
+        this.elementName = elementName;
         this.checks = checks;
-        this.timeoutMillis = timeoutMillis;
         this.full = full;
         this.exact = exact;
     }
 
-    private D get(BlockingQueue<D> data) {
-        try {
-            return data.poll(timeoutMillis, MILLISECONDS);
-        } catch (InterruptedException e) {
-            throw new CheckInterruptedException("Check of " + this + " was interrupted", e);
-        }
-    }
-
-    private boolean match(Check<? super D> check, BlockingQueue<D> data, Aggregator resultBuilder, ResultFactory factory) {
-        for(D item = get(data); item != null; item = get(data)) {
+    private boolean match(Check<? super D> check, Iterator<D> d, Aggregator resultBuilder, ResultFactory factory) {
+        while (d.hasNext()) {
+            D item = d.next();
             if(resultBuilder.add(check.evaluate(item, factory)).passed()) {
                 return true;
             }
@@ -75,28 +66,25 @@ final class BlockingQueueCheckInOrder<D> extends Check<BlockingQueue<D>> {
     }
 
     @Override
-    public Result evaluate(BlockingQueue<D> data, ResultFactory factory) {
+    public Result evaluate(Iterator<D> data, ResultFactory factory) {
         if(data == null) {
             return factory.expectation(this, false);
         }
         Aggregator resultBuilder = factory.aggregator(this);
         for(Check<? super D> check : checks) {
             if(!match(check, data, resultBuilder, factory)) {
-                return resultBuilder.build(check + " not matched by any item", false);
+                return resultBuilder.build(check + " not matched by any " + elementName, false);
             }
         }
-        if(full && exact) {
-            D nextItem = get(data);
-            if(nextItem != null) {
-                return resultBuilder.build("Extra item " + nextItem, false);
-            }
+        if(full && exact && data.hasNext()) {
+            return resultBuilder.build("Extra " + elementName + " " + data.next(), false);
         }
-        return resultBuilder.build("Items matched checks", true);
+        return resultBuilder.build(elementName + "s matched checks", true);
     }
 
     @Override
     public String toString() {
-        return "Items in queue matching " + checks;
+        return elementName + "s matching " + checks;
     }
 
 }

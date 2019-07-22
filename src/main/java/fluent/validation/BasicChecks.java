@@ -222,8 +222,12 @@ public final class BasicChecks {
      * ------------------------------------------------------------------------------------------------------
      */
 
+    public static <D, V> Check<D> transform(Transformation<? super D, V> transformation, Check<? super V> check) {
+        return new TransformedCheck<>(transformation, check);
+    }
+
     public static <D, V> Check<D> compose(String name, Transformation<? super D, V> transformation, Check<? super V> check) {
-        return new NamedCheck<>(name, new TransformedCheck<>(transformation, check));
+        return new NamedCheck<>(name, transform(transformation, check));
     }
 
     public static <D, V> Builder<V, Check<D>> has(String name, Transformation<? super D, V> transformation) {

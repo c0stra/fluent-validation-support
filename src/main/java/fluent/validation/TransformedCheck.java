@@ -43,6 +43,8 @@ final class TransformedCheck<D, V> extends Check<D> {
         V value;
         try {
             value = transformation.apply(data);
+        } catch (UncheckedInterruptedException interrupted) {
+            throw interrupted;
         } catch (Exception | Error unchecked) {
             return factory.error(unchecked);
         }

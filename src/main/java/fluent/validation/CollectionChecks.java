@@ -30,7 +30,7 @@ public final class CollectionChecks {
     }
 
     public static <D> Check<Iterable<D>> exists(String elementName, Check<? super D> check) {
-        return collectionContains(Collections.singleton(check));
+        return collection(contains(Collections.singleton(check)));
     }
 
     public static <D> Check<Iterable<D>> every(String elementName, Check<? super D> check) {
@@ -45,104 +45,46 @@ public final class CollectionChecks {
         return has("", (D i) -> repeat(i, max, delay)).matching(CollectionChecks.exists("Attempt", itemCheck));
     }
 
-    public static <T> Check<Iterable<T>> collectionStartsWith(Collection<Check<? super T>> prefix) {
-        return new CollectionCheckInOrder<>(prefix, false, true);
+    public static <T> Check<Iterator<T>> startsWith(Iterable<Check<? super T>> prefix) {
+        return new SameOrderCheck<>("Item", prefix, false, true);
     }
 
-    public static <T> Check<Iterable<T>> collectionStartsInAnyOrderWith(Collection<Check<? super T>> prefix) {
-        return new CollectionCheckInAnyOrder<>(prefix, false, true);
+    public static <T> Check<Iterator<T>> contains(Iterable<Check<? super T>> prefix) {
+        return new SameOrderCheck<>("Item", prefix, false, false);
     }
 
-    public static <D> Check<Iterable<D>> collectionContains(Collection<Check<? super D>> itemConditions) {
-        return new CollectionCheckInOrder<>(itemConditions, false, false);
-    }
-
-    public static <D> Check<Iterable<D>> collectionContainsInAnyOrder(Collection<Check<? super D>> itemChecks) {
-        return new CollectionCheckInAnyOrder<>(itemChecks, false, false);
-    }
-
-    public static <D> Check<Iterable<D>> collectionEqualTo(Iterable<Check<? super D>> itemConditions) {
-        return new CollectionCheckInOrder<>(itemConditions, true, true);
-    }
-
-    public static <D> Check<Iterable<D>> collectionEqualInAnyOrderTo(Collection<Check<? super D>> itemConditions) {
-        return new CollectionCheckInAnyOrder<>(itemConditions, true, true);
+    public static <T> Check<Iterator<T>> equalTo(Iterable<Check<? super T>> prefix) {
+        return new SameOrderCheck<>("Item", prefix, true, true);
     }
 
 
-
-    public static <T> Check<T[]> arrayStartsWith(Collection<Check<? super T>> prefix) {
-        return compose("", Arrays::asList, collectionStartsWith(prefix));
+    public static <T> Check<Iterator<T>> startsInAnyOrderWith(Collection<Check<? super T>> prefix) {
+        return new AnyOrderCheck<>("Item", prefix, false, true);
     }
 
-    public static <T> Check<T[]> arrayStartsInAnyOrderWith(Collection<Check<? super T>> prefix) {
-        return compose("", Arrays::asList, collectionStartsInAnyOrderWith(prefix));
+    public static <T> Check<Iterator<T>> containsInAnyOrder(Collection<Check<? super T>> prefix) {
+        return new AnyOrderCheck<>("Item", prefix, false, false);
     }
 
-    public static <D> Check<D[]> arrayContains(Collection<Check<? super D>> itemConditions) {
-        return compose("", Arrays::asList, collectionContains(itemConditions));
-    }
-
-    public static <D> Check<D[]> arrayContainsInAnyOrder(Collection<Check<? super D>> itemChecks) {
-        return compose("", Arrays::asList, collectionContainsInAnyOrder(itemChecks));
-    }
-
-    public static <D> Check<D[]> arrayEqualTo(Iterable<Check<? super D>> itemConditions) {
-        return compose("", Arrays::asList, collectionEqualTo(itemConditions));
-    }
-
-    public static <D> Check<D[]> arrayEqualInAnyOrderTo(Collection<Check<? super D>> itemConditions) {
-        return compose("", Arrays::asList, collectionEqualInAnyOrderTo(itemConditions));
+    public static <T> Check<Iterator<T>> equalInAnyOrderTo(Collection<Check<? super T>> prefix) {
+        return new AnyOrderCheck<>("Item", prefix, true, true);
     }
 
 
-    public static <T> Check<Queue<T>> queueStartsWith(Collection<Check<? super T>> prefix) {
-        return new QueueCheckInOrder<>(prefix, false, true);
+    public static <T> Check<Iterable<T>> collection(Check<Iterator<T>> check) {
+        return requireNotNull(transform(Iterable::iterator, check));
     }
 
-    public static <T> Check<Queue<T>> queueStartsInAnyOrderWith(Collection<Check<? super T>> prefix) {
-        return new QueueCheckInAnyOrder<>(prefix, false, true);
+    public static <T> Check<T[]> array(Check<Iterator<T>> check) {
+        return requireNotNull(transform(array -> asList(array).iterator(), check));
     }
 
-    public static <D> Check<Queue<D>> queueContains(Collection<Check<? super D>> itemConditions) {
-        return new QueueCheckInOrder<>(itemConditions, false, false);
+    public static <T> Check<Queue<T>> queue(Check<Iterator<T>> check) {
+        return requireNotNull(transform(Functions::queueIterator, check));
     }
 
-    public static <D> Check<Queue<D>> queueContainsInAnyOrder(Collection<Check<? super D>> itemChecks) {
-        return new QueueCheckInAnyOrder<>(itemChecks, false, false);
-    }
-
-    public static <D> Check<Queue<D>> queueEqualTo(Iterable<Check<? super D>> itemConditions) {
-        return new QueueCheckInOrder<>(itemConditions, true, true);
-    }
-
-    public static <D> Check<Queue<D>> queueEqualInAnyOrderTo(Collection<Check<? super D>> itemConditions) {
-        return new QueueCheckInAnyOrder<>(itemConditions, true, true);
-    }
-
-
-    public static <T> Check<BlockingQueue<T>> queueStartsWith(Collection<Check<? super T>> prefix, Duration timeout) {
-        return new BlockingQueueCheckInOrder<>(prefix, timeout.toMillis(), false, true);
-    }
-
-    public static <T> Check<BlockingQueue<T>> queueStartsInAnyOrderWith(Collection<Check<? super T>> prefix, Duration timeout) {
-        return new BlockingQueueCheckInAnyOrder<>(prefix, timeout.toMillis(), false, true);
-    }
-
-    public static <D> Check<BlockingQueue<D>> queueContains(Collection<Check<? super D>> itemConditions, Duration timeout) {
-        return new BlockingQueueCheckInOrder<>(itemConditions, timeout.toMillis(), false, false);
-    }
-
-    public static <D> Check<BlockingQueue<D>> queueContainsInAnyOrder(Collection<Check<? super D>> itemChecks, Duration timeout) {
-        return new BlockingQueueCheckInAnyOrder<>(itemChecks, timeout.toMillis(), false, false);
-    }
-
-    public static <D> Check<BlockingQueue<D>> queueEqualTo(Iterable<Check<? super D>> itemConditions, Duration timeout) {
-        return new BlockingQueueCheckInOrder<>(itemConditions, timeout.toMillis(), true, true);
-    }
-
-    public static <D> Check<BlockingQueue<D>> queueEqualInAnyOrderTo(Collection<Check<? super D>> itemConditions, Duration timeout) {
-        return new BlockingQueueCheckInAnyOrder<>(itemConditions, timeout.toMillis(), true, true);
+    public static <T> Check<BlockingQueue<T>> blockingQueue(Check<Iterator<T>> check, Duration timeout) {
+        return requireNotNull(transform(queue -> Functions.blockingQueueIterator(queue, timeout.toMillis()), check));
     }
 
 

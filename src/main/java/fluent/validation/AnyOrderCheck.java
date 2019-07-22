@@ -25,61 +25,58 @@
 
 package fluent.validation;
 
-import fluent.validation.result.*;
+import fluent.validation.result.Aggregator;
+import fluent.validation.result.Result;
+import fluent.validation.result.ResultFactory;
 
-import java.util.Queue;
+import java.util.*;
 
-/**
- * Check, making sure, that an actual collection meets provided conditions in exact order:
- *   1st item matches 1st check, 2nd item matches 2nd check, etc. and there must not be any item missing or
- *   extra (length of actual collection needs to match length of collection of conditions).
- *
- * @param <D> Type of the items in the collection.
- */
-final class QueueCheckInOrder<D> extends Check<Queue<D>> {
+final class AnyOrderCheck<D> extends Check<Iterator<D>> {
 
-    private final Iterable<Check<? super D>> checks;
+    private final String elementName;
+    private final List<Check<? super D>> checks;
     private final boolean full;
     private final boolean exact;
 
-    QueueCheckInOrder(Iterable<Check<? super D>> checks, boolean full, boolean exact) {
-        this.checks = checks;
+    AnyOrderCheck(String elementName, Collection<Check<? super D>> checks, boolean full, boolean exact) {
+        this.elementName = elementName;
+        this.checks = new ArrayList<>(checks);
         this.full = full;
         this.exact = exact;
     }
 
-    private boolean match(Check<? super D> check, Queue<D> data, Aggregator resultBuilder, ResultFactory factory) {
-        for(D item = data.poll(); item != null; item = data.poll()) {
-            if(resultBuilder.add(check.evaluate(item, factory)).passed()) {
+    private boolean matchesAnyAndRemoves(D item, List<Check<? super D>> checks, Aggregator resultBuilder, ResultFactory factory) {
+        Iterator<Check<? super D>> c = checks.iterator();
+        while (c.hasNext()) {
+            if (resultBuilder.add(c.next().evaluate(item, factory)).passed()) {
+                c.remove();
                 return true;
-            }
-            if(exact) {
-                return false;
             }
         }
         return false;
     }
 
     @Override
-    public Result evaluate(Queue<D> data, ResultFactory factory) {
+    public Result evaluate(Iterator<D> data, ResultFactory factory) {
         if(data == null) {
             return factory.expectation(this, false);
         }
         Aggregator resultBuilder = factory.aggregator(this);
-        for(Check<? super D> check : checks) {
-            if(!match(check, data, resultBuilder, factory)) {
-                return resultBuilder.build(check + " not matched by any item", false);
+        final List<Check<? super D>> copy = new LinkedList<>(this.checks);
+        while (data.hasNext()) {
+            if(copy.isEmpty()) {
+                return full ? resultBuilder.build("Extra items found", false) : resultBuilder.build("Prefix matched", true);
+            }
+            if (!matchesAnyAndRemoves(data.next(), copy, resultBuilder, factory) && exact) {
+                return resultBuilder.build("Extra items found", false);
             }
         }
-        if(full && exact && !data.isEmpty()) {
-            return resultBuilder.build("Extra item " + data.poll(), false);
-        }
-        return resultBuilder.build("Items matched checks", true);
+        return resultBuilder.build(copy.isEmpty()? "All checks satisfied": "" + copy.size() + " checks not satisfied", copy.isEmpty());
     }
 
     @Override
     public String toString() {
-        return "Items in queue matching " + checks;
+        return elementName + "s matching in any order " + checks;
     }
 
 }

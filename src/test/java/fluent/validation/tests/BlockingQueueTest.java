@@ -26,7 +26,7 @@ public class BlockingQueueTest {
                 e.printStackTrace();
             }
         }).start();
-        Assert.that(queue, queueEqualInAnyOrderTo(items("A", "C", "B"), Duration.ofSeconds(1)));
+        Assert.that(queue, blockingQueue(equalInAnyOrderTo(items("A", "C", "B")), Duration.ofSeconds(1)));
     }
 
 
@@ -36,7 +36,7 @@ public class BlockingQueueTest {
         queue.add("A");
         queue.add("B");
         queue.add("C");
-        Assert.that(queue, queueEqualTo(items("A", "B", "C"), Duration.ofSeconds(1)));
+        Assert.that(queue, blockingQueue(equalTo(items("A", "B", "C")), Duration.ofSeconds(1)));
     }
 
 }

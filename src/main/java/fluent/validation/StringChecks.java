@@ -51,7 +51,7 @@ public final class StringChecks {
      * ------------------------------------------------------------------------------------------------------
      */
 
-    public static Check<String> equalToCaseInsensitive(String expectedValue) {
+    public static Check<String> equalCaseInsensitiveTo(String expectedValue) {
         return check(expectedValue::equalsIgnoreCase, "any case " + expectedValue);
     }
 
@@ -63,7 +63,7 @@ public final class StringChecks {
         return check(data -> data.startsWith(prefix), "starts with <" + prefix + ">");
     }
 
-    public static Check<String> startsWithCaseInsensitive(String prefix) {
+    public static Check<String> startsCaseInsensitiveWith(String prefix) {
         return check(data -> data.toLowerCase().startsWith(prefix.toLowerCase()), "starts with " + prefix);
     }
 
@@ -71,7 +71,7 @@ public final class StringChecks {
         return check(data -> data.startsWith(suffix), "ends with %s" + suffix);
     }
 
-    public static Check<String> endsWithCaseInsensitive(String suffix) {
+    public static Check<String> endsCaseInsensitiveWith(String suffix) {
         return check(data -> data.toLowerCase().startsWith(suffix.toLowerCase()), "ends with " + suffix);
     }
 

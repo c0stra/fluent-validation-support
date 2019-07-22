@@ -22,7 +22,7 @@ public final class Repeater<T> implements Iterable<T> {
             try {
                 Thread.sleep(delayInMillis);
             } catch (InterruptedException e) {
-                throw new CheckInterruptedException("Delay before repeating " + item + " interrupted", e);
+                throw new UncheckedInterruptedException("Delay before repeating " + item + " interrupted", e);
             }
         });
     }

@@ -25,10 +25,10 @@
 
 package fluent.validation;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.BlockingQueue;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class Functions {
 
@@ -46,6 +46,49 @@ public class Functions {
 
     public static Set<String> splitToSet(String value, String splitter) {
         return setOf(value.split(splitter));
+    }
+
+    public static <D> Iterator<D> iterator(Iterable<D> iterable) {
+        return iterable.iterator();
+    }
+
+    public static <D> Iterator<D> queueIterator(Queue<D> queue) {
+        return new Iterator<D>() {
+            @Override
+            public boolean hasNext() {
+                return !queue.isEmpty();
+            }
+
+            @Override
+            public D next() {
+                return queue.poll();
+            }
+        };
+    }
+
+    private static <D> D poll(BlockingQueue<D> queue, long timeout) {
+        try {
+            return queue.poll(timeout, MILLISECONDS);
+        } catch (InterruptedException e) {
+            throw new UncheckedInterruptedException("", e);
+        }
+    }
+
+    public static <D> Iterator<D> blockingQueueIterator(BlockingQueue<D> queue, long timeout) {
+        return new Iterator<D>() {
+            private D data = poll(queue, timeout);
+            @Override
+            public boolean hasNext() {
+                return data != null;
+            }
+
+            @Override
+            public D next() {
+                D last = data;
+                data = poll(queue, timeout);
+                return last;
+            }
+        };
     }
 
 }

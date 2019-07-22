@@ -47,6 +47,8 @@ final class PredicateCheck<D> extends Check<D> {
     protected Result evaluate(D data, ResultFactory factory) {
         try {
             return factory.expectation(expectation, predicate.test(data));
+        } catch (UncheckedInterruptedException interrupted) {
+            throw interrupted;
         } catch (Exception | Error throwable) {
             return factory.error(throwable);
         }
