@@ -5,6 +5,7 @@ import fluent.validation.utils.ErrorMessageMismatchVisitor;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import static fluent.validation.BasicChecks.*;
@@ -36,7 +37,11 @@ public class ChecksErrorMessageTest {
                         "\t+ expected: toString <B> but was: <A>\n" +
                         "\t+ expected: length <4> but was: <1>"),
                 requirement(Collections.singleton("A"), exists("String", equalTo("B")), "expected: (<B>) but was: <B> not matched by any Item\n" +
-                        "\t+ expected: <B> but was: <<B> not matched by any Item>")
+                        "\t+ expected: <B> but was: <<B> not matched by any Item>"),
+                requirement(Arrays.asList("A", "B", "C"), collection(equalInAnyOrderTo(items("B", "C", "F"))), "expected: (<B>, <C>, <F>) but was: Extra items found\n" +
+                        "\t+ expected: <B> but was: <A>\n" +
+                        "\t+ expected: <C> but was: <A>\n" +
+                        "\t+ expected: <F> but was: <A>")
         };
     }
 

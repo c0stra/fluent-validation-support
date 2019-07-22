@@ -48,7 +48,7 @@ final class AnyOrderCheck<D> extends Check<Iterator<D>> {
     private boolean matchesAnyAndRemoves(D item, List<Check<? super D>> checks, Aggregator resultBuilder, ResultFactory factory) {
         Iterator<Check<? super D>> c = checks.iterator();
         while (c.hasNext()) {
-            if (resultBuilder.add(c.next().evaluate(item, factory)).passed()) {
+            if (resultBuilder.add(factory.actual(item, c.next().evaluate(item, factory))).passed()) {
                 c.remove();
                 return true;
             }
