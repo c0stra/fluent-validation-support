@@ -25,17 +25,20 @@
 
 package fluent.validation;
 
-import fluent.validation.result.Aggregator;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
+import fluent.validation.result.TableAggregator;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.IntStream.range;
+
 final class ResultSetCheckInAnyOrder extends Check<ResultSet> {
 
-    private final List<Check<? super ResultSet>> checks;
+    private final ArrayList<Check<? super ResultSet>> checks;
     private final boolean full;
     private final boolean exact;
 
@@ -45,10 +48,13 @@ final class ResultSetCheckInAnyOrder extends Check<ResultSet> {
         this.exact = exact;
     }
 
-    private boolean matchesAnyAndRemoves(ResultSet item, List<Check<? super ResultSet>> checks, Aggregator resultBuilder, ResultFactory factory) {
-        Iterator<Check<? super ResultSet>> c = checks.iterator();
+    private boolean matchesAnyAndRemoves(ResultSet item, List<Integer> rows, int column, TableAggregator<ResultSet> table, ResultFactory factory) {
+        Iterator<Integer> c = rows.iterator();
         while (c.hasNext()) {
-            if (resultBuilder.add(c.next().evaluate(item, factory)).passed()) {
+            int row = c.next();
+            Result result = checks.get(row).evaluate(item, factory);
+            table.cell(row, column, result);
+            if (result.passed()) {
                 c.remove();
                 return true;
             }
@@ -61,21 +67,22 @@ final class ResultSetCheckInAnyOrder extends Check<ResultSet> {
         if(data == null) {
             return factory.expectation(this, false);
         }
-        Aggregator resultBuilder = factory.aggregator(this);
-        final List<Check<? super ResultSet>> copy = new LinkedList<>(this.checks);
+        TableAggregator<ResultSet> resultBuilder = factory.table(this, checks);
+        List<Integer> rows = range(0, checks.size()).boxed().collect(toCollection(LinkedList::new));
         try {
             while (data.next()) {
-                if(copy.isEmpty()) {
+                int column = resultBuilder.column("record " + data.getRow());
+                if(rows.isEmpty()) {
                     return full ? resultBuilder.build("Extra items found", false) : resultBuilder.build("Prefix matched", true);
                 }
-                if (!matchesAnyAndRemoves(data, copy, resultBuilder, factory) && exact) {
+                if (!matchesAnyAndRemoves(data, rows, column, resultBuilder, factory) && exact) {
                     return resultBuilder.build("Extra items found", false);
                 }
             }
         } catch (SQLException e) {
-            return resultBuilder.build(e, false);
+            return resultBuilder.build(e.getMessage(), false);
         }
-        return resultBuilder.build(copy.isEmpty()? "All checks satisfied": "" + copy.size() + " checks not satisfied", copy.isEmpty());
+        return resultBuilder.build(rows.isEmpty() ? "All checks satisfied": "" + rows.size() + " checks not satisfied", rows.isEmpty());
     }
 
     @Override

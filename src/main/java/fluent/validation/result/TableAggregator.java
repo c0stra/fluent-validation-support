@@ -8,8 +8,6 @@ public interface TableAggregator<D> {
 
     void cell(int row, int column, Result result);
 
-    void satisfy(String satisfied, int row, int column, Result result);
-
-    int column(D item);
+    int column(Object item);
 
 }

@@ -51,12 +51,11 @@ final class AnyOrderCheck<D> extends Check<Iterator<D>> {
     private boolean matchesAnyAndRemoves(TableAggregator<D> table, List<Integer> rows, int column, D item, ResultFactory factory) {
         Iterator<Integer> c = rows.iterator();
         while (c.hasNext()) {
-            Integer row = c.next();
+            int row = c.next();
             Result result = checks.get(row).evaluate(item, factory);
             table.cell(row, column, result);
             if (result.passed()) {
                 c.remove();
-                table.satisfy("Satisfied", row, column, result);
                 return true;
             }
         }
