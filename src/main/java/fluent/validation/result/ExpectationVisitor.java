@@ -1,9 +1,8 @@
 package fluent.validation.result;
 
-import java.util.List;
-import java.util.Objects;
+import fluent.validation.Check;
 
-import static java.util.stream.Collectors.joining;
+import java.util.List;
 
 public final class ExpectationVisitor implements ResultVisitor {
 
@@ -39,6 +38,18 @@ public final class ExpectationVisitor implements ResultVisitor {
             itemResults.get(i).accept(this);
         }
         builder.append(")");
+    }
+
+    @Override
+    public void tableAggregation(Object prefix, List<Check<?>> checks, List<?> items, List<TableInResult.Cell> results, boolean value) {
+        builder.append("(");
+        for(int i = 0; i < checks.size(); i++) {
+            if(i > 0) {
+                builder.append(", ");
+            }
+            builder.append(checks.get(i));
+        }
+        builder.append(") in any order");
     }
 
     @Override

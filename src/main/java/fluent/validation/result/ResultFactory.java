@@ -1,5 +1,7 @@
 package fluent.validation.result;
 
+import fluent.validation.Check;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +14,29 @@ public interface ResultFactory {
     Result named(Object name, Result result, boolean value);
 
     Result aggregation(Object prefix, String glue, List<Result> items, boolean value);
+
+    default <D> TableAggregator<D> table(Object prefix, ArrayList<Check<? super D>> checks) {
+        return new TableAggregator<D>() {
+            private final List<D> values = new ArrayList<>();
+            private final List<TableInResult.Cell> results = new ArrayList<>();
+            @Override public Result build(String description, int column, boolean value) {
+                return new ActualValueInResult(description, new TableInResult(description, (List<Check<?>>) (List) checks, values, results, value));
+            }
+            @Override public Result build(String description, boolean value) {
+                return new ActualValueInResult(description, new TableInResult(description, (List<Check<?>>) (List) checks, values, results, value));
+            }
+            @Override public void cell(int row, int column, Result result) {
+                results.add(new TableInResult.Cell(row, column, result));
+            }
+            @Override public void satisfy(String description, int row, int column, Result result) {
+
+            }
+            @Override public int column(D item) {
+                values.add(item);
+                return values.size() - 1;
+            }
+        };
+    }
 
     Result error(Throwable throwable);
 

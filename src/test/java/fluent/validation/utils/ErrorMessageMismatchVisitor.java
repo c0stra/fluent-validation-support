@@ -1,7 +1,9 @@
 package fluent.validation.utils;
 
+import fluent.validation.Check;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultVisitor;
+import fluent.validation.result.TableInResult;
 
 import java.util.List;
 
@@ -28,6 +30,11 @@ public class ErrorMessageMismatchVisitor implements ResultVisitor {
 
     @Override
     public void aggregation(Object prefix, String glue, List<Result> items, boolean value) {
+
+    }
+
+    @Override
+    public void tableAggregation(Object prefix, List<Check<?>> checks, List<?> items, List<TableInResult.Cell> results, boolean value) {
 
     }
 

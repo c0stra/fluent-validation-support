@@ -25,16 +25,19 @@
 
 package fluent.validation;
 
-import fluent.validation.result.Aggregator;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
+import fluent.validation.result.TableAggregator;
 
 import java.util.*;
+
+import static java.util.stream.Collectors.toCollection;
+import static java.util.stream.IntStream.range;
 
 final class AnyOrderCheck<D> extends Check<Iterator<D>> {
 
     private final String elementName;
-    private final List<Check<? super D>> checks;
+    private final ArrayList<Check<? super D>> checks;
     private final boolean full;
     private final boolean exact;
 
@@ -45,11 +48,15 @@ final class AnyOrderCheck<D> extends Check<Iterator<D>> {
         this.exact = exact;
     }
 
-    private boolean matchesAnyAndRemoves(D item, List<Check<? super D>> checks, Aggregator resultBuilder, ResultFactory factory) {
-        Iterator<Check<? super D>> c = checks.iterator();
+    private boolean matchesAnyAndRemoves(TableAggregator<D> table, List<Integer> rows, int column, D item, ResultFactory factory) {
+        Iterator<Integer> c = rows.iterator();
         while (c.hasNext()) {
-            if (resultBuilder.add(factory.actual(item, c.next().evaluate(item, factory))).passed()) {
+            Integer row = c.next();
+            Result result = checks.get(row).evaluate(item, factory);
+            table.cell(row, column, result);
+            if (result.passed()) {
                 c.remove();
+                table.satisfy("Satisfied", row, column, result);
                 return true;
             }
         }
@@ -61,17 +68,19 @@ final class AnyOrderCheck<D> extends Check<Iterator<D>> {
         if(data == null) {
             return factory.expectation(this, false);
         }
-        Aggregator resultBuilder = factory.aggregator(this);
-        final List<Check<? super D>> copy = new LinkedList<>(this.checks);
+        TableAggregator<D> resultBuilder = factory.table(this, checks);
+        List<Integer> rows = range(0, checks.size()).boxed().collect(toCollection(LinkedList::new));
         while (data.hasNext()) {
-            if(copy.isEmpty()) {
-                return full ? resultBuilder.build("Extra items found", false) : resultBuilder.build("Prefix matched", true);
+            D item = data.next();
+            int column = resultBuilder.column(item);
+            if(rows.isEmpty()) {
+                return full ? resultBuilder.build("Extra items found", column, false) : resultBuilder.build("Prefix matched", true);
             }
-            if (!matchesAnyAndRemoves(data.next(), copy, resultBuilder, factory) && exact) {
-                return resultBuilder.build("Extra items found", false);
+            if (!matchesAnyAndRemoves(resultBuilder, rows, column, item, factory) && exact) {
+                return resultBuilder.build("Extra items found", column, false);
             }
         }
-        return resultBuilder.build(copy.isEmpty()? "All checks satisfied": "" + copy.size() + " checks not satisfied", copy.isEmpty());
+        return resultBuilder.build(rows.isEmpty() ? "All checks satisfied": "" + rows.size() + " checks not satisfied", rows.isEmpty());
     }
 
     @Override

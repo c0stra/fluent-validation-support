@@ -7,7 +7,6 @@ import java.sql.ResultSetMetaData;
 import java.util.Collection;
 
 import static fluent.validation.BasicChecks.*;
-import static fluent.validation.Repeater.repeat;
 
 public final class DatabaseChecks {
     private DatabaseChecks() {}
@@ -133,7 +132,7 @@ public final class DatabaseChecks {
 
 
     public static <T> Check<CallableStatement> outParameter(int position, Class<T> type, Check<? super T> check) {
-        return compose("", (CallableStatement c) -> c.getObject("", type), check);
+        return compose("", (CallableStatement c) -> c.getObject(position, type), check);
     }
 
     public static Check<PreparedStatement> executeQuery(Check<? super ResultSet> check) {
