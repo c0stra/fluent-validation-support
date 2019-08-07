@@ -1,4 +1,6 @@
 # Transparent validation framework
+[![Released version](https://img.shields.io/maven-central/v/foundation.fluent.api/fluent-validation-support.svg)](https://search.maven.org/#search%7Cga%7C1%7Cfluent-validation-support)
+[![Build Status](https://travis-ci.org/c0stra/fluent-validation-support.svg?branch=master)](https://travis-ci.org/c0stra/fluent-validation-support)
 The goal of this framework is to provide way of definition of any complex validation criteria, and get maximum detail,
 when they are applied on tested data.
 
