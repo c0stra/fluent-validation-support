@@ -347,8 +347,8 @@ public final class BasicChecks {
         return createBuilderWith(check);
     }
 
-    public static <D> CheckDsl.Final<D> dsl() {
-        return new CheckDsl.Final<>();
+    public static <D> CheckDsl<D> dsl() {
+        return new CheckDsl<>();
     }
 
 }

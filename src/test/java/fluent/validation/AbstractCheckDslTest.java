@@ -2,9 +2,9 @@ package fluent.validation;
 
 import org.testng.annotations.Test;
 
-public class CheckDslTest {
+public class AbstractCheckDslTest {
 
-    private static class MyCheck extends CheckDsl<MyCheck, Object> {
+    private static class MyCheck extends AbstractCheckDsl<MyCheck, Object> {
 
         private MyCheck(Check<Object> check) {
             super(check, MyCheck::new);

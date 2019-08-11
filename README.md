@@ -1,6 +1,6 @@
 # Transparent validation framework
 [![Released version](https://img.shields.io/maven-central/v/foundation.fluent.api/fluent-validation-support.svg)](https://search.maven.org/#search%7Cga%7C1%7Cfluent-validation-support)
-[![Build Status](https://travis-ci.org/c0stra/fluent-validation-support.svg?branch=master)](https://travis-ci.org/c0stra/fluent-validation-support)
+
 The goal of this framework is to provide way of definition of any complex validation criteria, and get maximum detail,
 when they are applied on tested data.
 
@@ -100,6 +100,27 @@ There are different ways of composition. Here are the basic ones (available stil
 By horizontal composition I mean composition, where we compose multiple checks by some function, but where all
 the checks are still applied on the same object.
 
+Basic boolean binary operator composition is available directly as method of a `Check<D>`:
+- `check.and(otherCheck)` - Resulting check returns true only if both `check` and `otherCheck` are true.
+- `check.or(otherCheck)` - Resulting check returns true is any of `check` and `otherCheck` is true.
+
+The chaining properly implements operator precedence. So `and` has higher priority than `or` even in following example:
+
+```java
+check1.or(check2).and(check3);
+```
+The resulting check will first do `check2 && check3` and only then `check1 || result`.
+
+Chaining described above is upgrading. That means, that by chaining with more specific (but compatible) check, result is
+also automatically more specialized. It is best described by following example:
+
+```java
+Check<Number> check1 = moreThan(number);
+Check<Integer> check2 = lessThan(5);
+// Chaining on check1 (Number) will specialize automatically to Integer: 
+Check<Integer> check3 = check1.and(check2);
+```
+
 - `not(D)`, `not(Check<D>)` - Negation of a check
 - `anyOf(Check<D>...)` - True if any of provided checks is satisfied by tested data
 - `allOf(Check<D>...)` - True only if all provided checks are satisfied by tested data.
@@ -191,7 +212,82 @@ the given timeout, so such verification finishes after additional timeout reache
 
 ### 1.4 Fluent check builders
 
+General fluent check builder allows to simply compose a check of individual fields / features of tested object.
+That allows the example from the beginning (but now split it a bit more):
+
+```java
+Person johnDoe = new Person("John Doe", 45, MALE);
+CheckDsl<Person> check = BasicCheck.dsl();
+Assert.that(johnDoe, check
+        .withField("name", Person::getName).equalTo("John Doe")
+        .withField("age", Person::getAge).matching(moreThan(20))
+        .withField("gender", Person::getGender).matching(oneOf(FEMALE)));
+```
+In fact it's implemented by `allOf()` partial checks, that may be created using vertical composition.
+
+`CheckDsl.Final<T>` provides set these methods:
+- `with(Check<? super T> check)` - simply adds check of the object.
+- `withField(String name, Transformation<T, V>).matching(Check<? super V> check)` - adds check of a feature (field).
+
+Although it's named builder, it's not really a builder. Every such chaining in fact creates new immutable check.
+So following may result in 3 different checks:
+
+```java
+CheckDsl<Person> entry = BasicCheck.dsl();
+CheckDsl<Person> nameCheck = entry.withField("name", Person::getName).equalTo("John Doe");
+CheckDsl<Person> ageCheck = entry.withField("age", Person::getAge).matching(moreThan(20));
+```
+Each check is different object, `entry` doesn't check anything (always returns true), `nameCheck` does only check name,
+and `ageCheck` does only check age.
+
 ### 1.5 Domain specific fluent check builder (DSL)
+
+Fluent building of checks is very powerful, but the general form from previous chapter is not
+very convenient for repetitive usage. Therefore it's useful to implement custom DSL.
+For that simply extend the class `AbstractCheckDsl`:
+
+```java
+public class PersonCheck extends AbstractCheckDsl<Person> {
+
+    // Need to provide factory to both constructors in order to create immutable checks.
+    PersonCheck(Check<? super D> check) {
+        super(check, PersonCheck::new);
+    }
+
+    PersonCheck() {
+        super(PersonCheck::new);
+    }
+
+    // Convenience factory method
+    public static PersonCheck personWith() {
+        return new PersonCheck();
+    }
+
+    public PersonCheck name(Check<? super String> check) {
+        return with("name", Person::getName).matching(check);
+    }
+
+    public PersonCheck name(String expectedValue) {
+        return name(equalTo(expectedValue));
+    }
+
+    public PersonCheck age(Check<? super Integer> check) {
+        return with("age", Person::getAge).matching(check);
+    }
+
+    public PersonCheck age(int expectedValue) {
+        return name(equalTo(expectedValue));
+    }
+
+    // ...
+}
+```
+
+Such custom DSL allows to use following:
+
+```java
+Assert.that(johnDoe, personWith().name"John Doe").age(moreThan(20));
+```
 
 ## 2. Result representation
 

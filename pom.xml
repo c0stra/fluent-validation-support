@@ -48,7 +48,7 @@
         <dependency>
             <groupId>foundation.fluent.api</groupId>
             <artifactId>fluent-api-end-check</artifactId>
-            <version>1.18</version>
+            <version>1.19</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
