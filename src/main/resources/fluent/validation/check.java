@@ -11,7 +11,7 @@ import static fluent.validation.Checks.equalTo;
 
 @Generated("Generated code using {{ templatePath }}")
 public final class {{ className }}{% if not empty(productType.parameterVariables) %}<{% for t in productType.parameterVariables %}{% if loop.first %}{% else %}, {% endif %}{{ t.declaration }}{% endfor %}>{% endif %}
-    extends CheckDsl<{{ className }}{{ classParameters }}, productType> {
+    extends AbstractCheckDsl<{{ className }}{{ classParameters }}, productType> {
 
     public {{ className }}(Check<? super {{ productType }}> check) {
         super(check, {{ className }}::new);
@@ -23,7 +23,7 @@ public final class {{ className }}{% if not empty(productType.parameterVariables
 
 {% for getter in productType.methods %}{% if getter.name.startsWith("get") and getter.parameters.size == 0 %}
     public {{ className }}{{ classParameters }} {{ getter.propertyName }}(Check<? super {{ getter.returnType.wrapper }}> expectation) {
-        return withField("getter.propertyName", {{ productType }}::{{ getter }}).matches(expectation);
+        return withField("{{getter.propertyName}}", {{ productType }}::{{ getter }}).matches(expectation);
     }
 
     public {{ className }}{{ classParameters }} {{ getter.propertyName }}({{ getter.returnType }} expectedValue) {
