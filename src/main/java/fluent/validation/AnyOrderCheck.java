@@ -32,7 +32,7 @@ import fluent.validation.result.TableAggregator;
 import java.util.*;
 
 import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.IntStream.range;
+import static java.util.stream.Collectors.toSet;
 
 final class AnyOrderCheck<D> extends Check<Iterator<D>> {
 
@@ -48,18 +48,9 @@ final class AnyOrderCheck<D> extends Check<Iterator<D>> {
         this.exact = exact;
     }
 
-    private boolean matchesAnyAndRemoves(TableAggregator<D> table, List<Integer> rows, int column, D item, ResultFactory factory) {
-        Iterator<Integer> c = rows.iterator();
-        while (c.hasNext()) {
-            int row = c.next();
-            Result result = checks.get(row).evaluate(item, factory);
-            table.cell(row, column, result);
-            if (result.passed()) {
-                c.remove();
-                return true;
-            }
-        }
-        return false;
+    @Override
+    public String toString() {
+        return elementName + "s matching in any order " + checks;
     }
 
     @Override
@@ -68,23 +59,60 @@ final class AnyOrderCheck<D> extends Check<Iterator<D>> {
             return factory.expectation(this, false);
         }
         TableAggregator<D> resultBuilder = factory.table(this, checks);
-        List<Integer> rows = range(0, checks.size()).boxed().collect(toCollection(LinkedList::new));
+        Map<D, Set<Check<? super D>>> graph = new HashMap<>();
+        Map<Check<? super D>, D> pairs = new HashMap<>();
+        Set<D> free = new HashSet<>();
         while (data.hasNext()) {
             D item = data.next();
-            int column = resultBuilder.column(item);
-            if(rows.isEmpty()) {
-                return full ? resultBuilder.build("Extra items found", column, false) : resultBuilder.build("Prefix matched", true);
-            }
-            if (!matchesAnyAndRemoves(resultBuilder, rows, column, item, factory) && exact) {
-                return resultBuilder.build("Extra items found", column, false);
+            free.add(item);
+            graph.put(item, checks.stream().filter(check -> check.evaluate(item, factory).passed()).collect(toSet()));
+            improve(free, pairs, graph);
+            if(pairs.size() == checks.size()) {
+                return !exact || free.isEmpty() && (!full || !data.hasNext())
+                        ? resultBuilder.build("All checks satisfied", true)
+                        : resultBuilder.build("Unexpected " + elementName, false);
             }
         }
-        return resultBuilder.build(rows.isEmpty() ? "All checks satisfied": "" + rows.size() + " checks not satisfied", rows.isEmpty());
+        return resultBuilder.build((checks.size() - pairs.size()) + " checks not satisfied", false);
     }
 
-    @Override
-    public String toString() {
-        return elementName + "s matching in any order " + checks;
+    private static  <A, B> void improve(Set<A> free, Map<B, A> pairs, Map<A, Set<B>> graph) {
+        for(Edge<B, A> path = findImprovedPath(free, pairs, graph); path != null; path = findImprovedPath(free, pairs, graph)) {
+            for(Edge<B, A> edge = path; edge != null; edge = path.prev.prev) {
+                pairs.put(edge.value, edge.prev.value);
+            }
+        }
+    }
+
+    private static <A, B> Edge<B, A> findImprovedPath(Set<A> free, Map<B, A> pairs, Map<A, Set<B>> graph) {
+        Queue<Edge<A, B>> queue = free.stream().map(Edge<A, B>::new).collect(toCollection(LinkedList::new));
+        Set<A> visited = new HashSet<>();
+        while (!queue.isEmpty()) {
+            Edge<A, B> edge = queue.poll();
+            if(visited.add(edge.value)) for(B b : graph.get(edge.value)) {
+                if(!pairs.containsKey(b)) {
+                    free.remove(edge.value);
+                    return new Edge<>(edge, b);
+                } else {
+                    queue.add(new Edge<>(new Edge<>(edge, b), pairs.get(b)));
+                }
+            }
+        }
+        return null;
+    }
+
+    private final static class Edge<A, B> {
+        private final Edge<B, A> prev;
+        private final A value;
+
+        private Edge(Edge<B, A> prev, A value) {
+            this.prev = prev;
+            this.value = value;
+        }
+
+        private Edge(A value) {
+            this(null, value);
+        }
     }
 
 }
