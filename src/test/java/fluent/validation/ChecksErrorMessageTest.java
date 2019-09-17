@@ -36,8 +36,8 @@ public class ChecksErrorMessageTest {
                 requirement("A", createBuilderWith(has("toString", Object::toString).equalTo("B")).and(has("length", String::length).equalTo(4)), "expected: (toString <B> and length <4>) but was: A\n" +
                         "\t+ expected: toString <B> but was: <A>\n" +
                         "\t+ expected: length <4> but was: <1>"),
-                requirement(Collections.singleton("A"), exists("String", equalTo("B")), "expected: (<B>) but was: <B> not matched by any Item\n" +
-                        "\t+ expected: <B> but was: <<B> not matched by any Item>"),
+                requirement(Collections.singleton("A"), exists("String", equalTo("B")), "expected: (<B>) but was: <B> not matched by any String\n" +
+                        "\t+ expected: <B> but was: <<B> not matched by any String>"),
                 requirement(Arrays.asList("B", "A", "C"), collection(equalInAnyOrderTo(items("B", "C", "F"))), "expected: (<B>, <C>, <F>) in any order but: Extra items found\n" +
                         "\t+ expected: <C> but was: <A>\n" +
                         "\t+ expected: <F> but was: <A>")

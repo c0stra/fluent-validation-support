@@ -31,21 +31,22 @@ import fluent.validation.result.TableAggregator;
 
 import java.util.*;
 
-import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 final class AnyOrderCheck<D> extends Check<Iterator<D>> {
 
     private final String elementName;
     private final ArrayList<Check<? super D>> checks;
-    private final boolean full;
-    private final boolean exact;
+    private final boolean prefix;
+    private final boolean contains;
+    private final boolean all;
 
-    AnyOrderCheck(String elementName, Collection<Check<? super D>> checks, boolean full, boolean exact) {
+    AnyOrderCheck(String elementName, Collection<Check<? super D>> checks, boolean full, boolean exact, boolean all) {
         this.elementName = elementName;
         this.checks = new ArrayList<>(checks);
-        this.full = full;
-        this.exact = exact;
+        this.prefix = !full;
+        this.contains = !exact;
+        this.all = all;
     }
 
     @Override
@@ -58,40 +59,43 @@ final class AnyOrderCheck<D> extends Check<Iterator<D>> {
         if(data == null) {
             return factory.expectation(this, false);
         }
-        TableAggregator<D> resultBuilder = factory.table(this, checks);
-        Map<D, Set<Check<? super D>>> graph = new HashMap<>();
-        Map<Check<? super D>, D> pairs = new HashMap<>();
         Set<D> free = new HashSet<>();
+        TableAggregator<D> resultBuilder = factory.table(this, checks);
+        Map<D, List<Check<? super D>>> graph = new HashMap<>();
+        Map<Check<? super D>, D> pairs = new HashMap<>();
         while (data.hasNext()) {
             D item = data.next();
             free.add(item);
-            graph.put(item, checks.stream().filter(check -> check.evaluate(item, factory).passed()).collect(toSet()));
-            improve(free, pairs, graph);
-            if(pairs.size() == checks.size()) {
-                return !exact || free.isEmpty() && (!full || !data.hasNext())
+            List<Check<? super D>> matches = checks.stream().filter(check -> check.evaluate(item, factory).passed()).collect(toList());
+            graph.put(item, matches);
+            updatePairs(free, pairs, graph);
+            if(!all && pairs.size() == checks.size()) {
+                return contains || free.isEmpty() && (prefix || !data.hasNext())
                         ? resultBuilder.build("All checks satisfied", true)
                         : resultBuilder.build("Unexpected " + elementName, false);
             }
         }
-        return resultBuilder.build((checks.size() - pairs.size()) + " checks not satisfied", false);
+        return (pairs.size() == checks.size() && graph.values().stream().noneMatch(List::isEmpty))
+                ? resultBuilder.build("All checks satisfied", true)
+                : resultBuilder.build((checks.size() - pairs.size()) + " checks not satisfied", false);
     }
 
-    private static  <A, B> void improve(Set<A> free, Map<B, A> pairs, Map<A, Set<B>> graph) {
+    private static  <A, B> void updatePairs(Set<A> free, Map<B, A> pairs, Map<A, List<B>> graph) {
         for(Edge<B, A> path = findImprovedPath(free, pairs, graph); path != null; path = findImprovedPath(free, pairs, graph)) {
-            for(Edge<B, A> edge = path; edge != null; edge = path.prev.prev) {
-                pairs.put(edge.value, edge.prev.value);
+            for(; path.prev.prev != path; path = path.prev.prev) {
+                pairs.put(path.value, path.prev.value);
             }
+            free.remove(path.prev.value);
         }
     }
 
-    private static <A, B> Edge<B, A> findImprovedPath(Set<A> free, Map<B, A> pairs, Map<A, Set<B>> graph) {
+    private static <A, B> Edge<B, A> findImprovedPath(Set<A> free, Map<B, A> pairs, Map<A, List<B>> graph) {
         Queue<Edge<A, B>> queue = free.stream().map(Edge<A, B>::new).collect(toCollection(LinkedList::new));
         Set<A> visited = new HashSet<>();
         while (!queue.isEmpty()) {
             Edge<A, B> edge = queue.poll();
             if(visited.add(edge.value)) for(B b : graph.get(edge.value)) {
                 if(!pairs.containsKey(b)) {
-                    free.remove(edge.value);
                     return new Edge<>(edge, b);
                 } else {
                     queue.add(new Edge<>(new Edge<>(edge, b), pairs.get(b)));
@@ -111,7 +115,8 @@ final class AnyOrderCheck<D> extends Check<Iterator<D>> {
         }
 
         private Edge(A value) {
-            this(null, value);
+            this.prev = new Edge<>(this, null);
+            this.value = value;
         }
     }
 

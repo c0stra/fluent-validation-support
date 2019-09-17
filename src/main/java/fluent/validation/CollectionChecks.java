@@ -30,44 +30,76 @@ public final class CollectionChecks {
     }
 
     public static <D> Check<Iterable<D>> exists(String elementName, Check<? super D> check) {
-        return collection(contains(Collections.singleton(check)));
+        return collection(contains(elementName, Collections.singleton(check)));
     }
 
     public static <D> Check<Iterable<D>> every(String elementName, Check<? super D> check) {
         return new Quantifier<>(elementName, Quantifier.Type.every, check);
     }
 
-    public static <D> Check<D> repeatMax(Check<D> itemCheck, int max) {
-        return has("", (D i) -> repeat(i, max)).matching(CollectionChecks.exists("Attempt", itemCheck));
+    public static <D> Check<D> repeatMax(Check<D> attemptCheck, int max) {
+        return repeatMax(attemptCheck, max, Duration.ofSeconds(1));
     }
 
     public static <D> Check<D> repeatMax(Check<D> itemCheck, int max, Duration delay) {
-        return has("", (D i) -> repeat(i, max, delay)).matching(CollectionChecks.exists("Attempt", itemCheck));
+        return has("Try max " + max + " times", (D i) -> repeat(i, max, delay)).matching(exists("Attempt", itemCheck));
+    }
+
+    public static <T> Check<Iterator<T>> startsWith(String elementName, Iterable<Check<? super T>> prefix) {
+        return new SameOrderCheck<>(elementName, prefix, false, true);
+    }
+
+    public static <T> Check<Iterator<T>> contains(String elementName, Iterable<Check<? super T>> elementChecks) {
+        return new SameOrderCheck<>(elementName, elementChecks, false, false);
+    }
+
+    public static <T> Check<Iterator<T>> equalTo(String elementName, Iterable<Check<? super T>> elementChecks) {
+        return new SameOrderCheck<>(elementName, elementChecks, true, true);
     }
 
     public static <T> Check<Iterator<T>> startsWith(Iterable<Check<? super T>> prefix) {
-        return new SameOrderCheck<>("Item", prefix, false, true);
+        return startsWith("Item", prefix);
     }
 
-    public static <T> Check<Iterator<T>> contains(Iterable<Check<? super T>> prefix) {
-        return new SameOrderCheck<>("Item", prefix, false, false);
+    public static <T> Check<Iterator<T>> contains(Iterable<Check<? super T>> elementChecks) {
+        return contains("Item", elementChecks);
     }
 
-    public static <T> Check<Iterator<T>> equalTo(Iterable<Check<? super T>> prefix) {
-        return new SameOrderCheck<>("Item", prefix, true, true);
+    public static <T> Check<Iterator<T>> equalTo(Iterable<Check<? super T>> elementChecks) {
+        return equalTo("Item", elementChecks);
     }
 
 
-    public static <T> Check<Iterator<T>> startsInAnyOrderWith(Collection<Check<? super T>> prefix) {
-        return new AnyOrderCheck<>("Item", prefix, false, true);
+    public static <T> Check<Iterator<T>> startsInAnyOrderWith(String elementName, Collection<Check<? super T>> prefixElementChecks) {
+        return new AnyOrderCheck<>(elementName, prefixElementChecks, false, true, false);
     }
 
-    public static <T> Check<Iterator<T>> containsInAnyOrder(Collection<Check<? super T>> prefix) {
-        return new AnyOrderCheck<>("Item", prefix, false, false);
+    public static <T> Check<Iterator<T>> containsInAnyOrder(String elementName, Collection<Check<? super T>> elementChecks) {
+        return new AnyOrderCheck<>(elementName, elementChecks, false, false, false);
     }
 
-    public static <T> Check<Iterator<T>> equalInAnyOrderTo(Collection<Check<? super T>> prefix) {
-        return new AnyOrderCheck<>("Item", prefix, true, true);
+    public static <T> Check<Iterator<T>> containsInAnyOrderOnly(String elementName, Collection<Check<? super T>> elementChecks) {
+        return new AnyOrderCheck<>(elementName, elementChecks, false, false, true);
+    }
+
+    public static <T> Check<Iterator<T>> equalInAnyOrderTo(String elementName, Collection<Check<? super T>> elementChecks) {
+        return new AnyOrderCheck<>(elementName, elementChecks, true, true, false);
+    }
+
+    public static <T> Check<Iterator<T>> startsInAnyOrderWith(Collection<Check<? super T>> prefixElementChecks) {
+        return startsInAnyOrderWith("Item", prefixElementChecks);
+    }
+
+    public static <T> Check<Iterator<T>> containsInAnyOrder(Collection<Check<? super T>> elementChecks) {
+        return containsInAnyOrder("Item", elementChecks);
+    }
+
+    public static <T> Check<Iterator<T>> containsInAnyOrderOnly(Collection<Check<? super T>> elementChecks) {
+        return containsInAnyOrderOnly("Item", elementChecks);
+    }
+
+    public static <T> Check<Iterator<T>> equalInAnyOrderTo(Collection<Check<? super T>> elementChecks) {
+        return equalInAnyOrderTo("Item", elementChecks);
     }
 
 

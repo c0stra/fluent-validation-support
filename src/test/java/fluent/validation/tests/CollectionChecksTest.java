@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import static fluent.validation.CollectionChecks.*;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
@@ -37,6 +38,8 @@ public class CollectionChecksTest {
                 {collection(equalInAnyOrderTo(items("A", "C", "D"))), asList("A", "C", "D", "E"), false},
                 {collection(equalInAnyOrderTo(items("A", "C", "D"))), asList("A", "C", "E", "D"), false},
                 {collection(equalInAnyOrderTo(items("A", "C", "D"))), asList("E", "A", "C", "D"), false},
+                {collection(equalInAnyOrderTo(items())), emptyList(), true},
+                {collection(equalInAnyOrderTo(items("A", "C", "D"))), emptyList(), false},
 
                 {collection(contains(items("A", "C", "D"))), asList("A", "C", "D"), true},
                 {collection(contains(items("A", "C", "D"))), asList("A", "D", "C"), false},
