@@ -48,7 +48,7 @@
         <dependency>
             <groupId>foundation.fluent.api</groupId>
             <artifactId>fluent-api-end-check</artifactId>
-            <version>1.21-SNAPSHOT</version>
+            <version>1.21</version>
         </dependency>
         <dependency>
             <groupId>foundation.fluent.api</groupId>
