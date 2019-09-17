@@ -38,8 +38,7 @@ public class ChecksErrorMessageTest {
                         "\t+ expected: length <4> but was: <1>"),
                 requirement(Collections.singleton("A"), exists("String", equalTo("B")), "expected: (<B>) but was: <B> not matched by any String\n" +
                         "\t+ expected: <B> but was: <<B> not matched by any String>"),
-                requirement(Arrays.asList("B", "A", "C"), collection(equalInAnyOrderTo(items("B", "C", "F"))), "expected: (<B>, <C>, <F>) in any order but: Extra items found\n" +
-                        "\t+ expected: <C> but was: <A>\n" +
+                requirement(Arrays.asList("B", "A", "C"), collection(equalInAnyOrderTo(items("B", "C", "F"))), "expected: (<B>, <C>, <F>) in any order but: 1 check not satisfied\n" +
                         "\t+ expected: <F> but was: <A>")
         };
     }

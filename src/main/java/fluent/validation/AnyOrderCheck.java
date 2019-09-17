@@ -30,8 +30,10 @@ import fluent.validation.result.ResultFactory;
 import fluent.validation.result.TableAggregator;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.*;
+import static java.util.stream.IntStream.range;
 
 final class AnyOrderCheck<D> extends Check<Iterator<D>> {
 
@@ -66,7 +68,8 @@ final class AnyOrderCheck<D> extends Check<Iterator<D>> {
         while (data.hasNext()) {
             D item = data.next();
             free.add(item);
-            List<Check<? super D>> matches = checks.stream().filter(check -> check.evaluate(item, factory).passed()).collect(toList());
+            int c = resultBuilder.column(item);
+            List<Check<? super D>> matches = range(0, checks.size()).filter(r -> resultBuilder.cell(r, c, checks.get(r).evaluate(item, factory)).passed()).mapToObj(checks::get).collect(toList());
             graph.put(item, matches);
             updatePairs(free, pairs, graph);
             if(!all && pairs.size() == checks.size()) {
@@ -75,9 +78,10 @@ final class AnyOrderCheck<D> extends Check<Iterator<D>> {
                         : resultBuilder.build("Unexpected " + elementName, false);
             }
         }
-        return (pairs.size() == checks.size() && graph.values().stream().noneMatch(List::isEmpty))
+        int unsatisfied = checks.size() - pairs.size();
+        return (unsatisfied == 0 && graph.values().stream().noneMatch(List::isEmpty))
                 ? resultBuilder.build("All checks satisfied", true)
-                : resultBuilder.build((checks.size() - pairs.size()) + " checks not satisfied", false);
+                : resultBuilder.build(unsatisfied + (unsatisfied == 1 ? " check" : " checks") + " not satisfied", false);
     }
 
     private static  <A, B> void updatePairs(Set<A> free, Map<B, A> pairs, Map<A, List<B>> graph) {

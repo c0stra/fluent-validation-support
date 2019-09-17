@@ -6,7 +6,7 @@ public interface TableAggregator<D> {
 
     Result build(String description, boolean value);
 
-    void cell(int row, int column, Result result);
+    Result cell(int row, int column, Result result);
 
     int column(Object item);
 

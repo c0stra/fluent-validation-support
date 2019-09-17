@@ -25,8 +25,9 @@ public interface ResultFactory {
             @Override public Result build(String description, boolean value) {
                 return new ActualValueInResult(description, new TableInResult(description, (List<Check<?>>) (List) checks, values, results, value));
             }
-            @Override public void cell(int row, int column, Result result) {
+            @Override public Result cell(int row, int column, Result result) {
                 results.add(new TableInResult.Cell(row, column, result));
+                return result;
             }
             @Override public int column(Object item) {
                 values.add(item);
