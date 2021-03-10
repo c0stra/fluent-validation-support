@@ -117,21 +117,21 @@ public final class Checks {
         return BasicChecks.oneOf(alternatives);
     }
 
-    public static <D> Check<? super D> anyOf(Iterable<Check<? super D>> operands) {
+    public static <D> Check<D> anyOf(Iterable<Check<? super D>> operands) {
         return BasicChecks.anyOf(operands);
     }
 
     @SafeVarargs
-    public static <D> Check<? super D> anyOf(Check<? super D>... operands) {
+    public static <D> Check<D> anyOf(Check<? super D>... operands) {
         return BasicChecks.anyOf(operands);
     }
 
-    public static <D> Check<? super D> allOf(Iterable<Check<? super D>> operands) {
+    public static <D> Check<D> allOf(Iterable<Check<? super D>> operands) {
         return BasicChecks.allOf(operands);
     }
 
     @SafeVarargs
-    public static <D> Check<? super D> allOf(Check<? super D>... operands) {
+    public static <D> Check<D> allOf(Check<? super D>... operands) {
         return BasicChecks.allOf(operands);
     }
 

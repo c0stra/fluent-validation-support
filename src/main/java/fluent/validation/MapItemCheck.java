@@ -49,7 +49,7 @@ final class MapItemCheck<K, V> extends Check<Map<K, V>> {
 
     @Override
     public String toString() {
-        return "" + check;
+        return key + ": " + check;
     }
 
 }

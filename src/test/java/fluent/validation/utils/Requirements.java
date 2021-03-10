@@ -1,5 +1,7 @@
 package fluent.validation.utils;
 
+import fluent.api.End;
+import fluent.api.Start;
 import fluent.validation.AssertionFailure;
 import fluent.validation.Check;
 import fluent.validation.result.ResultFactory;
@@ -29,14 +31,15 @@ public class Requirements {
         return range(0, getLength(value)).mapToObj(i -> valueOf(get(value, i))).collect(joining(", ", "[", "]"));
     }
 
-
+    @Start("Requirement description not finished.")
     protected <D> Data<D, Response> testOf(D data) {
         return check -> expectedResult -> requirements.add(new Requirement(
                 "Check of " + valueOf(data) + " using " + check + " should return " + expectedResult,
-                () -> Assert.assertEquals(Check.that(data, check), expectedResult)
+                () -> Assert.assertEquals(Check.that(data, check), expectedResult, "Check of " + valueOf(data) + " using " + check)
         ));
     }
 
+    @Start("Requirement description not finished.")
     protected <D> Data<D, Failure> assertOf(D data) {
         return check -> expectedMessage -> requirements.add(new Requirement(
                 "Assert of " + valueOf(data) + " using " + check + " should fail with " + expectedMessage,
@@ -64,7 +67,7 @@ public class Requirements {
     }
 
     public interface Response {
-        void shouldReturn(boolean expectedResult);
+        @End void shouldReturn(boolean expectedResult);
     }
 
     public interface Failure {

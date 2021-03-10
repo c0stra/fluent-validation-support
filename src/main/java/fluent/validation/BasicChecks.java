@@ -115,12 +115,12 @@ public final class BasicChecks {
         return oneOf(new HashSet<>(asList(alternatives)));
     }
 
-    private static <D> Check<? super D> multipleOperands(Iterable<Check<? super D>> operands, boolean andOperator) {
+    private static <D> Check<D> multipleOperands(Iterable<Check<? super D>> operands, boolean andOperator) {
         Iterator<Check<? super D>> iterator = operands.iterator();
         if(!iterator.hasNext()) {
             return BasicChecks.nullableCondition(data -> andOperator, "empty " + (andOperator ? "allOf" : "anyOf") + " formula");
         }
-        Check<? super D> next = iterator.next();
+        Check<D> next = (Check<D>) iterator.next();
         while(iterator.hasNext()) {
             // Here operator precedence is explicit.
             next = andOperator ? new And<>(next, iterator.next()) : new Or<>(next, iterator.next());
@@ -128,21 +128,21 @@ public final class BasicChecks {
         return next;
     }
 
-    public static <D> Check<? super D> anyOf(Iterable<Check<? super D>> operands) {
+    public static <D> Check<D> anyOf(Iterable<Check<? super D>> operands) {
         return multipleOperands(operands, false);
     }
 
     @SafeVarargs
-    public static <D> Check<? super D> anyOf(Check<? super D>... operands) {
+    public static <D> Check<D> anyOf(Check<? super D>... operands) {
         return anyOf((Iterable<Check<? super D>>)asList(operands));
     }
 
-    public static <D> Check<? super D> allOf(Iterable<Check<? super D>> operands) {
+    public static <D> Check<D> allOf(Iterable<Check<? super D>> operands) {
         return multipleOperands(operands, true);
     }
 
     @SafeVarargs
-    public static <D> Check<? super D> allOf(Check<? super D>... operands) {
+    public static <D> Check<D> allOf(Check<? super D>... operands) {
         return allOf((Iterable<Check<? super D>>)asList(operands));
     }
 
