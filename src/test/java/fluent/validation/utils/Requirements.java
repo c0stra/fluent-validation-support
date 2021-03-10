@@ -71,7 +71,7 @@ public class Requirements {
     }
 
     public interface Failure {
-        void shouldFailWith(String errorMessage);
+        @End void shouldFailWith(String errorMessage);
     }
 
     private static final class Requirement implements Runnable {
