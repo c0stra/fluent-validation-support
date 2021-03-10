@@ -32,7 +32,7 @@ package fluent.validation;
  * @param <V> Type of the value, for which this builder receives a check.
  * @param <R> Return type.
  */
-public interface Builder<V, R> {
+public interface CheckBuilder<V, R> {
 
     /**
      * Set check, that a value must match.

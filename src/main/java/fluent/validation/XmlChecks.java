@@ -1,5 +1,6 @@
 package fluent.validation;
 
+import javax.xml.namespace.QName;
 import javax.xml.xpath.*;
 
 import static java.lang.Boolean.TRUE;
@@ -20,12 +21,16 @@ public class XmlChecks {
         return BasicChecks.check(xml -> TRUE.equals(xPathExpression.evaluate(xml, XPathConstants.BOOLEAN)), xPath);
     }
 
-    public static Builder<Object, Check<Object>> hasNode(String xPath) {
+    public static CheckBuilder<Object, Check<Object>> hasNode(String xPath, QName type) {
         XPathExpression xPathExpression = compile(xPath);
-        return BasicChecks.has(xPath, xml -> xPathExpression.evaluate(xml, XPathConstants.NODE));
+        return BasicChecks.has(xPath, xml -> xPathExpression.evaluate(xml, type));
     }
 
-    public static Builder<Object, Check<String>> hasXPath(String xPath) {
+    public static CheckBuilder<Object, Check<Object>> hasNode(String xPath) {
+        return hasNode(xPath, XPathConstants.NODE);
+    }
+
+    public static CheckBuilder<Object, Check<String>> hasXPath(String xPath) {
         XPathExpression xPathExpression = compile(xPath);
         return BasicChecks.has(xPath, xPathExpression::evaluate);
     }

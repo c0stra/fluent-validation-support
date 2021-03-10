@@ -28,6 +28,8 @@ package fluent.validation;
 import java.math.BigDecimal;
 
 import static fluent.validation.BasicChecks.check;
+import static fluent.validation.BasicChecks.sameInstance;
+import static java.lang.Double.parseDouble;
 import static java.lang.Math.abs;
 
 /**
@@ -44,9 +46,10 @@ import static java.lang.Math.abs;
  * 9. Builders for composition or collection of criteria.
  */
 public final class NumericChecks {
-    private NumericChecks() {}
 
-    private static final Double DEFAULT_TOLERANCE = 0.0000001;
+    private static final Double DEFAULT_TOLERANCE = parseDouble(System.getProperty("check.default.tolerance", "0.000001"));
+
+    private NumericChecks() {}
 
     /* ------------------------------------------------------------------------------------------------------
      * Numeric conditions.
@@ -66,15 +69,15 @@ public final class NumericChecks {
     }
 
     public static Check<Double> equalTo(Double expectedValue) {
-        return closeTo(expectedValue, DEFAULT_TOLERANCE);
+        return expectedValue == null ? sameInstance(null) : closeTo(expectedValue, DEFAULT_TOLERANCE);
     }
 
     public static Check<Float> equalTo(Float expectedValue) {
-        return closeTo(expectedValue, DEFAULT_TOLERANCE.floatValue());
+        return expectedValue == null ? sameInstance(null) : closeTo(expectedValue, DEFAULT_TOLERANCE.floatValue());
     }
 
     public static Check<BigDecimal> equalTo(BigDecimal expectedValue) {
-        return closeTo(expectedValue, BigDecimal.valueOf(DEFAULT_TOLERANCE));
+        return expectedValue == null ? sameInstance(null) : closeTo(expectedValue, BigDecimal.valueOf(DEFAULT_TOLERANCE));
     }
 
 }

@@ -60,11 +60,11 @@ public final class ComparisonChecks {
     }
 
     public static <D> Check<D> equalOrLessThan(D operand, Comparator<D> comparator) {
-        return check(data -> comparator.compare(data, operand) < 0, "<= " + operand);
+        return check(data -> comparator.compare(data, operand) <= 0, "<= " + operand);
     }
 
     public static <D> Check<D> equalOrMoreThan(D operand, Comparator<D> comparator) {
-        return check(data -> comparator.compare(data, operand) > 0, ">= " + operand);
+        return check(data -> comparator.compare(data, operand) >= 0, ">= " + operand);
     }
 
     public static <D extends Comparable<D>> Check<D> lessThan(D operand) {
@@ -89,12 +89,16 @@ public final class ComparisonChecks {
 
     public static <D> Check<D> between(D left, D right, Comparator<D> comparator) {
         if(comparator.compare(left, right) > 0) comparator = comparator.reversed();
-        return allOf(moreThan(left, comparator), lessThan(right, comparator));
+        return moreThan(left, comparator).and(lessThan(right, comparator));
     }
 
-    public static <D> Check<D> betweenInclude(D left, D right, Comparator<D> comparator) {
+    public static <D> Check<D> betweenInclusive(D left, D right, Comparator<D> comparator) {
         if(comparator.compare(left, right) > 0) comparator = comparator.reversed();
-        return allOf(equalOrMoreThan(left, comparator), equalOrLessThan(right, comparator));
+        return equalOrMoreThan(left, comparator).and(equalOrLessThan(right, comparator));
+    }
+
+    public static <D extends Comparable<D>> Check<D> betweenInclusive(D left, D right) {
+        return betweenInclusive(left, right, Comparable::compareTo);
     }
 
 }

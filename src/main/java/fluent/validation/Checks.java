@@ -25,9 +25,10 @@
 
 package fluent.validation;
 
+import java.math.BigDecimal;
 import java.util.*;
 
-import static java.util.Arrays.asList;
+import static java.lang.Double.parseDouble;
 
 /**
  * Factory of ready to use most frequent conditions. There are typical conditions for following categories:
@@ -42,11 +43,12 @@ import static java.util.Arrays.asList;
  * 8. Floating point comparison using a tolerance
  * 9. Builders for composition or collection of criteria.
  */
-public final class BasicChecks {
+public final class Checks {
 
-    private BasicChecks() {}
+    private Checks() {}
 
-    private static final Check<Object> IS_NULL = sameInstance(null);
+    private static final Double DEFAULT_TOLERANCE = parseDouble(System.getProperty("check.default.tolerance", "0.000001"));
+    private static final Check<Object> IS_NULL = equalTo((Object) null);
     private static final Check<Object> NOT_NULL = not(IS_NULL);
     private static final Check<Object> ANYTHING = new Anything<>();
 
@@ -64,19 +66,19 @@ public final class BasicChecks {
      * @return New expectation.
      */
     public static <D> Check<D> nullableCondition(Predicate<D> predicate, String expectationDescription) {
-        return new PredicateCheck<>(expectationDescription, predicate);
+        return BasicChecks.nullableCondition(predicate, expectationDescription);
     }
 
     public static <D> Check<D> require(Check<? super D> requirement, Check<? super D> check) {
-        return new DoubleCheck<>(requirement, check);
+        return BasicChecks.require(requirement, check);
     }
 
     public static <D> Check<D> requireNotNull(Check<D> check) {
-        return require(notNull(), check);
+        return BasicChecks.requireNotNull(check);
     }
 
     public static <D> Check<D> check(Predicate<D> predicate, String expectationDescription) {
-        return requireNotNull(nullableCondition(predicate, expectationDescription));
+        return BasicChecks.check(predicate, expectationDescription);
     }
 
     /* ------------------------------------------------------------------------------------------------------
@@ -85,11 +87,11 @@ public final class BasicChecks {
      */
 
     public static <D> Check<D> not(Check<D> positiveCheck) {
-        return new NegativeCheck<>(positiveCheck);
+        return BasicChecks.not(positiveCheck);
     }
 
     public static <D> Check<D> not(D positiveValue) {
-        return not(equalTo(positiveValue));
+        return BasicChecks.not(positiveValue);
     }
 
     /**
@@ -100,7 +102,7 @@ public final class BasicChecks {
      * @return Expectation with alternatives.
      */
     public static <D> Check<D> oneOf(Collection<D> alternatives) {
-        return nullableCondition(alternatives::contains, "One of " + alternatives);
+        return BasicChecks.oneOf(alternatives);
     }
 
     /**
@@ -112,38 +114,25 @@ public final class BasicChecks {
      */
     @SafeVarargs
     public static <D> Check<D> oneOf(D... alternatives) {
-        return oneOf(new HashSet<>(asList(alternatives)));
-    }
-
-    private static <D> Check<? super D> multipleOperands(Iterable<Check<? super D>> operands, boolean andOperator) {
-        Iterator<Check<? super D>> iterator = operands.iterator();
-        if(!iterator.hasNext()) {
-            return BasicChecks.nullableCondition(data -> andOperator, "empty " + (andOperator ? "allOf" : "anyOf") + " formula");
-        }
-        Check<? super D> next = iterator.next();
-        while(iterator.hasNext()) {
-            // Here operator precedence is explicit.
-            next = andOperator ? new And<>(next, iterator.next()) : new Or<>(next, iterator.next());
-        }
-        return next;
+        return BasicChecks.oneOf(alternatives);
     }
 
     public static <D> Check<? super D> anyOf(Iterable<Check<? super D>> operands) {
-        return multipleOperands(operands, false);
+        return BasicChecks.anyOf(operands);
     }
 
     @SafeVarargs
     public static <D> Check<? super D> anyOf(Check<? super D>... operands) {
-        return anyOf((Iterable<Check<? super D>>)asList(operands));
+        return BasicChecks.anyOf(operands);
     }
 
     public static <D> Check<? super D> allOf(Iterable<Check<? super D>> operands) {
-        return multipleOperands(operands, true);
+        return BasicChecks.allOf(operands);
     }
 
     @SafeVarargs
     public static <D> Check<? super D> allOf(Check<? super D>... operands) {
-        return allOf((Iterable<Check<? super D>>)asList(operands));
+        return BasicChecks.allOf(operands);
     }
 
     /* ------------------------------------------------------------------------------------------------------
@@ -152,55 +141,51 @@ public final class BasicChecks {
      */
 
     public static <D> Check<D> equalTo(D expectedValue) {
-        return nullableCondition(expectedValue == null ? Objects::isNull : expectedValue::equals, "<" + expectedValue + ">");
+        return BasicChecks.equalTo(expectedValue);
     }
 
     public static <D> Check<D> is(D expectedValue) {
-        return equalTo(expectedValue);
+        return BasicChecks.is(expectedValue);
     }
 
     public static Check<Object> isNull() {
-        return IS_NULL;
+        return BasicChecks.isNull();
     }
 
     public static Check<Object> notNull() {
-        return NOT_NULL;
+        return BasicChecks.notNull();
     }
 
     public static Check<Object> anything() {
-        return ANYTHING;
+        return BasicChecks.anything();
     }
 
     public static <D> Check<D> sameInstance(D expectedInstance) {
-        return nullableCondition(data -> data == expectedInstance, "" + expectedInstance);
-    }
-
-    private static Check<Object> instanceOf(String prefix, Class<?> expectedClass) {
-        return nullableCondition(expectedClass::isInstance, prefix + " " + expectedClass);
+        return BasicChecks.sameInstance(expectedInstance);
     }
 
     public static Check<Object> instanceOf(Class<?> expectedClass) {
-        return instanceOf("instance of", expectedClass);
+        return BasicChecks.instanceOf(expectedClass);
     }
 
     public static Check<Object> isA(Class<?> expectedClass) {
-        return instanceOf("is a", expectedClass);
+        return BasicChecks.isA(expectedClass);
     }
 
     public static Check<Object> isAn(Class<?> expectedClass) {
-        return instanceOf("is an", expectedClass);
+        return BasicChecks.isAn(expectedClass);
     }
 
     public static Check<Object> a(Class<?> expectedClass) {
-        return isA(expectedClass);
+        return BasicChecks.a(expectedClass);
     }
 
     public static Check<Object> an(Class<?> expectedClass) {
-        return isAn(expectedClass);
+        return BasicChecks.an(expectedClass);
     }
 
     public static Check<Object> sameClass(Class<?> expectedClass) {
-        return has("class", Object::getClass).matching(equalTo(expectedClass));
+        return BasicChecks.sameClass(expectedClass);
     }
 
     /**
@@ -211,7 +196,7 @@ public final class BasicChecks {
      * @return Empty collection expectation.
      */
     public static <D> Check<D[]> emptyArray() {
-        return nullableCondition(data -> Objects.isNull(data) || data.length == 0, "is empty array");
+        return BasicChecks.emptyArray();
     }
 
     /* ------------------------------------------------------------------------------------------------------
@@ -220,52 +205,134 @@ public final class BasicChecks {
      */
 
     public static <D, V> Check<D> transform(Transformation<? super D, V> transformation, Check<? super V> check) {
-        return new TransformedCheck<>(transformation, check);
+        return BasicChecks.transform(transformation, check);
     }
 
     public static <D, V> Check<D> compose(String name, Transformation<? super D, V> transformation, Check<? super V> check) {
-        return new NamedCheck<>(name, transform(transformation, check));
+        return BasicChecks.compose(name, transformation, check);
     }
 
     public static <D, V> CheckBuilder<V, Check<D>> has(String name, Transformation<? super D, V> transformation) {
-        return condition -> requireNotNull(compose(name, transformation, condition));
+        return BasicChecks.has(name, transformation);
     }
 
     public static <D, V> CheckBuilder<V, Check<D>> nullableHas(String name, Transformation<? super D, V> transformation) {
-        return condition -> compose(name, transformation, condition);
+        return BasicChecks.nullableHas(name, transformation);
     }
 
     public static <V> CheckBuilder<V, Check<V>> as(Class<V> type) {
-        return condition -> require(instanceOf(type), compose("as " + type.getSimpleName(), type::cast, condition));
+        return BasicChecks.as(type);
     }
 
 
     public static Check<Throwable> message(Check<? super String> check) {
-        return compose("message", Throwable::getMessage, check);
+        return BasicChecks.message(check);
+    }
+
+    /* ------------------------------------------------------------------------------------------------------
+     * Comparison conditions.
+     * ------------------------------------------------------------------------------------------------------
+     */
+
+    public static <D> Check<D> lessThan(D operand, Comparator<D> comparator) {
+        return ComparisonChecks.lessThan(operand, comparator);
+    }
+
+    public static <D> Check<D> moreThan(D operand, Comparator<D> comparator) {
+        return ComparisonChecks.moreThan(operand, comparator);
+    }
+
+    public static <D> Check<D> equalOrLessThan(D operand, Comparator<D> comparator) {
+        return ComparisonChecks.equalOrLessThan(operand, comparator);
+    }
+
+    public static <D> Check<D> equalOrMoreThan(D operand, Comparator<D> comparator) {
+        return ComparisonChecks.equalOrMoreThan(operand, comparator);
+    }
+
+    public static <D extends Comparable<D>> Check<D> lessThan(D operand) {
+        return ComparisonChecks.lessThan(operand);
+    }
+
+    public static <D extends Comparable<D>> Check<D> moreThan(D operand) {
+        return ComparisonChecks.moreThan(operand);
+    }
+
+    public static <D extends Comparable<D>> Check<D> equalOrLessThan(D operand) {
+        return ComparisonChecks.equalOrLessThan(operand);
+    }
+
+    public static <D extends Comparable<D>> Check<D> equalOrMoreThan(D operand) {
+        return ComparisonChecks.equalOrMoreThan(operand);
+    }
+
+    public static <D extends Comparable<D>> Check<D> between(D left, D right) {
+        return ComparisonChecks.between(left, right);
+    }
+
+    public static <D> Check<D> between(D left, D right, Comparator<D> comparator) {
+        return ComparisonChecks.between(left, right, comparator);
+    }
+
+    public static <D> Check<D> betweenInclusive(D left, D right, Comparator<D> comparator) {
+        return ComparisonChecks.betweenInclusive(left, right, comparator);
+    }
+
+    public static <D extends Comparable<D>> Check<D> betweenInclusive(D left, D right) {
+        return ComparisonChecks.betweenInclusive(left, right);
+    }
+
+    /* ------------------------------------------------------------------------------------------------------
+     * Numeric conditions.
+     * ------------------------------------------------------------------------------------------------------
+     */
+
+    public static Check<Double> closeTo(double operand, double precision) {
+        return NumericChecks.closeTo(operand, precision);
+    }
+
+    public static Check<Float> closeTo(float operand, float precision) {
+        return NumericChecks.closeTo(operand, precision);
+    }
+
+    public static Check<BigDecimal> closeTo(BigDecimal operand, BigDecimal precision) {
+        return NumericChecks.closeTo(operand, precision);
+    }
+
+    public static Check<Double> equalTo(Double expectedValue) {
+        return NumericChecks.equalTo(expectedValue);
+    }
+
+    public static Check<Float> equalTo(Float expectedValue) {
+        return NumericChecks.equalTo(expectedValue);
+    }
+
+    public static Check<BigDecimal> equalTo(BigDecimal expectedValue) {
+        return NumericChecks.equalTo(expectedValue);
     }
 
     public static ThrowingCheck throwing(Check<? super Throwable> check) {
-        return new ThrowingCheck(check);
+        return BasicChecks.throwing(check);
     }
 
     public static ThrowingCheck throwing(Class<? extends Throwable> condition) {
-        return throwing(a(condition));
+        return BasicChecks.throwing(condition);
     }
 
     public static <D> Check<D> createBuilder() {
-        return new Anything<>();
+        return BasicChecks.createBuilder();
     }
 
     public static <D> Check<D> createBuilderWith(Check<D> check) {
-        return check;
+        return BasicChecks.createBuilderWith(check);
     }
 
     public static <D> Check<D> which(Check<D> check) {
-        return createBuilderWith(check);
+        return BasicChecks.which(check);
     }
 
     public static <D> CheckDsl<D> dsl() {
-        return new CheckDsl<>();
+        return BasicChecks.dsl();
     }
 
 }

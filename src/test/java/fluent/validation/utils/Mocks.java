@@ -25,8 +25,16 @@
 
 package fluent.validation.utils;
 
+import fluent.validation.Predicate;
+import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
+import static java.util.Arrays.asList;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class Mocks {
@@ -34,6 +42,25 @@ public class Mocks {
     @BeforeMethod
     public void mocks() {
         initMocks(this);
+    }
+
+    public static Predicate<Object> predicateMock(Boolean value, Boolean... values) {
+        Predicate<Object> mock = Mockito.mock(Predicate.class);
+        try {
+            when(mock.test(any())).thenReturn(value, values);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return mock;
+    }
+
+
+    public static Queue<String> asQueue(String... values) {
+        return new LinkedList<>(asList(values));
+    }
+
+    public static <T> T[] newArray(T... ts) {
+        return ts;
     }
 
 }

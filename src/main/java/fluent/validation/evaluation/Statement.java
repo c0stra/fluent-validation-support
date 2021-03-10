@@ -25,18 +25,9 @@
 
 package fluent.validation.evaluation;
 
-import fluent.validation.Check;
-import fluent.validation.result.Result;
-import fluent.validation.result.ResultFactory;
-
 import java.util.Objects;
 
-public class Statement extends Check<Context> implements Conclusion {
-
-    @Override
-    protected Result evaluate(Context data, ResultFactory factory) {
-        return factory.expectation(this, data.isValid(this));
-    }
+public class Statement implements Conclusion {
 
     @Override
     public void conclude(Boolean aBoolean, Context context) {
@@ -62,4 +53,5 @@ public class Statement extends Check<Context> implements Conclusion {
     public String toString() {
         return getClass().getSimpleName();
     }
+
 }

@@ -1,13 +1,17 @@
 package fluent.validation.tests;
 
 import fluent.validation.Assert;
+import fluent.validation.UncheckedInterruptedException;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import static fluent.validation.CollectionChecks.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BlockingQueueTest {
 
@@ -37,6 +41,14 @@ public class BlockingQueueTest {
         queue.add("B");
         queue.add("C");
         Assert.that(queue, blockingQueue(equalTo(items("A", "B", "C")), Duration.ofSeconds(1)));
+    }
+
+
+    @Test(expectedExceptions = UncheckedInterruptedException.class)
+    public void testInterruptedExceptionInBlockingQueue() throws InterruptedException {
+        BlockingQueue<Object> queue = mock(BlockingQueue.class);
+        when(queue.poll(10, TimeUnit.MILLISECONDS)).thenThrow(new InterruptedException());
+        Assert.that(queue, blockingQueue(equalTo(items("A")), Duration.ofMillis(10)));
     }
 
 }

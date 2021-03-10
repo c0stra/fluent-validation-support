@@ -52,7 +52,7 @@ public class AbstractCheckDsl<L, D> extends Check<D> {
         return factory.apply(this.check.and(check));
     }
 
-    public <V> Builder<V, L> withField(String name, Transformation<? super D, V> transformation) {
+    public <V> CheckBuilder<V, L> withField(String name, Transformation<? super D, V> transformation) {
         return condition -> with(has(name, transformation).matching(condition));
     }
 
