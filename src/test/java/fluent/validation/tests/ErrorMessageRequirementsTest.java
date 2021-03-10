@@ -12,7 +12,7 @@ import static fluent.validation.StringChecks.startsWith;
 public class ErrorMessageRequirementsTest extends Requirements {{
 
     assertOf("A").using(equalTo("B")).shouldFailWith("expected: <B> but was: <A>");
-    assertOf(1.0).using(equalTo(2.0)).shouldFailWith("expected: <2.0 ±1.0E-7> but was: <1.0>");
+    assertOf(1.0).using(equalTo(2.0)).shouldFailWith("expected: <2.0 ±1.0E-6> but was: <1.0>");
     assertOf("A").using(not("A")).shouldFailWith("expected: not <A> but was: <A>");
     assertOf("A").using(not(allOf(equalTo("A"), startsWith("A")))).shouldFailWith("expected: not (<A> and starts with <A>) but was: A\n" +
             "\t+ expected: <A> but was: <A>\n" +

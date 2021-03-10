@@ -152,7 +152,7 @@ public final class BasicChecks {
      */
 
     public static <D> Check<D> equalTo(D expectedValue) {
-        return nullableCondition(expectedValue == null ? Objects::isNull : expectedValue::equals, "<" + expectedValue + ">");
+        return expectedValue == null ? sameInstance(null) : nullableCondition(expectedValue::equals, "<" + expectedValue + ">");
     }
 
     public static <D> Check<D> is(D expectedValue) {
@@ -172,7 +172,7 @@ public final class BasicChecks {
     }
 
     public static <D> Check<D> sameInstance(D expectedInstance) {
-        return nullableCondition(data -> data == expectedInstance, "" + expectedInstance);
+        return nullableCondition(data -> data == expectedInstance, "<" + expectedInstance + ">");
     }
 
     private static Check<Object> instanceOf(String prefix, Class<?> expectedClass) {
