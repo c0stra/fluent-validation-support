@@ -216,6 +216,10 @@ public final class Checks {
         return BasicChecks.has(name, transformation);
     }
 
+    public static <D, V> CheckBuilder<V, Check<D>> has(Transformation<? super D, V> transformation) {
+        return BasicChecks.has(transformation);
+    }
+
     public static <D, V> CheckBuilder<V, Check<D>> nullableHas(String name, Transformation<? super D, V> transformation) {
         return BasicChecks.nullableHas(name, transformation);
     }

@@ -224,11 +224,19 @@ public final class BasicChecks {
     }
 
     public static <D, V> Check<D> compose(String name, Transformation<? super D, V> transformation, Check<? super V> check) {
-        return new NamedCheck<>(name, transform(transformation, check));
+        return name == null ? transform(transformation, check) : new NamedCheck<>(name, transform(transformation, check));
+    }
+
+    public static <D, V> Check<D> compose(Transformation<? super D, V> transformation, Check<? super V> check) {
+        return new NamedCheck<>(transformation.getMethodName(), transform(transformation, check));
     }
 
     public static <D, V> CheckBuilder<V, Check<D>> has(String name, Transformation<? super D, V> transformation) {
         return condition -> requireNotNull(compose(name, transformation, condition));
+    }
+
+    public static <D, V> CheckBuilder<V, Check<D>> has(Transformation<? super D, V> transformation) {
+        return condition -> requireNotNull(compose(transformation.getMethodName(), transformation, condition));
     }
 
     public static <D, V> CheckBuilder<V, Check<D>> nullableHas(String name, Transformation<? super D, V> transformation) {

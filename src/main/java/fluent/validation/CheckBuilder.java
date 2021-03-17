@@ -32,10 +32,12 @@ package fluent.validation;
  * @param <V> Type of the value, for which this builder receives a check.
  * @param <R> Return type.
  */
+@FunctionalInterface
 public interface CheckBuilder<V, R> {
 
     /**
      * Set check, that a value must match.
+     *
      * @param check Check to be met.
      * @return Followup of the builder.
      */
@@ -43,11 +45,35 @@ public interface CheckBuilder<V, R> {
 
     /**
      * Set expected value, to which the actual one needs to be equal.
+     *
      * @param expectedValue Expected value.
      * @return Followup of the builder.
      */
     default R equalTo(V expectedValue) {
         return matching(BasicChecks.equalTo(expectedValue));
+    }
+
+    /**
+     * Chain additional transformation, ending up with null safe chaining.
+     *
+     * @param name Description of the transformation (typically name of a field to access).
+     * @param transformation Functional interface to provide transformation logic.
+     * @param <U> Type of the transformed value.
+     * @return Return check builder for building the check further.
+     */
+    default <U> CheckBuilder<U, R> having(String name, Transformation<V, U> transformation) {
+        return check -> matching(BasicChecks.compose(name, transformation, check));
+    }
+
+    /**
+     * Chain additional transformation, ending up with null safe chaining.
+     *
+     * @param transformation Functional interface to provide transformation logic.
+     * @param <U> Type of the transformed value.
+     * @return Return check builder for building the check further.
+     */
+    default <U> CheckBuilder<U, R> having(Transformation<V, U> transformation) {
+        return having(transformation.getMethodName(), transformation);
     }
 
 }
