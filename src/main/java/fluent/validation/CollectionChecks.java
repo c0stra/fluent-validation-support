@@ -1,5 +1,7 @@
 package fluent.validation;
 
+import fluent.validation.processor.Factory;
+
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
@@ -10,6 +12,7 @@ import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
+@Factory
 public final class CollectionChecks {
 
     private CollectionChecks() {}
@@ -128,7 +131,7 @@ public final class CollectionChecks {
      * @return Empty collection expectation.
      */
     public static <D> Check<Collection<D>> emptyCollection() {
-        return nullableCondition(data -> Objects.isNull(data) || data.isEmpty(), "is empty collection");
+        return nullableCheck(data -> Objects.isNull(data) || data.isEmpty(), "is empty collection");
     }
 
     /**

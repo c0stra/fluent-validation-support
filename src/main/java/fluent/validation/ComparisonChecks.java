@@ -25,6 +25,8 @@
 
 package fluent.validation;
 
+import fluent.validation.processor.Factory;
+
 import java.util.*;
 
 import static fluent.validation.BasicChecks.*;
@@ -42,6 +44,7 @@ import static fluent.validation.BasicChecks.*;
  * 8. Floating point comparison using a tolerance
  * 9. Builders for composition or collection of criteria.
  */
+@Factory
 public final class ComparisonChecks {
 
     private ComparisonChecks() {}

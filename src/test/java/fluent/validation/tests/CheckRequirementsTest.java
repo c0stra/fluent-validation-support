@@ -19,8 +19,8 @@ public class CheckRequirementsTest extends Requirements {{
     testOf(null).using(isNull()).shouldReturn(true);
     testOf(new Object()).using(isNull()).shouldReturn(false);
 
-    testOf(null).using(notNull()).shouldReturn(false);
-    testOf(new Object()).using(notNull()).shouldReturn(true);
+    testOf(null).using(isNotNull()).shouldReturn(false);
+    testOf(new Object()).using(isNotNull()).shouldReturn(true);
 
     testOf("A").using(equalTo("A")).shouldReturn(true);
     testOf("A").using(equalTo("B")).shouldReturn(false);
@@ -49,10 +49,10 @@ public class CheckRequirementsTest extends Requirements {{
     testOf("A").using(anyOf()).shouldReturn(false);
     testOf(null).using(anyOf(equalTo("A"), equalTo("B"))).shouldReturn(false);
 
-    testOf("A").using(allOf(equalTo("A"), notNull())).shouldReturn(true);
-    testOf("C").using(allOf(equalTo("A"), notNull())).shouldReturn(false);
+    testOf("A").using(allOf(equalTo("A"), isNotNull())).shouldReturn(true);
+    testOf("C").using(allOf(equalTo("A"), isNotNull())).shouldReturn(false);
     testOf("A").using(allOf()).shouldReturn(true);
-    testOf(null).using(allOf(equalTo("A"), notNull())).shouldReturn(false);
+    testOf(null).using(allOf(equalTo("A"), isNotNull())).shouldReturn(false);
     testOf(null).using(allOf()).shouldReturn(true);
 
     testOf(asList("A", "B", "C")).using(exists("String", equalTo("B"))).shouldReturn(true);
@@ -62,5 +62,13 @@ public class CheckRequirementsTest extends Requirements {{
 
     testOf("A").using(repeatMax(check(predicateMock(false, false, true), "matching check"), 3, Duration.ZERO)).shouldReturn(true);
     testOf("A").using(repeatMax(check(predicateMock(false, false, true), "matching check"), 2, Duration.ZERO)).shouldReturn(false);
+
+    testOf(8).using(instanceOf(Number.class)).shouldReturn(true);
+    testOf(8).using(instanceOf(Integer.class)).shouldReturn(true);
+    testOf(8).using(instanceOf(Double.class)).shouldReturn(false);
+
+    testOf(8).using(sameClass(Number.class)).shouldReturn(false);
+    testOf(8).using(sameClass(Integer.class)).shouldReturn(true);
+    testOf(8).using(sameClass(Double.class)).shouldReturn(false);
 
 }}

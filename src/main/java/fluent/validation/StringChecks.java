@@ -56,7 +56,7 @@ public final class StringChecks {
     }
 
     public static Check<String> emptyString() {
-        return nullableCondition(data -> Objects.isNull(data) || data.isEmpty(), "is empty string");
+        return nullableCheck(data -> Objects.isNull(data) || data.isEmpty(), "is empty string");
     }
 
     public static Check<String> startsWith(String prefix) {

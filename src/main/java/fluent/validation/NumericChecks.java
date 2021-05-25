@@ -25,6 +25,8 @@
 
 package fluent.validation;
 
+import fluent.validation.processor.Factory;
+
 import java.math.BigDecimal;
 
 import static fluent.validation.BasicChecks.check;
@@ -45,6 +47,7 @@ import static java.lang.Math.abs;
  * 8. Floating point comparison using a tolerance
  * 9. Builders for composition or collection of criteria.
  */
+@Factory
 public final class NumericChecks {
 
     private static final Double DEFAULT_TOLERANCE = parseDouble(System.getProperty("check.default.tolerance", "0.000001"));

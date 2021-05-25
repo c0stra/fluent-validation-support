@@ -26,9 +26,8 @@
 package fluent.validation;
 
 import java.math.BigDecimal;
-import java.util.*;
-
-import static java.lang.Double.parseDouble;
+import java.util.Collection;
+import java.util.Comparator;
 
 /**
  * Factory of ready to use most frequent conditions. There are typical conditions for following categories:
@@ -47,11 +46,6 @@ public final class Checks {
 
     private Checks() {}
 
-    private static final Double DEFAULT_TOLERANCE = parseDouble(System.getProperty("check.default.tolerance", "0.000001"));
-    private static final Check<Object> IS_NULL = equalTo((Object) null);
-    private static final Check<Object> NOT_NULL = not(IS_NULL);
-    private static final Check<Object> ANYTHING = new Anything<>();
-
     /* ------------------------------------------------------------------------------------------------------
      * Simple check builders using predicate and description.
      * ------------------------------------------------------------------------------------------------------
@@ -61,18 +55,45 @@ public final class Checks {
      * Define a transparent check using provided predicate and string expectation description.
      *
      * @param predicate Predicate used to test the supplied data.
-     * @param expectationDescription Function, that provides description of the expectation.
-     * @param <D> Type of the data to be tested by the created expectation.
+     * @param expectationDescription Function, that provides description of the check.
+     * @param <D> Type of the data to be tested by the created check.
      * @return New expectation.
      */
-    public static <D> Check<D> nullableCondition(Predicate<D> predicate, String expectationDescription) {
-        return BasicChecks.nullableCondition(predicate, expectationDescription);
+    public static <D> Check<D> nullableCheck(Predicate<D> predicate, String expectationDescription) {
+        return BasicChecks.nullableCheck(predicate, expectationDescription);
     }
 
+    /**
+     * Require, that tested data meet provided requirement before application of a check.
+     * If the requirement is not met, composed check returns false, and the "actual" check is not evaluated.
+     * If the requirement is met, then "actual" check is evaluated, and the result is returned.
+     *
+     * Error description:
+     * If requirement is not met, then error contains description of it's mismatch.
+     * If requirement is met, then error contains only mismatch of the "actual" check, while requirement stays silent.
+     *
+     * The behavior is like Java's && operator, which doesn't evaluate second operand if first one is false.
+     * The and() operator check as opposed to this one, evaluates always both operands to get mismatch details from
+     * both of them. Keep that in mind and properly decide, in which situation to use which operator.
+     *
+     * @param requirement Check, that must return true in order to evaluate the "actual" one.
+     * @param check "Actual" check to be evaluated on tested data, if requirement is met.
+     * @param <D> Type of the data to be tested by the created check.
+     * @return Composed check.
+     */
     public static <D> Check<D> require(Check<? super D> requirement, Check<? super D> check) {
         return BasicChecks.require(requirement, check);
     }
 
+    /**
+     * Require, that tested value is not null, before application of the provided check on it.
+     * If the tested value is null, then it returns false without evaluating the check.
+     * If the tested value is not null, then the provided check is applied, and result is returned.
+     *
+     * @param check Check to apply on the value, if it's not null.
+     * @param <D> Type of the data to be tested by the created check.
+     * @return Composed check.
+     */
     public static <D> Check<D> requireNotNull(Check<D> check) {
         return BasicChecks.requireNotNull(check);
     }
@@ -86,10 +107,24 @@ public final class Checks {
      * ------------------------------------------------------------------------------------------------------
      */
 
+    /**
+     * Check, that provided positive check doesn't match checked data.
+     *
+     * @param positiveCheck Positive check to evaluate, what shouldn't match.
+     * @param <D> Type of the data to be tested by the created check.
+     * @return Negated expectation.
+     */
     public static <D> Check<D> not(Check<D> positiveCheck) {
         return BasicChecks.not(positiveCheck);
     }
 
+    /**
+     * Check, that provided positive value isn't equal to checked data.
+     *
+     * @param positiveValue Positive value, which shouldn't be equal to checked data.
+     * @param <D> Type of the data to be tested by the created check.
+     * @return Negated expectation.
+     */
     public static <D> Check<D> not(D positiveValue) {
         return BasicChecks.not(positiveValue);
     }
@@ -152,8 +187,8 @@ public final class Checks {
         return BasicChecks.isNull();
     }
 
-    public static Check<Object> notNull() {
-        return BasicChecks.notNull();
+    public static Check<Object> isNotNull() {
+        return BasicChecks.isNotNull();
     }
 
     public static Check<Object> anything() {
@@ -197,6 +232,10 @@ public final class Checks {
      */
     public static <D> Check<D[]> emptyArray() {
         return BasicChecks.emptyArray();
+    }
+
+    public static <D> Check<D[]> emptyArrayOrNull() {
+        return BasicChecks.emptyArrayOrNull();
     }
 
     /* ------------------------------------------------------------------------------------------------------

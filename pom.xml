@@ -85,6 +85,36 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <phase>compile</phase>
+                        <goals><goal>compile</goal></goals>
+                        <configuration>
+                            <includes>
+                                <include>fluent/validation/processor/*.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>fluent/validation/*.java</exclude>
+                                <exclude>fluent/validation/result/*.java</exclude>
+                                <exclude>fluent/validation/evaluation/*.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>main-compile</id>
+                        <phase>compile</phase>
+                        <goals><goal>compile</goal></goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>fluent/validation/processor/*.java</exclude>
+                            </excludes>
+                            <annotationProcessors>
+                                <annotationProcessor>fluent.validation.processor.FactoryGenerator</annotationProcessor>
+                            </annotationProcessors>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

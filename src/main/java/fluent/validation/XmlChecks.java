@@ -38,7 +38,7 @@ public class XmlChecks {
         return hasNode(xPath, XPathConstants.NODE);
     }
 
-    public static CheckBuilder<Object, Check<String>> hasXPath(String xPath) {
+    public static CheckBuilder<Object, Check<String>> hasTextContent(String xPath) {
         XPathExpression xPathExpression = compile(xPath);
         return BasicChecks.has(xPath, xPathExpression::evaluate);
     }

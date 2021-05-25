@@ -2,6 +2,8 @@ package fluent.validation.tests;
 
 import fluent.validation.utils.Requirements;
 
+import static fluent.validation.Checks.emptyArray;
+import static fluent.validation.Checks.emptyArrayOrNull;
 import static fluent.validation.CollectionChecks.*;
 import static fluent.validation.utils.Mocks.newArray;
 
@@ -63,5 +65,13 @@ public class ArrayCheckRequirementsTest extends Requirements {{
     testOf(newArray("A", "D", "C", "E")).using(array(startsInAnyOrderWith(items("A", "C", "D")))).shouldReturn(true);
     testOf(newArray("C", "A", "E", "D")).using(array(startsInAnyOrderWith(items("A", "C", "D")))).shouldReturn(false);
     testOf(newArray("E", "D", "C", "A")).using(array(startsInAnyOrderWith(items("A", "C", "D")))).shouldReturn(false);
+
+    testOf(newArray("A", "B")).using(emptyArray()).shouldReturn(false);
+    testOf(newArray()).using(emptyArray()).shouldReturn(true);
+    testOf((Object[]) null).using(emptyArray()).shouldReturn(false);
+
+    testOf(newArray("A", "B")).using(emptyArrayOrNull()).shouldReturn(false);
+    testOf(newArray()).using(emptyArrayOrNull()).shouldReturn(true);
+    testOf((Object[]) null).using(emptyArrayOrNull()).shouldReturn(true);
 
 }}

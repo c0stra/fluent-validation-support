@@ -25,6 +25,8 @@
 
 package fluent.validation;
 
+import fluent.validation.processor.Factory;
+
 import java.util.*;
 
 import static java.util.Arrays.asList;
@@ -42,6 +44,7 @@ import static java.util.Arrays.asList;
  * 8. Floating point comparison using a tolerance
  * 9. Builders for composition or collection of criteria.
  */
+@Factory
 public final class BasicChecks {
 
     private BasicChecks() {}
@@ -63,7 +66,7 @@ public final class BasicChecks {
      * @param <D> Type of the data to be tested by the created expectation.
      * @return New expectation.
      */
-    public static <D> Check<D> nullableCondition(Predicate<D> predicate, String expectationDescription) {
+    public static <D> Check<D> nullableCheck(Predicate<D> predicate, String expectationDescription) {
         return new PredicateCheck<>(expectationDescription, predicate);
     }
 
@@ -72,11 +75,11 @@ public final class BasicChecks {
     }
 
     public static <D> Check<D> requireNotNull(Check<D> check) {
-        return require(notNull(), check);
+        return require(isNotNull(), check);
     }
 
     public static <D> Check<D> check(Predicate<D> predicate, String expectationDescription) {
-        return requireNotNull(nullableCondition(predicate, expectationDescription));
+        return requireNotNull(nullableCheck(predicate, expectationDescription));
     }
 
     /* ------------------------------------------------------------------------------------------------------
@@ -100,7 +103,7 @@ public final class BasicChecks {
      * @return Expectation with alternatives.
      */
     public static <D> Check<D> oneOf(Collection<D> alternatives) {
-        return nullableCondition(alternatives::contains, "One of " + alternatives);
+        return nullableCheck(alternatives::contains, "One of " + alternatives);
     }
 
     /**
@@ -118,7 +121,7 @@ public final class BasicChecks {
     private static <D> Check<D> multipleOperands(Iterable<Check<? super D>> operands, boolean andOperator) {
         Iterator<Check<? super D>> iterator = operands.iterator();
         if(!iterator.hasNext()) {
-            return BasicChecks.nullableCondition(data -> andOperator, "empty " + (andOperator ? "allOf" : "anyOf") + " formula");
+            return BasicChecks.nullableCheck(data -> andOperator, "empty " + (andOperator ? "allOf" : "anyOf") + " formula");
         }
         Check<D> next = (Check<D>) iterator.next();
         while(iterator.hasNext()) {
@@ -152,7 +155,7 @@ public final class BasicChecks {
      */
 
     public static <D> Check<D> equalTo(D expectedValue) {
-        return expectedValue == null ? sameInstance(null) : nullableCondition(expectedValue::equals, "<" + expectedValue + ">");
+        return expectedValue == null ? sameInstance(null) : nullableCheck(expectedValue::equals, "<" + expectedValue + ">");
     }
 
     public static <D> Check<D> is(D expectedValue) {
@@ -163,7 +166,7 @@ public final class BasicChecks {
         return IS_NULL;
     }
 
-    public static Check<Object> notNull() {
+    public static Check<Object> isNotNull() {
         return NOT_NULL;
     }
 
@@ -172,11 +175,11 @@ public final class BasicChecks {
     }
 
     public static <D> Check<D> sameInstance(D expectedInstance) {
-        return nullableCondition(data -> data == expectedInstance, "<" + expectedInstance + ">");
+        return nullableCheck(data -> data == expectedInstance, "<" + expectedInstance + ">");
     }
 
     private static Check<Object> instanceOf(String prefix, Class<?> expectedClass) {
-        return nullableCondition(expectedClass::isInstance, prefix + " " + expectedClass);
+        return nullableCheck(expectedClass::isInstance, prefix + " " + expectedClass);
     }
 
     public static Check<Object> instanceOf(Class<?> expectedClass) {
@@ -211,7 +214,11 @@ public final class BasicChecks {
      * @return Empty collection expectation.
      */
     public static <D> Check<D[]> emptyArray() {
-        return nullableCondition(data -> Objects.isNull(data) || data.length == 0, "is empty array");
+        return check(data -> data.length == 0, "is empty array");
+    }
+
+    public static <D> Check<D[]> emptyArrayOrNull() {
+        return nullableCheck(data -> Objects.isNull(data) || data.length == 0, "is empty array");
     }
 
     /* ------------------------------------------------------------------------------------------------------
