@@ -6,7 +6,6 @@ import java.time.Duration;
 
 import static fluent.validation.Checks.*;
 import static fluent.validation.Checks.check;
-import static fluent.validation.CollectionChecks.*;
 import static fluent.validation.CollectionChecks.repeatMax;
 import static fluent.validation.utils.Mocks.predicateMock;
 import static java.util.Arrays.asList;

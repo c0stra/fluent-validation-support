@@ -1,5 +1,6 @@
 package fluent.validation;
 
+import fluent.validation.processor.Factory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -11,6 +12,7 @@ import java.io.StringReader;
 
 import static java.lang.Boolean.TRUE;
 
+@Factory
 public class XmlChecks {
 
     private static final XPath xPath = XPathFactory.newInstance().newXPath();

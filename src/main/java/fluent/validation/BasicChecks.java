@@ -70,14 +70,50 @@ public final class BasicChecks {
         return new PredicateCheck<>(expectationDescription, predicate);
     }
 
+    /**
+     * Require, that tested data meet provided requirement before application of a check.
+     * If the requirement is not met, composed check returns false, and the "actual" check is not evaluated.
+     * If the requirement is met, then "actual" check is evaluated, and the result is returned.
+     *
+     * Error description:
+     * If requirement is not met, then error contains description of it's mismatch.
+     * If requirement is met, then error contains only mismatch of the "actual" check, while requirement stays silent.
+     *
+     * The behavior is like Java's && operator, which doesn't evaluate second operand if first one is false.
+     * The and() operator check as opposed to this one, evaluates always both operands to get mismatch details from
+     * both of them. Keep that in mind and properly decide, in which situation to use which operator.
+     *
+     * @param requirement Check, that must return true in order to evaluate the "actual" one.
+     * @param check "Actual" check to be evaluated on tested data, if requirement is met.
+     * @param <D> Type of the data to be tested by the created check.
+     * @return Composed check.
+     */
     public static <D> Check<D> require(Check<? super D> requirement, Check<? super D> check) {
         return new DoubleCheck<>(requirement, check);
     }
 
+    /**
+     * Require, that tested value is not null, before application of the provided check on it.
+     * If the tested value is null, then it returns false without evaluating the check.
+     * If the tested value is not null, then the provided check is applied, and result is returned.
+     *
+     * @param check Check to apply on the value, if it's not null.
+     * @param <D> Type of the data to be tested by the created check.
+     * @return Composed check.
+     */
     public static <D> Check<D> requireNotNull(Check<D> check) {
         return require(isNotNull(), check);
     }
 
+    /**
+     * Build a custom check using it's description and pure Java predicate. As the Predicate doesn't
+     * provide any transparency, it's enriched with the description.
+     *
+     * @param predicate Implementation of the check logic.
+     * @param expectationDescription Description of the expectation represented by this check.
+     * @param <D> Type of the data to be checked.
+     * @return Custom check.
+     */
     public static <D> Check<D> check(Predicate<D> predicate, String expectationDescription) {
         return requireNotNull(nullableCheck(predicate, expectationDescription));
     }
@@ -87,10 +123,24 @@ public final class BasicChecks {
      * ------------------------------------------------------------------------------------------------------
      */
 
+    /**
+     * Check, that provided positive check doesn't match checked data.
+     *
+     * @param positiveCheck Positive check to evaluate, what shouldn't match.
+     * @param <D> Type of the data to be tested by the created check.
+     * @return Negated expectation.
+     */
     public static <D> Check<D> not(Check<D> positiveCheck) {
         return new NegativeCheck<>(positiveCheck);
     }
 
+    /**
+     * Check, that provided positive value isn't equal to checked data.
+     *
+     * @param positiveValue Positive value, which shouldn't be equal to checked data.
+     * @param <D> Type of the data to be tested by the created check.
+     * @return Negated expectation.
+     */
     public static <D> Check<D> not(D positiveValue) {
         return not(equalTo(positiveValue));
     }
@@ -154,26 +204,62 @@ public final class BasicChecks {
      * ------------------------------------------------------------------------------------------------------
      */
 
+    /**
+     * Create a check, that checks if the tested value is equal to expected value.
+     * It will return true as long as the equals() method does.
+     *
+     * @param expectedValue Expected value.
+     * @param <D> Type of the tested data.
+     * @return New check.
+     */
     public static <D> Check<D> equalTo(D expectedValue) {
         return expectedValue == null ? sameInstance(null) : nullableCheck(expectedValue::equals, "<" + expectedValue + ">");
     }
 
+    /**
+     * Alias for `equalTo`, which may be more readable in some constructions.
+     *
+     * @param expectedValue Expected value.
+     * @param <D> Type of the tested data.
+     * @return New check.
+     * @see #equalTo(Object)
+     */
     public static <D> Check<D> is(D expectedValue) {
         return equalTo(expectedValue);
     }
 
+    /**
+     * Check, if tested data is null.
+     * @return New check.
+     */
     public static Check<Object> isNull() {
         return IS_NULL;
     }
 
+    /**
+     * Check, if tested data is not null.
+     * @return New check.
+     */
     public static Check<Object> isNotNull() {
         return NOT_NULL;
     }
 
+    /**
+     * Check, that doesn't care of the tested value, and always returns true.
+     * @return New check.
+     */
     public static Check<Object> anything() {
         return ANYTHING;
     }
 
+    /**
+     * Create a check, that checks if the tested value is exactly the same instance as expected.
+     * This check doesn't use `equals()` method, but reference comparison operator ==.
+     *
+     * @param expectedInstance Expected instance.
+     * @param <D> Type of the tested data.
+     * @return New check.
+     */
     public static <D> Check<D> sameInstance(D expectedInstance) {
         return nullableCheck(data -> data == expectedInstance, "<" + expectedInstance + ">");
     }
@@ -182,26 +268,61 @@ public final class BasicChecks {
         return nullableCheck(expectedClass::isInstance, prefix + " " + expectedClass);
     }
 
+    /**
+     * Check, that tested data is instance of provided class (either the class itself or any subclass).
+     *
+     * @param expectedClass Expected class.
+     * @return New check.
+     */
     public static Check<Object> instanceOf(Class<?> expectedClass) {
         return instanceOf("instance of", expectedClass);
     }
 
+    /**
+     * Alias of `instanceOf` which may be more readable in some context.
+     *
+     * @param expectedClass Expected class.
+     * @return New check.
+     */
     public static Check<Object> isA(Class<?> expectedClass) {
         return instanceOf("is a", expectedClass);
     }
 
+    /**
+     * Alias of `instanceOf` which may be more readable in some context.
+     *
+     * @param expectedClass Expected class.
+     * @return New check.
+     */
     public static Check<Object> isAn(Class<?> expectedClass) {
         return instanceOf("is an", expectedClass);
     }
 
+    /**
+     * Alias of `instanceOf` which may be more readable in some context.
+     *
+     * @param expectedClass Expected class.
+     * @return New check.
+     */
     public static Check<Object> a(Class<?> expectedClass) {
         return isA(expectedClass);
     }
 
+    /**
+     * Alias of `instanceOf` which may be more readable in some context.
+     *
+     * @param expectedClass Expected class.
+     * @return New check.
+     */
     public static Check<Object> an(Class<?> expectedClass) {
         return isAn(expectedClass);
     }
 
+    /**
+     * Check, that tested data is exactly of the provided type, but not any subcalss of it.
+     * @param expectedClass Expected class.
+     * @return New check.
+     */
     public static Check<Object> sameClass(Class<?> expectedClass) {
         return has("class", Object::getClass).matching(equalTo(expectedClass));
     }
@@ -210,13 +331,19 @@ public final class BasicChecks {
      * Create matcher of empty array.
      * It returns true, if tested collection meets null or has no elements.
      *
-     * @param <D> Type of the items in the collection to be tested.
-     * @return Empty collection expectation.
+     * @param <D> Type of the items in the tested array.
+     * @return Empty array expectation.
      */
     public static <D> Check<D[]> emptyArray() {
         return check(data -> data.length == 0, "is empty array");
     }
 
+    /**
+     * Check, that provided data is either null or empty array.
+     *
+     * @param <D> Type of the items in the tested array.
+     * @return Empty array expectation.
+     */
     public static <D> Check<D[]> emptyArrayOrNull() {
         return nullableCheck(data -> Objects.isNull(data) || data.length == 0, "is empty array");
     }
