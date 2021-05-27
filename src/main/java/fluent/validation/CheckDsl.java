@@ -35,7 +35,7 @@ public final class CheckDsl<D> extends AbstractCheckDsl<CheckDsl<D>, D> {
         super(check, CheckDsl::new);
     }
 
-    CheckDsl() {
+    public CheckDsl() {
         super(CheckDsl::new);
     }
 

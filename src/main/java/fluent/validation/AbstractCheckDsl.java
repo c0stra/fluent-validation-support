@@ -60,12 +60,16 @@ public class AbstractCheckDsl<L, D> extends Check<D> {
         return condition -> with(has(name, transformation).matching(condition));
     }
 
+    public <V> TransformationBuilder<V, L> withField(Transformation<? super D, V> transformation) {
+        return withField(transformation.getMethodName(), transformation);
+    }
+
     public L or() {
         return factory.apply(check.or(anything()));
     }
 
     @Override
-    public Result evaluate(D data, ResultFactory factory) {
+    protected Result evaluate(D data, ResultFactory factory) {
         return check.evaluate(data, factory);
     }
 
