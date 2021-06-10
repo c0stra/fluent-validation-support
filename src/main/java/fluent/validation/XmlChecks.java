@@ -80,7 +80,7 @@ public class XmlChecks {
      * @param check DOM Document check.
      * @return String content check.
      */
-    public static Check<String> asXml(Check<? super Document> check) {
+    public static Check<String> parseXml(Check<? super Document> check) {
         return BasicChecks.transform(string -> factory.newDocumentBuilder().parse(new InputSource(new StringReader(string))), check);
     }
 
@@ -90,7 +90,7 @@ public class XmlChecks {
      * @param check DOM Document check.
      * @return File name check.
      */
-    public static Check<String> asXmlFile(Check<? super Document> check) {
+    public static Check<String> parseXmlFile(Check<? super Document> check) {
         return BasicChecks.transform(string -> factory.newDocumentBuilder().parse(string), check);
     }
 

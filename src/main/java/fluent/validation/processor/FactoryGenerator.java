@@ -140,15 +140,13 @@ public class FactoryGenerator extends AbstractProcessor {
     }
 
     private String type(Element element, boolean isVararg) {
-        if(isVararg) {
-            return type(((ArrayType)element.asType()).getComponentType()) + "...";
-        }
-        return type(element.asType());
+        return isVararg ? type(((ArrayType)element.asType()).getComponentType()) + "..." : type(element.asType());
     }
 
     private String stripPkg(String pkg, String type) {
         return defaultPackages.contains(pkg) ? type.substring(pkg.length() + 1) : type;
     }
+
     private String pkg(Element element) {
         PackageElement packageOf = processingEnv.getElementUtils().getPackageOf(element);
         return isNull(packageOf) ? "" : packageOf.toString();

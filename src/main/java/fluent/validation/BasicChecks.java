@@ -36,17 +36,13 @@ import java.util.*;
 import static java.util.Arrays.asList;
 
 /**
- * Factory of ready to use most frequent conditions. There are typical conditions for following categories:
- *
- * 1. General check builders for simple building of new conditions using predicate and description.
- * 2. General object conditions - e.g. isNull, notNull, equalTo, etc.
- * 3. Generalized logical operators (N-ary oneOf instead of binary or, N-ary allOf instead of binary and)
- * 4. Collection (Iterable) conditions + quantifiers
- * 5. Relational and range conditions for comparables
- * 6. String matching conditions (contains/startWith/endsWith as well as regexp matching)
- * 7. Basic XML conditions (XPath, attribute matching)
- * 8. Floating point comparison using a tolerance
- * 9. Builders for composition or collection of criteria.
+ * Factory of ready to use basic checks.
+ * These include:
+ *    1. General object checks
+ *    2. Logical operators (horizontal composition)
+ *    3. Transformation checks (vertical composition)
+ *    4. Exception checks
+ *    5. Value extractor
  */
 @Factory
 public final class BasicChecks {
@@ -121,6 +117,136 @@ public final class BasicChecks {
     public static <D> Check<D> check(Predicate<D> predicate, String expectationDescription) {
         return requireNotNull(nullableCheck(predicate, expectationDescription));
     }
+
+
+    /* ------------------------------------------------------------------------------------------------------
+     * General object conditions.
+     * ------------------------------------------------------------------------------------------------------
+     */
+
+    /**
+     * Create a check, that checks if the tested value is exactly the same instance as expected.
+     * This check doesn't use `equals()` method, but reference comparison operator ==.
+     *
+     * @param expectedInstance Expected instance.
+     * @param <D> Type of the tested data.
+     * @return New check.
+     */
+    public static <D> Check<D> sameInstance(D expectedInstance) {
+        return nullableCheck(data -> data == expectedInstance, "<" + expectedInstance + ">");
+    }
+
+    /**
+     * Create a check, that checks if the tested value is equal to expected value.
+     * It will return true as long as the equals() method does.
+     *
+     * @param expectedValue Expected value.
+     * @param <D> Type of the tested data.
+     * @return New check.
+     */
+    public static <D> Check<D> equalTo(D expectedValue) {
+        return expectedValue == null ? sameInstance(null) : nullableCheck(expectedValue::equals, "<" + expectedValue + ">");
+    }
+
+    /**
+     * Alias for `equalTo`, which may be more readable in some constructions.
+     *
+     * @param expectedValue Expected value.
+     * @param <D> Type of the tested data.
+     * @return New check.
+     * @see #equalTo(Object)
+     */
+    public static <D> Check<D> is(D expectedValue) {
+        return equalTo(expectedValue);
+    }
+
+    /**
+     * Check, if tested data is null.
+     * @return New check.
+     */
+    public static Check<Object> isNull() {
+        return IS_NULL;
+    }
+
+    /**
+     * Check, if tested data is not null.
+     * @return New check.
+     */
+    public static Check<Object> isNotNull() {
+        return NOT_NULL;
+    }
+
+    /**
+     * Check, that doesn't care of the tested value, and always returns true.
+     * @return New check.
+     */
+    public static Check<Object> anything() {
+        return ANYTHING;
+    }
+
+    private static Check<Object> instanceOf(String prefix, Class<?> expectedClass) {
+        return nullableCheck(expectedClass::isInstance, prefix + " " + expectedClass);
+    }
+
+    /**
+     * Check, that tested data is instance of provided class (either the class itself or any subclass).
+     *
+     * @param expectedClass Expected class.
+     * @return New check.
+     */
+    public static Check<Object> instanceOf(Class<?> expectedClass) {
+        return instanceOf("instance of", expectedClass);
+    }
+
+    /**
+     * Alias of `instanceOf` which may be more readable in some context.
+     *
+     * @param expectedClass Expected class.
+     * @return New check.
+     */
+    public static Check<Object> isA(Class<?> expectedClass) {
+        return instanceOf("is a", expectedClass);
+    }
+
+    /**
+     * Alias of `instanceOf` which may be more readable in some context.
+     *
+     * @param expectedClass Expected class.
+     * @return New check.
+     */
+    public static Check<Object> isAn(Class<?> expectedClass) {
+        return instanceOf("is an", expectedClass);
+    }
+
+    /**
+     * Alias of `instanceOf` which may be more readable in some context.
+     *
+     * @param expectedClass Expected class.
+     * @return New check.
+     */
+    public static Check<Object> a(Class<?> expectedClass) {
+        return isA(expectedClass);
+    }
+
+    /**
+     * Alias of `instanceOf` which may be more readable in some context.
+     *
+     * @param expectedClass Expected class.
+     * @return New check.
+     */
+    public static Check<Object> an(Class<?> expectedClass) {
+        return isAn(expectedClass);
+    }
+
+    /**
+     * Check, that tested data is exactly of the provided type, but not any subcalss of it.
+     * @param expectedClass Expected class.
+     * @return New check.
+     */
+    public static Check<Object> sameClass(Class<?> expectedClass) {
+        return has("class", Object::getClass).matching(equalTo(expectedClass));
+    }
+
 
     /* ------------------------------------------------------------------------------------------------------
      * Logical operators for composition of conditions.
@@ -204,155 +330,6 @@ public final class BasicChecks {
     }
 
     /* ------------------------------------------------------------------------------------------------------
-     * General object conditions.
-     * ------------------------------------------------------------------------------------------------------
-     */
-
-    /**
-     * Create a check, that checks if the tested value is equal to expected value.
-     * It will return true as long as the equals() method does.
-     *
-     * @param expectedValue Expected value.
-     * @param <D> Type of the tested data.
-     * @return New check.
-     */
-    public static <D> Check<D> equalTo(D expectedValue) {
-        return expectedValue == null ? sameInstance(null) : nullableCheck(expectedValue::equals, "<" + expectedValue + ">");
-    }
-
-    /**
-     * Alias for `equalTo`, which may be more readable in some constructions.
-     *
-     * @param expectedValue Expected value.
-     * @param <D> Type of the tested data.
-     * @return New check.
-     * @see #equalTo(Object)
-     */
-    public static <D> Check<D> is(D expectedValue) {
-        return equalTo(expectedValue);
-    }
-
-    /**
-     * Check, if tested data is null.
-     * @return New check.
-     */
-    public static Check<Object> isNull() {
-        return IS_NULL;
-    }
-
-    /**
-     * Check, if tested data is not null.
-     * @return New check.
-     */
-    public static Check<Object> isNotNull() {
-        return NOT_NULL;
-    }
-
-    /**
-     * Check, that doesn't care of the tested value, and always returns true.
-     * @return New check.
-     */
-    public static Check<Object> anything() {
-        return ANYTHING;
-    }
-
-    /**
-     * Create a check, that checks if the tested value is exactly the same instance as expected.
-     * This check doesn't use `equals()` method, but reference comparison operator ==.
-     *
-     * @param expectedInstance Expected instance.
-     * @param <D> Type of the tested data.
-     * @return New check.
-     */
-    public static <D> Check<D> sameInstance(D expectedInstance) {
-        return nullableCheck(data -> data == expectedInstance, "<" + expectedInstance + ">");
-    }
-
-    private static Check<Object> instanceOf(String prefix, Class<?> expectedClass) {
-        return nullableCheck(expectedClass::isInstance, prefix + " " + expectedClass);
-    }
-
-    /**
-     * Check, that tested data is instance of provided class (either the class itself or any subclass).
-     *
-     * @param expectedClass Expected class.
-     * @return New check.
-     */
-    public static Check<Object> instanceOf(Class<?> expectedClass) {
-        return instanceOf("instance of", expectedClass);
-    }
-
-    /**
-     * Alias of `instanceOf` which may be more readable in some context.
-     *
-     * @param expectedClass Expected class.
-     * @return New check.
-     */
-    public static Check<Object> isA(Class<?> expectedClass) {
-        return instanceOf("is a", expectedClass);
-    }
-
-    /**
-     * Alias of `instanceOf` which may be more readable in some context.
-     *
-     * @param expectedClass Expected class.
-     * @return New check.
-     */
-    public static Check<Object> isAn(Class<?> expectedClass) {
-        return instanceOf("is an", expectedClass);
-    }
-
-    /**
-     * Alias of `instanceOf` which may be more readable in some context.
-     *
-     * @param expectedClass Expected class.
-     * @return New check.
-     */
-    public static Check<Object> a(Class<?> expectedClass) {
-        return isA(expectedClass);
-    }
-
-    /**
-     * Alias of `instanceOf` which may be more readable in some context.
-     *
-     * @param expectedClass Expected class.
-     * @return New check.
-     */
-    public static Check<Object> an(Class<?> expectedClass) {
-        return isAn(expectedClass);
-    }
-
-    /**
-     * Check, that tested data is exactly of the provided type, but not any subcalss of it.
-     * @param expectedClass Expected class.
-     * @return New check.
-     */
-    public static Check<Object> sameClass(Class<?> expectedClass) {
-        return has("class", Object::getClass).matching(equalTo(expectedClass));
-    }
-
-    /**
-     * Create matcher of empty array.
-     * It returns true, if tested collection meets null or has no elements.
-     *
-     * @param <D> Type of the items in the tested array.
-     * @return Empty array expectation.
-     */
-    public static <D> Check<D[]> emptyArray() {
-        return check(data -> data.length == 0, "is empty array");
-    }
-
-    /**
-     * Check, that provided data is either null or empty array.
-     *
-     * @param <D> Type of the items in the tested array.
-     * @return Empty array expectation.
-     */
-    public static <D> Check<D[]> emptyArrayOrNull() {
-        return nullableCheck(data -> Objects.isNull(data) || data.length == 0, "is empty array");
-    }
-
-    /* ------------------------------------------------------------------------------------------------------
      * Composition of conditions using a function and check for the result.
      * ------------------------------------------------------------------------------------------------------
      */
@@ -412,6 +389,10 @@ public final class BasicChecks {
 
     public static <D> CheckDsl<D> dsl() {
         return new CheckDsl<>();
+    }
+
+    public static <D> Value<D> value() {
+        return new Value<>();
     }
 
 }

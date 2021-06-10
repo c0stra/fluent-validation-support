@@ -33,6 +33,8 @@ import java.io.Serializable;
 import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Method;
 
+import static java.util.Objects.isNull;
+
 /**
  * Functional interface representing transformation of a data for partial check.
  *
@@ -61,6 +63,10 @@ public interface Transformation<F, T> extends Serializable {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    static <F, T> Transformation<F, T> dontTransformNull(Transformation<F, T> transformation) {
+        return f -> isNull(f) ? null : transformation.apply(f);
     }
 
 }

@@ -212,4 +212,25 @@ public final class CollectionChecks {
         return new MapItemCheck<>(key, check);
     }
 
+    /**
+     * Create matcher of empty array.
+     * It returns true, if tested collection meets null or has no elements.
+     *
+     * @param <D> Type of the items in the tested array.
+     * @return Empty array expectation.
+     */
+    public static <D> Check<D[]> emptyArray() {
+        return check(data -> data.length == 0, "is empty array");
+    }
+
+    /**
+     * Check, that provided data is either null or empty array.
+     *
+     * @param <D> Type of the items in the tested array.
+     * @return Empty array expectation.
+     */
+    public static <D> Check<D[]> emptyArrayOrNull() {
+        return nullableCheck(data -> Objects.isNull(data) || data.length == 0, "is empty array");
+    }
+
 }

@@ -35,19 +35,10 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import static fluent.validation.BasicChecks.*;
+import static fluent.validation.Transformation.dontTransformNull;
 
 /**
  * Factory of ready to use most frequent conditions. There are typical conditions for following categories:
- *
- * 1. General check builders for simple building of new conditions using predicate and description.
- * 2. General object conditions - e.g. isNull, notNull, equalTo, etc.
- * 3. Generalized logical operators (N-ary oneOf instead of binary or, N-ary allOf instead of binary and)
- * 4. Collection (Iterable) conditions + quantifiers
- * 5. Relational and range conditions for comparables
- * 6. String matching conditions (contains/startWith/endsWith as well as regexp matching)
- * 7. Basic XML conditions (XPath, attribute matching)
- * 8. Floating point comparison using a tolerance
- * 9. Builders for composition or collection of criteria.
  */
 @Factory
 public final class StringChecks {
@@ -59,11 +50,15 @@ public final class StringChecks {
      */
 
     public static Check<String> equalCaseInsensitiveTo(String expectedValue) {
-        return check(expectedValue::equalsIgnoreCase, "any case " + expectedValue);
+        return expectedValue == null ? sameInstance(null) : check(expectedValue::equalsIgnoreCase, "any case " + expectedValue);
     }
 
     public static Check<String> emptyString() {
         return nullableCheck(data -> Objects.isNull(data) || data.isEmpty(), "is empty string");
+    }
+
+    public static Check<String> trim(Check<? super String> check) {
+        return compose(dontTransformNull(String::trim), check);
     }
 
     public static Check<String> startsWith(String prefix) {
