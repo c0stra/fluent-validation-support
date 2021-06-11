@@ -66,7 +66,17 @@ public interface Transformation<F, T> extends Serializable {
     }
 
     static <F, T> Transformation<F, T> dontTransformNull(Transformation<F, T> transformation) {
-        return f -> isNull(f) ? null : transformation.apply(f);
+        return new Transformation<F, T>() {
+            @Override
+            public T apply(F f) throws Exception {
+                return isNull(f) ? null : transformation.apply(f);
+            }
+
+            @Override
+            public String getMethodName() {
+                return transformation.getMethodName();
+            }
+        };
     }
 
 }

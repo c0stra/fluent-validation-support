@@ -395,4 +395,8 @@ public final class BasicChecks {
         return new Value<>();
     }
 
+    public static <D> Check<D> softCheck(Check<D> check) {
+        return new SoftCheck<>(check);
+    }
+
 }

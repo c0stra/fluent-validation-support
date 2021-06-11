@@ -101,4 +101,15 @@ public final class XmlStreamResultVisitor implements ResultVisitor {
         result.accept(this);
     }
 
+    @Override
+    public void soft(Result result) {
+        try {
+            builder.writeStartElement("soft");
+            result.accept(this);
+            builder.writeEndElement();
+        } catch (XMLStreamException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -32,6 +32,7 @@ package fluent.validation;
 import fluent.api.End;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
+import fluent.validation.result.ResultVisitor;
 
 /**
  * Simple check used in for validation of various data.
@@ -97,27 +98,17 @@ public abstract class Check<T> {
      */
     @End(message = "Check is not used. Pass it either to Assert.that(), Check.that() or Check.evaluate().")
     public static <T> boolean that(T data, Check<? super T> check) {
-        return that(data, check, ResultFactory.DEFAULT);
+        return evaluate(data, check).passed();
     }
 
-    /**
-     * Assert the data using provided check.
-     *
-     * @param data Tested data.
-     * @param check Check to be applied.
-     * @param <T> Type of the tested data.
-     */
-    @End(message = "Check is not used. Pass it either to Assert.that(), Check.that() or Check.evaluate().")
-    public static <T> boolean that(T data, Check<? super T> check, ResultFactory resultFactory) {
-        return evaluate(data, check, resultFactory).passed();
+    public static <T> boolean that(T data, Check<? super T> check, ResultVisitor visitor) {
+        Result result = evaluate(data, check);
+        visitor.visit(result);
+        return result.passed();
     }
 
     public static <T> Result evaluate(T data, Check<? super T> check) {
-        return evaluate(data, check, ResultFactory.DEFAULT);
-    }
-
-    public static <T> Result evaluate(T data, Check<? super T> check, ResultFactory resultFactory) {
-        return check.evaluate(data, resultFactory);
+        return ResultFactory.DEFAULT.actual(data, check.evaluate(data, ResultFactory.DEFAULT));
     }
 
 }

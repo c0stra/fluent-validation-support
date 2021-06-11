@@ -85,7 +85,7 @@ public final class DateTimeChecks {
     }
 
     public static Check<String> parseLocalDateTime(DateTimeFormatter format, Check<? super LocalDateTime> check) {
-        return compose(string -> LocalDateTime.parse(string, format), check);
+        return compose("parse using " + format, string -> LocalDateTime.parse(string, format), check);
     }
 
     public static Check<String> parseZonedDateTime(Check<? super ZonedDateTime> check) {

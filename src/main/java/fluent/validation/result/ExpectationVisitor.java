@@ -92,6 +92,11 @@ public final class ExpectationVisitor implements ResultVisitor {
     }
 
     @Override
+    public void soft(Result result) {
+        result.accept(this);
+    }
+
+    @Override
     public String toString() {
         return builder.toString();
     }

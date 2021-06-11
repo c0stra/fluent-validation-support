@@ -121,20 +121,60 @@ public final class NumericChecks {
         return compose(dontTransformNull(Double::parseDouble), check);
     }
 
+    public static Check<String> parseDouble(Double expectedValue) {
+        return parseDouble(equalTo(expectedValue));
+    }
+
+    public static Check<String> parseDouble(double expectedValue) {
+        return parseDouble(equalTo(expectedValue));
+    }
+
     public static Check<String> parseFloat(Check<? super Float> check) {
         return compose(dontTransformNull(Float::parseFloat), check);
+    }
+
+    public static Check<String> parseFloat(Float expectedValue) {
+        return parseFloat(equalTo(expectedValue));
+    }
+
+    public static Check<String> parseFloat(float expectedValue) {
+        return parseFloat(equalTo(expectedValue));
     }
 
     public static Check<String> parseInt(Check<? super Integer> check) {
         return compose(dontTransformNull(Integer::parseInt), check);
     }
 
+    public static Check<String> parseInt(Integer expectedValue) {
+        return parseInt(BasicChecks.equalTo(expectedValue));
+    }
+
+    public static Check<String> parseInt(int expectedValue) {
+        return parseInt(BasicChecks.equalTo(expectedValue));
+    }
+
     public static Check<String> parseLong(Check<? super Long> check) {
         return compose(dontTransformNull(Long::parseLong), check);
     }
 
+    public static Check<String> parseLong(Long expectedValue) {
+        return parseLong(BasicChecks.equalTo(expectedValue));
+    }
+
+    public static Check<String> parseLong(long expectedValue) {
+        return parseLong(BasicChecks.equalTo(expectedValue));
+    }
+
     public static Check<String> parseShort(Check<? super Short> check) {
         return compose(dontTransformNull(Short::parseShort), check);
+    }
+
+    public static Check<String> parseShort(Short expectedValue) {
+        return parseShort(BasicChecks.equalTo(expectedValue));
+    }
+
+    public static Check<String> parseShort(short expectedValue) {
+        return parseShort(BasicChecks.equalTo(expectedValue));
     }
 
     public static Check<String> parseBigDecimal(Check<? super BigDecimal> check) {
@@ -149,8 +189,20 @@ public final class NumericChecks {
         return compose(dontTransformNull(Byte::parseByte), check);
     }
 
+    public static Check<String> parseByte(Byte expectedValue) {
+        return parseByte(BasicChecks.equalTo(expectedValue));
+    }
+
+    public static Check<String> parseByte(byte expectedValue) {
+        return parseByte(BasicChecks.equalTo(expectedValue));
+    }
+
     public static Check<String> parseBoolean(Check<? super Boolean> check) {
         return compose(dontTransformNull(Boolean::parseBoolean), check);
+    }
+
+    public static Check<String> parseBoolean(Boolean expectedValue) {
+        return parseBoolean(BasicChecks.equalTo(expectedValue));
     }
 
 }

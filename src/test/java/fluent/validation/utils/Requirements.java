@@ -4,7 +4,6 @@ import fluent.api.End;
 import fluent.api.Start;
 import fluent.validation.AssertionFailure;
 import fluent.validation.Check;
-import fluent.validation.result.ResultFactory;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -46,7 +45,6 @@ public class Requirements {
                 () -> fluent.validation.Assert.that(
                         () -> fluent.validation.Assert.that(data, check),
                         throwing(require(isAn(AssertionFailure.class), has("Error message", Throwable::getMessage).equalTo(expectedMessage))),
-                        ResultFactory.DEFAULT,
                         new ErrorMessageMismatchVisitor()
                 )
         ));

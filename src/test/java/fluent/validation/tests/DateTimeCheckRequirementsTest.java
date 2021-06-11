@@ -29,15 +29,12 @@
 
 package fluent.validation.tests;
 
-import fluent.validation.dsl.LocalDateTimeCheck;
 import fluent.validation.utils.Requirements;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 
-import static fluent.validation.DateTimeChecks.zonedDateTimeWith;
-import static fluent.validation.dsl.LocalDateTimeCheck.localDateTimeWith;
+import static fluent.validation.DateTimeChecks.*;
+import static java.time.DayOfWeek.*;
 import static java.time.Month.APRIL;
 import static java.time.Month.MAY;
 
@@ -56,7 +53,10 @@ public class DateTimeCheckRequirementsTest extends Requirements {{
     testOf (localDateTime)       . using  (localDateTimeWith().day(8))       . shouldReturn(false);
     testOf (localDateTime)       . using  (localDateTimeWith().dayOfYear(107)). shouldReturn(true);
     testOf (localDateTime)       . using  (localDateTimeWith().dayOfYear(8)) . shouldReturn(false);
+    testOf (localDateTime)       . using  (localDateTimeWith().dayOfWeek(SATURDAY)). shouldReturn(true);
+    testOf (localDateTime)       . using  (localDateTimeWith().dayOfWeek(FRIDAY)) . shouldReturn(false);
 
+    testOf("2021/04/17 21:45:18.012").using(parseLocalDateTime("yyyy/MM/dd HH:mm:ss.SSS", localDateTimeWith().year(2021).month(4).day(17))).shouldReturn(true);
 
     ZonedDateTime zonedDateTime = ZonedDateTime.of(2021, 4, 17, 21, 45, 18, 10324, ZoneId.systemDefault());
     testOf ((ZonedDateTime) null). using  (zonedDateTimeWith().year(2021))   . shouldReturn(false);
@@ -70,5 +70,24 @@ public class DateTimeCheckRequirementsTest extends Requirements {{
     testOf (zonedDateTime). using  (zonedDateTimeWith().day(8))       . shouldReturn(false);
     testOf (zonedDateTime). using  (zonedDateTimeWith().dayOfYear(107)). shouldReturn(true);
     testOf (zonedDateTime). using  (zonedDateTimeWith().dayOfYear(8)) . shouldReturn(false);
+    testOf (zonedDateTime). using  (zonedDateTimeWith().dayOfWeek(SATURDAY)). shouldReturn(true);
+    testOf (zonedDateTime). using  (zonedDateTimeWith().dayOfWeek(FRIDAY)) . shouldReturn(false);
+
+
+    LocalDate localDate = LocalDate.of(2021, 4, 17);
+
+    testOf ((LocalDate) null). using  (localDateWith().year(2021))   . shouldReturn(false);
+    testOf (localDate)       . using  (localDateWith().year(2021))   . shouldReturn(true);
+    testOf (localDate)       . using  (localDateWith().year(2020))   . shouldReturn(false);
+    testOf (localDate)       . using  (localDateWith().month(4))     . shouldReturn(true);
+    testOf (localDate)       . using  (localDateWith().month(APRIL)) . shouldReturn(true);
+    testOf (localDate)       . using  (localDateWith().month(6))     . shouldReturn(false);
+    testOf (localDate)       . using  (localDateWith().month(MAY))   . shouldReturn(false);
+    testOf (localDate)       . using  (localDateWith().day(17))      . shouldReturn(true);
+    testOf (localDate)       . using  (localDateWith().day(8))       . shouldReturn(false);
+    testOf (localDate)       . using  (localDateWith().dayOfYear(107)). shouldReturn(true);
+    testOf (localDate)       . using  (localDateWith().dayOfYear(8)) . shouldReturn(false);
+    testOf (localDate)       . using  (localDateWith().dayOfWeek(SATURDAY)). shouldReturn(true);
+    testOf (localDate)       . using  (localDateWith().dayOfWeek(FRIDAY)) . shouldReturn(false);
 
 }}

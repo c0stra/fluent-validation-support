@@ -29,31 +29,18 @@
 
 package fluent.validation.result;
 
-import fluent.validation.Check;
+public class SoftResult extends Result {
+    private static final boolean ignore = "true".equalsIgnoreCase(System.getProperty("fluent.validation.check.soft.ignore", "true"));
+    private final Result result;
 
-import java.util.List;
-
-public interface ResultVisitor {
-
-    default ResultVisitor visit(Result result) {
-        result.accept(this);
-        return this;
+    public SoftResult(Result result) {
+        super(ignore || result.passed());
+        this.result = result;
     }
 
-    void actual(Object actualValue, Result result);
-
-    void expectation(Object expectation, boolean value);
-
-    void transformation(Object name, Result result, boolean value);
-
-    void aggregation(Object prefix, String glue, List<Result> items, boolean value);
-
-    void tableAggregation(Object prefix, List<Check<?>> checks, List<?> items, List<TableInResult.Cell> results, boolean value);
-
-    void error(Throwable error);
-
-    void invert(Result result);
-
-    void soft(Result result);
+    @Override
+    public void accept(ResultVisitor visitor) {
+        visitor.soft(result);
+    }
 
 }

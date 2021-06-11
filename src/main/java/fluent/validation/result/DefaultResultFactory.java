@@ -29,31 +29,42 @@
 
 package fluent.validation.result;
 
-import fluent.validation.Check;
-
 import java.util.List;
 
-public interface ResultVisitor {
-
-    default ResultVisitor visit(Result result) {
-        result.accept(this);
-        return this;
+public class DefaultResultFactory implements ResultFactory {
+    @Override
+    public Result actual(Object actualValue, Result result) {
+        return new ActualValueInResult(actualValue, result);
     }
 
-    void actual(Object actualValue, Result result);
+    @Override
+    public Result expectation(Object expectation, boolean value) {
+        return new ExpectationInResult(expectation, value);
+    }
 
-    void expectation(Object expectation, boolean value);
+    @Override
+    public Result named(Object name, Result result, boolean value) {
+        return new TransformationInResult(name, result, value);
+    }
 
-    void transformation(Object name, Result result, boolean value);
+    @Override
+    public Result soft(Result result) {
+        return new SoftResult(result);
+    }
 
-    void aggregation(Object prefix, String glue, List<Result> items, boolean value);
+    @Override
+    public Result aggregation(Object prefix, String glue, List<Result> items, boolean value) {
+        return new AggregationInResult(prefix, glue, items, value);
+    }
 
-    void tableAggregation(Object prefix, List<Check<?>> checks, List<?> items, List<TableInResult.Cell> results, boolean value);
+    @Override
+    public Result error(Throwable throwable) {
+        return new ErrorInResult(throwable);
+    }
 
-    void error(Throwable error);
-
-    void invert(Result result);
-
-    void soft(Result result);
+    @Override
+    public Result invert(Result result) {
+        return new InvertFailureIndicatorInResult(result);
+    }
 
 }

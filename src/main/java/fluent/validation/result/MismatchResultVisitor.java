@@ -57,9 +57,11 @@ public final class MismatchResultVisitor implements ResultVisitor {
 
     @Override
     public ResultVisitor visit(Result result) {
-        builder.append("expected: ");
-        new ExpectationVisitor(builder).visit(result);
-        result.accept(this);
+        if(result.failed()) {
+            builder.append("expected: ");
+            new ExpectationVisitor(builder).visit(result);
+            result.accept(this);
+        }
         return this;
     }
 
@@ -113,6 +115,11 @@ public final class MismatchResultVisitor implements ResultVisitor {
     @Override
     public void invert(Result result) {
         result.accept(new MismatchResultVisitor(!failureIndicator, actualValueDescription, builder, prefix));
+    }
+
+    @Override
+    public void soft(Result result) {
+        result.accept(this);
     }
 
     @Override

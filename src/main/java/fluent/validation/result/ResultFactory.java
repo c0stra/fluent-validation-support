@@ -42,6 +42,8 @@ public interface ResultFactory {
 
     Result named(Object name, Result result, boolean value);
 
+    Result soft(Result result);
+
     Result aggregation(Object prefix, String glue, List<Result> items, boolean value);
 
     default <D> TableAggregator<D> table(Object prefix, ArrayList<Check<? super D>> checks) {
@@ -86,25 +88,6 @@ public interface ResultFactory {
         return aggregator(prefix, ", ");
     }
 
-    ResultFactory DEFAULT = new ResultFactory() {
-        @Override public Result actual(Object actualValue, Result result) {
-            return new ActualValueInResult(actualValue, result);
-        }
-        @Override public Result expectation(Object expectation, boolean value) {
-            return new ExpectationInResult(expectation, value);
-        }
-        @Override public Result named(Object name, Result result, boolean value) {
-            return new TransformationInResult(name, result, value);
-        }
-        @Override public Result aggregation(Object prefix, String glue, List<Result> items, boolean value) {
-            return new AggregationInResult(prefix, glue, items, value);
-        }
-        @Override public Result error(Throwable throwable) {
-            return new ErrorInResult(throwable);
-        }
-        @Override public Result invert(Result result) {
-            return new InvertFailureIndicatorInResult(result);
-        }
-    };
+    ResultFactory DEFAULT = new DefaultResultFactory();
 
 }

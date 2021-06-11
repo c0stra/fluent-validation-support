@@ -49,6 +49,11 @@ public class ErrorMessageMismatchVisitor implements ResultVisitor {
     }
 
     @Override
+    public void soft(Result result) {
+        result.accept(this);
+    }
+
+    @Override
     public String toString() {
         return "Error message expected:\n---\n" + expectedValue + "\n---\nActual:\n---\n" + actualValue + "\n---\n";
     }

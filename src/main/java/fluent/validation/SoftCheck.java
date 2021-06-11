@@ -27,33 +27,26 @@
  *
  */
 
-package fluent.validation.result;
+package fluent.validation;
 
-import fluent.validation.Check;
+import fluent.validation.result.Result;
+import fluent.validation.result.ResultFactory;
 
-import java.util.List;
+public class SoftCheck<D> extends Check<D> {
 
-public interface ResultVisitor {
+    private final Check<D> check;
 
-    default ResultVisitor visit(Result result) {
-        result.accept(this);
-        return this;
+    public SoftCheck(Check<D> check) {
+        this.check = check;
     }
 
-    void actual(Object actualValue, Result result);
+    @Override
+    protected Result evaluate(D data, ResultFactory factory) {
+        return factory.soft(check.evaluate(data, factory));
+    }
 
-    void expectation(Object expectation, boolean value);
-
-    void transformation(Object name, Result result, boolean value);
-
-    void aggregation(Object prefix, String glue, List<Result> items, boolean value);
-
-    void tableAggregation(Object prefix, List<Check<?>> checks, List<?> items, List<TableInResult.Cell> results, boolean value);
-
-    void error(Throwable error);
-
-    void invert(Result result);
-
-    void soft(Result result);
-
+    @Override
+    public String toString() {
+        return null;
+    }
 }

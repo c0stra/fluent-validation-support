@@ -37,8 +37,35 @@ public class NumericCheckRequirementsTest extends Requirements {{
 
     testOf (3.2). using (closeTo(3.0, 0.5)). shouldReturn (true);
     testOf (3.2). using (closeTo(3.0, 0.1)). shouldReturn (false);
+    testOf (3.2f). using (closeTo(3.0f, 0.5f)). shouldReturn (true);
+    testOf (3.2f). using (closeTo(3.0f, 0.1f)). shouldReturn (false);
 
     testOf ("5.3"). using (parseDouble(equalTo(5.3))). shouldReturn (true);
+    testOf ("-5.3"). using (parseDouble(equalTo(-5.3))). shouldReturn (true);
+    testOf ("0.53e1"). using (parseDouble(equalTo(5.3))). shouldReturn (true);
+    testOf ("5.3"). using (parseDouble(equalTo(5.7))). shouldReturn (false);
     testOf ((String) null). using (parseDouble(isNull())). shouldReturn (true);
+    testOf ((String) null). using (parseDouble(equalTo(5.3))). shouldReturn (false);
+    testOf (""). using (parseDouble(equalTo(5.7))). shouldReturn (false);
+    testOf ("AAA"). using (parseDouble(equalTo(5.7))). shouldReturn (false);
+
+    assertOf ("AAA"). using (parseDouble(5.3)). shouldFailWith ("expected: parseDouble  has thrown java.lang.NumberFormatException: For input string: \"AAA\"");
+
+    testOf ("5.3"). using (parseFloat(5.3f)). shouldReturn (true);
+    testOf ("-5.3"). using (parseFloat(-5.3f)). shouldReturn (true);
+    testOf ("0.53e1"). using (parseFloat(5.3f)). shouldReturn (true);
+    testOf ("5.3"). using (parseFloat(5.7f)). shouldReturn (false);
+    testOf ((String) null). using (parseFloat(isNull())). shouldReturn (true);
+    testOf ((String) null). using (parseFloat(equalTo(5.3f))). shouldReturn (false);
+
+    testOf ("5"). using (parseInt(5)). shouldReturn (true);
+    testOf ("5"). using (parseInt(7)). shouldReturn (false);
+    testOf ((String) null). using (parseInt(isNull())). shouldReturn (true);
+    testOf ((String) null). using (parseInt(5)). shouldReturn (false);
+
+    testOf ("5"). using (parseLong(5)). shouldReturn (true);
+    testOf ("5"). using (parseLong(7)). shouldReturn (false);
+    testOf ((String) null). using (parseLong(isNull())). shouldReturn (true);
+    testOf ((String) null). using (parseLong(5)). shouldReturn (false);
 
 }}
