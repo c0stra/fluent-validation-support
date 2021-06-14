@@ -29,7 +29,7 @@
 
 package fluent.validation;
 
-import fluent.validation.result.MismatchResultVisitor;
+import fluent.validation.result.FailedResultVisitor;
 import fluent.validation.result.ResultVisitor;
 
 public final class Assert {
@@ -43,7 +43,7 @@ public final class Assert {
      * @param <T> Type of the tested data.
      */
     public static <T> void that(T data, Check<? super T> check) {
-        that(data, check, new MismatchResultVisitor());
+        that(data, check, new FailedResultVisitor());
     }
 
 
