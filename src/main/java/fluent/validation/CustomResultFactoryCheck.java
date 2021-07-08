@@ -27,10 +27,29 @@
  *
  */
 
-package fluent.validation.evaluation;
+package fluent.validation;
 
-public interface Conclusion {
+import fluent.validation.result.Result;
+import fluent.validation.result.ResultFactory;
 
-    void conclude(Boolean value, Context context);
+public final class CustomResultFactoryCheck<T> extends Check<T> {
+
+    private final Check<T> check;
+    private final ResultFactory resultFactory;
+
+    public CustomResultFactoryCheck(Check<T> check, ResultFactory resultFactory) {
+        this.check = check;
+        this.resultFactory = resultFactory;
+    }
+
+    @Override
+    protected Result evaluate(T data, ResultFactory originalResultFactory) {
+        return check.evaluate(data, resultFactory);
+    }
+
+    @Override
+    public String toString() {
+        return check.toString();
+    }
 
 }

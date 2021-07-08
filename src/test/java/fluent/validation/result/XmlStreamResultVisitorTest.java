@@ -27,12 +27,28 @@
  *
  */
 
-package fluent.validation.evaluation;
+package fluent.validation.result;
 
-public interface Context {
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-    boolean isValid(Object statement);
+import javax.xml.bind.JAXB;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
-    void set(Object statement, boolean value);
+import java.io.StringWriter;
+
+public class XmlStreamResultVisitorTest {
+
+    @Test(enabled = false)
+    public void test() throws JAXBException {
+        StringWriter stringWriter = new StringWriter();
+        JAXBContext context = JAXBContext.newInstance(ActualValueInResult.class, ExpectationInResult.class);
+        Marshaller marshaller = context.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT,true);
+        marshaller.marshal(new ActualValueInResult("AA", new ExpectationInResult("BB", false)), stringWriter);
+        Assert.assertEquals(stringWriter.toString(), "CCC");
+    }
 
 }

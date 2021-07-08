@@ -37,7 +37,7 @@ import java.util.function.Function;
 import static fluent.validation.BasicChecks.anything;
 import static fluent.validation.BasicChecks.has;
 
-public class AbstractCheckDsl<L, D> extends Check<D> {
+public abstract class AbstractCheckDsl<L, D> extends Check<D> {
 
     private final Check<? super D> check;
 

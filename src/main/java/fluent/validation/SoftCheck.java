@@ -32,7 +32,7 @@ package fluent.validation;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-public class SoftCheck<D> extends Check<D> {
+final class SoftCheck<D> extends Check<D> {
 
     private final Check<D> check;
 

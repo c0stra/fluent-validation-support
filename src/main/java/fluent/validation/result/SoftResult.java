@@ -29,13 +29,26 @@
 
 package fluent.validation.result;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import static fluent.validation.result.Result.NAMESPACE;
+
+@XmlRootElement(namespace = NAMESPACE)
 public class SoftResult extends Result {
     private static final boolean ignore = "true".equalsIgnoreCase(System.getProperty("fluent.validation.check.soft.ignore", "true"));
+
+    @XmlElement
     private final Result result;
 
     public SoftResult(Result result) {
         super(ignore || result.passed());
         this.result = result;
+    }
+
+    @SuppressWarnings("unused")
+    private SoftResult() {
+        this(null);
     }
 
     @Override

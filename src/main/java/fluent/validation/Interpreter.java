@@ -27,35 +27,23 @@
  *
  */
 
-package fluent.validation.evaluation;
+package fluent.validation;
 
-import java.util.Objects;
+import fluent.validation.result.ResultVisitor;
 
-public class Statement implements Conclusion {
+public class Interpreter {
+    private final ResultVisitor resultVisitor;
 
-    @Override
-    public void conclude(Boolean aBoolean, Context context) {
-        context.set(this, aBoolean);
+    public Interpreter(ResultVisitor resultVisitor) {
+        this.resultVisitor = resultVisitor;
     }
 
-    static Statement state(String description) {
-        Objects.requireNonNull(description, "Description of statement cannot be null!");
-        return new Statement() {
-            @Override public String toString() {
-                return description;
-            }
-            @Override public int hashCode() {
-                return description.hashCode();
-            }
-            @Override public boolean equals(Object obj) {
-                return obj != null && getClass() == obj.getClass() && description.equals(obj.toString());
-            }
-        };
+    public <T> T assertThat(T data, Check<? super T> check) {
+        return Assert.that(data, check, resultVisitor);
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName();
+    public <T> boolean checkThat(T data, Check<? super T> check) {
+        return Check.that(data, check, resultVisitor);
     }
 
 }

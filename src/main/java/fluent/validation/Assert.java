@@ -32,6 +32,13 @@ package fluent.validation;
 import fluent.validation.result.FailedResultVisitor;
 import fluent.validation.result.ResultVisitor;
 
+/**
+ * Utility class responsible for assertion of the data.
+ * Assertion means to check data using a `Check`, and fail with `AssertionFailure` when Check evaluation
+ * returns false.
+ * The AssertionFailure error message should describe the evaluation of a check. By default it is extracting
+ * partial failures relevant to the over-all one.
+ */
 public final class Assert {
     private Assert() {}
 
@@ -42,15 +49,24 @@ public final class Assert {
      * @param check Check to be applied.
      * @param <T> Type of the tested data.
      */
-    public static <T> void that(T data, Check<? super T> check) {
-        that(data, check, new FailedResultVisitor());
+    public static <T> T that(T data, Check<? super T> check) {
+        return that(data, check, new FailedResultVisitor());
     }
 
 
-    public static <T> void that(T data, Check<? super T> check, ResultVisitor visitor) {
+    /**
+     * Assert the data using provided check.
+     *
+     * @param data Tested data.
+     * @param check Check to be applied.
+     * @param visitor Result visitor used to interpret the detailed information about check evaluation.
+     * @param <T> Type of the tested data.
+     */
+    public static <T> T that(T data, Check<? super T> check, ResultVisitor visitor) {
         if(!Check.that(data, check, visitor)) {
             throw new AssertionFailure(visitor);
         }
+        return data;
     }
 
 }

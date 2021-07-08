@@ -29,7 +29,15 @@
 
 package fluent.validation.result;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import static fluent.validation.result.Result.NAMESPACE;
+
+@XmlRootElement(namespace = NAMESPACE)
 final class ErrorInResult extends Result {
+
+    @XmlElement
     private final Throwable error;
 
     ErrorInResult(Throwable error) {
@@ -37,8 +45,14 @@ final class ErrorInResult extends Result {
         this.error = error;
     }
 
+    @SuppressWarnings("unused")
+    private ErrorInResult() {
+        this(null);
+    }
+
     @Override
     public void accept(ResultVisitor visitor) {
         visitor.error(error);
     }
+
 }

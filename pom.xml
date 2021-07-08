@@ -91,14 +91,9 @@
                         <phase>compile</phase>
                         <goals><goal>compile</goal></goals>
                         <configuration>
-                            <includes>
-                                <include>fluent/validation/processor/*.java</include>
-                            </includes>
-                            <excludes>
-                                <exclude>fluent/validation/*.java</exclude>
-                                <exclude>fluent/validation/result/*.java</exclude>
-                                <exclude>fluent/validation/evaluation/*.java</exclude>
-                            </excludes>
+                            <compileSourceRoots>
+                                <compileSourceRoot>${project.basedir}/src/apt/java</compileSourceRoot>
+                            </compileSourceRoots>
                         </configuration>
                     </execution>
                     <execution>
@@ -106,9 +101,6 @@
                         <phase>compile</phase>
                         <goals><goal>compile</goal></goals>
                         <configuration>
-                            <excludes>
-                                <exclude>fluent/validation/processor/*.java</exclude>
-                            </excludes>
                             <annotationProcessors>
                                 <annotationProcessor>fluent.validation.processor.FactoryGenerator</annotationProcessor>
                             </annotationProcessors>

@@ -29,12 +29,24 @@
 
 package fluent.validation.result;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
+import static fluent.validation.result.Result.NAMESPACE;
+import static java.util.Collections.emptyList;
+
+@XmlRootElement(namespace = NAMESPACE)
 final class AggregationInResult extends Result {
 
+    @XmlAttribute
     private final Object prefix;
+
+    @XmlAttribute
     private final String glue;
+
+    @XmlElement
     private final List<Result> items;
 
     AggregationInResult(Object prefix, String glue, List<Result> items, boolean value) {
@@ -42,6 +54,11 @@ final class AggregationInResult extends Result {
         this.prefix = prefix;
         this.glue = glue;
         this.items = items;
+    }
+
+    @SuppressWarnings("unused")
+    private AggregationInResult() {
+        this(null, null, emptyList(), false);
     }
 
     @Override

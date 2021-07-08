@@ -29,8 +29,15 @@
 
 package fluent.validation.result;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import static fluent.validation.result.Result.NAMESPACE;
+
+@XmlRootElement//(namespace = NAMESPACE)
 final class ExpectationInResult extends Result {
 
+    @XmlElement
     private final Object expectation;
 
     ExpectationInResult(Object expectation, boolean result) {
@@ -38,8 +45,14 @@ final class ExpectationInResult extends Result {
         this.expectation = expectation;
     }
 
+    @SuppressWarnings("unused")
+    private ExpectationInResult() {
+        this(null, false);
+    }
+
     @Override
     public void accept(ResultVisitor visitor) {
         visitor.expectation(expectation, passed());
     }
+
 }

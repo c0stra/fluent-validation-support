@@ -35,11 +35,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.List;
 
-public final class XmlStreamResultVisitor implements ResultVisitor {
+public final class JaxbResultVisitor implements ResultVisitor {
 
     private final XMLStreamWriter builder;
 
-    public XmlStreamResultVisitor(XMLStreamWriter builder) {
+    public JaxbResultVisitor(XMLStreamWriter builder) {
         this.builder = builder;
     }
 

@@ -29,9 +29,18 @@
 
 package fluent.validation.result;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import static fluent.validation.result.Result.NAMESPACE;
+
+@XmlRootElement//(namespace = NAMESPACE)
 final class ActualValueInResult extends Result {
 
+    @XmlElement
     private final Object actualValue;
+
+    @XmlElement
     private final Result result;
 
     ActualValueInResult(Object actualValue, Result result) {
@@ -40,8 +49,14 @@ final class ActualValueInResult extends Result {
         this.result = result;
     }
 
+    @SuppressWarnings("unused")
+    private ActualValueInResult() {
+        this(null, null);
+    }
+
     @Override
     public void accept(ResultVisitor visitor) {
         visitor.actual(actualValue, result);
     }
+
 }

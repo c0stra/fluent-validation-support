@@ -12,8 +12,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static fluent.validation.BasicChecks.*;
-import static fluent.validation.BasicChecks.has;
+import static fluent.validation.BasicChecks.throwing;
 import static java.lang.reflect.Array.get;
 import static java.lang.reflect.Array.getLength;
 import static java.util.stream.Collectors.joining;
@@ -21,8 +20,7 @@ import static java.util.stream.IntStream.range;
 
 public class Requirements {
 
-    private final List<Runnable> requirements = new ArrayList<>();
-
+    private final List<Requirement> requirements = new ArrayList<>();
 
     private static String valueOf(Object value) {
         if(value == null) return null;
@@ -44,7 +42,7 @@ public class Requirements {
                 "Assert of " + valueOf(data) + " using " + check + " should fail with " + expectedMessage,
                 () -> fluent.validation.Assert.that(
                         () -> fluent.validation.Assert.that(data, check),
-                        throwing(require(isAn(AssertionFailure.class), has("Error message", Throwable::getMessage).equalTo(expectedMessage))),
+                        throwing(AssertionFailure.class).withMessage(expectedMessage),
                         new ErrorMessageMismatchVisitor()
                 )
         ));
@@ -56,8 +54,8 @@ public class Requirements {
     }
 
     @Test(dataProvider = "data")
-    public void test(Runnable requirement) {
-        requirement.run();
+    public void test(Requirement requirement) {
+        requirement.runnable.run();
     }
 
     public interface Data<D, R> {
@@ -72,18 +70,13 @@ public class Requirements {
         @End void shouldFailWith(String errorMessage);
     }
 
-    private static final class Requirement implements Runnable {
+    private static final class Requirement {
         private final String description;
         private final Runnable runnable;
 
         private Requirement(String description, Runnable runnable) {
             this.description = description;
             this.runnable = runnable;
-        }
-
-        @Override
-        public void run() {
-            runnable.run();
         }
 
         @Override

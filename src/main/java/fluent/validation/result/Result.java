@@ -29,8 +29,13 @@
 
 package fluent.validation.result;
 
+import javax.xml.bind.annotation.XmlAttribute;
+
 public abstract class Result {
 
+    public static final String NAMESPACE = "http://api.fluent.foundation/check/result/";
+
+    @XmlAttribute
     private final boolean result;
 
     public Result(boolean result) {

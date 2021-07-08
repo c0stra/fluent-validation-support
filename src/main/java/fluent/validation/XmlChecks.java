@@ -42,10 +42,12 @@ import java.io.StringReader;
 import static java.lang.Boolean.TRUE;
 
 @Factory
-public class XmlChecks {
+public final class XmlChecks {
 
     private static final XPath xPath = XPathFactory.newInstance().newXPath();
     private static final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+    private XmlChecks() {}
 
     private static XPathExpression compile(String xPath) {
         try {
@@ -90,7 +92,7 @@ public class XmlChecks {
      * @param check DOM Document check.
      * @return File name check.
      */
-    public static Check<String> parseXmlFile(Check<? super Document> check) {
+    public static Check<String> loadXml(Check<? super Document> check) {
         return BasicChecks.transform(string -> factory.newDocumentBuilder().parse(string), check);
     }
 

@@ -30,9 +30,11 @@
 package fluent.validation;
 
 import fluent.validation.processor.Factory;
+import fluent.validation.result.ResultFactory;
 
 import java.util.*;
 
+import static fluent.validation.Transformation.dontTransformNull;
 import static java.util.Arrays.asList;
 
 /**
@@ -55,8 +57,7 @@ public final class BasicChecks {
 
     /* ------------------------------------------------------------------------------------------------------
      * Simple check builders using predicate and description.
-     * ------------------------------------------------------------------------------------------------------
-     */
+     * ------------------------------------------------------------------------------------------------------ */
 
     /**
      * Define a transparent check using provided predicate and string expectation description.
@@ -250,8 +251,7 @@ public final class BasicChecks {
 
     /* ------------------------------------------------------------------------------------------------------
      * Logical operators for composition of conditions.
-     * ------------------------------------------------------------------------------------------------------
-     */
+     * ------------------------------------------------------------------------------------------------------ */
 
     /**
      * Check, that provided positive check doesn't match checked data.
@@ -298,6 +298,7 @@ public final class BasicChecks {
         return oneOf(new HashSet<>(asList(alternatives)));
     }
 
+    @SuppressWarnings("unchecked")
     private static <D> Check<D> multipleOperands(Iterable<Check<? super D>> operands, boolean andOperator) {
         Iterator<Check<? super D>> iterator = operands.iterator();
         if(!iterator.hasNext()) {
@@ -311,37 +312,115 @@ public final class BasicChecks {
         return next;
     }
 
+    /**
+     * General OR operator of multiple checks.
+     * The created check returns true if any of the provided operands (checks) returns true on the tested data,
+     * and only if none of the operands returns true, then the resulting check returns false.
+     *
+     * Corner case:
+     * If no operands are provided, then it returns false (as none of them evaluated to true).
+     *
+     * @param operands Individual checks to evaluate and apply logical or on their results.
+     * @param <D> Type of the tested data.
+     * @return New check with the described logic.
+     */
     public static <D> Check<D> anyOf(Iterable<Check<? super D>> operands) {
         return multipleOperands(operands, false);
     }
 
+    /**
+     * General OR operator of multiple checks.
+     * The created check returns true if any of the provided operands (checks) returns true on the tested data,
+     * and only if none of the operands returns true, then the resulting check returns false.
+     *
+     * Corner case:
+     * If no operands are provided, then it returns false (as none of them evaluated to true).
+     *
+     * @param operands Individual checks to evaluate and apply logical or on their results.
+     * @param <D> Type of the tested data.
+     * @return New check with the described logic.
+     */
     @SafeVarargs
     public static <D> Check<D> anyOf(Check<? super D>... operands) {
         return anyOf((Iterable<Check<? super D>>)asList(operands));
     }
 
+    /**
+     * General AND operator of multiple checks.
+     * The created check returns true if all of the provided operands (checks) returns true on the tested data,
+     * and if any of the operands returns false, then the resulting check returns false.
+     *
+     * Corner case:
+     * If no operands are provided, then it returns true (as none of them evaluated to false).
+     *
+     * @param operands Individual checks to evaluate and apply logical and on their results.
+     * @param <D> Type of the tested data.
+     * @return New check with the described logic.
+     */
     public static <D> Check<D> allOf(Iterable<Check<? super D>> operands) {
         return multipleOperands(operands, true);
     }
 
+    /**
+     * General AND operator of multiple checks.
+     * The created check returns true if all of the provided operands (checks) returns true on the tested data,
+     * and if any of the operands returns false, then the resulting check returns false.
+     *
+     * Corner case:
+     * If no operands are provided, then it returns true (as none of them evaluated to false).
+     *
+     * @param operands Individual checks to evaluate and apply logical and on their results.
+     * @param <D> Type of the tested data.
+     * @return New check with the described logic.
+     */
     @SafeVarargs
     public static <D> Check<D> allOf(Check<? super D>... operands) {
         return allOf((Iterable<Check<? super D>>)asList(operands));
     }
 
-    /* ------------------------------------------------------------------------------------------------------
-     * Composition of conditions using a function and check for the result.
-     * ------------------------------------------------------------------------------------------------------
-     */
 
+    /* ------------------------------------------------------------------------------------------------------
+     * Composition of conditions using a transformation and check for the result.
+     * ------------------------------------------------------------------------------------------------------ */
+
+    /**
+     * Lowest level transformation.
+     * Create a new check using transformation of the original object, e.g. by accessing it's field, and partial check
+     * applied on the result of the transformation.
+     *
+     * @param transformation Function transforming the original object.
+     * @param check Check to apply on the result of the transformation.
+     * @param <D> Type of the original tested object.
+     * @param <V> Type of the transformation result.
+     * @return Composed check applicable on the original (whole) object.
+     */
     public static <D, V> Check<D> transform(Transformation<? super D, V> transformation, Check<? super V> check) {
         return new TransformedCheck<>(transformation, check);
     }
 
+    /**
+     * Convenient composition using transformation of the original object, and check on the result.
+     *
+     * @param name Name (description) of the transformation.
+     * @param transformation Function transforming the original object.
+     * @param check Check to apply on the result of the transformation.
+     * @param <D> Type of the original tested object.
+     * @param <V> Type of the transformation result.
+     * @return Composed check applicable on the original (whole) object.
+     */
     public static <D, V> Check<D> compose(String name, Transformation<? super D, V> transformation, Check<? super V> check) {
         return name == null ? transform(transformation, check) : new NamedCheck<>(name, transform(transformation, check));
     }
 
+    /**
+     * Simplified composition using transformation of the original object, and check on the result.
+     *
+     * @param transformation Function transforming the original object.
+     * @param check Check to apply on the result of the transformation.
+     * @param <D> Type of the original tested object.
+     * @param <V> Type of the transformation result.
+     * @return Composed check applicable on the original (whole) object.
+     */
     public static <D, V> Check<D> compose(Transformation<? super D, V> transformation, Check<? super V> check) {
         return new NamedCheck<>(transformation.getMethodName(), transform(transformation, check));
     }
@@ -355,25 +434,68 @@ public final class BasicChecks {
     }
 
     public static <D, V> TransformationBuilder<V, Check<D>> nullableHas(String name, Transformation<? super D, V> transformation) {
-        return condition -> compose(name, transformation, condition);
+        return condition -> compose(name, dontTransformNull(transformation), condition);
     }
 
+    public static <D, V> TransformationBuilder<V, Check<D>> nullableHas(Transformation<? super D, V> transformation) {
+        return nullableHas(transformation.getMethodName(), transformation);
+    }
+
+    /**
+     * Fluent builder of a check, that will assure, that provided object is instance of required class, and if yes,
+     * it will cast it to that class, and apply provided check on the required type.
+     *
+     * @param type Required Java class / type
+     * @param <V> Type to check, and cast to.
+     * @return Builder of a object check, that accepts check on the required type.
+     */
     public static <V> TransformationBuilder<V, Check<V>> as(Class<V> type) {
         return condition -> require(instanceOf(type), compose("as " + type.getSimpleName(), type::cast, condition));
     }
 
 
+    /* ------------------------------------------------------------------------------------------------------
+     * Checks for exceptions.
+     * ------------------------------------------------------------------------------------------------------ */
+
+    /**
+     * Check of exception (throwable) message.
+     *
+     * @param check String check of the message content.
+     * @return Check on Throwable.
+     */
     public static Check<Throwable> message(Check<? super String> check) {
         return compose("message", Throwable::getMessage, check);
     }
 
+    /**
+     * Check of a code, which should throw an exception (throwable).
+     * The created check will actually run the code passed to test, and return true if the code throws exception, which
+     * matches specified criteria.
+     *
+     * @param check Check on the throwable.
+     * @return ThrowingCheck applicable on provided code, allowing to build further criteria.
+     */
     public static ThrowingCheck throwing(Check<? super Throwable> check) {
         return new ThrowingCheck(check);
     }
 
-    public static ThrowingCheck throwing(Class<? extends Throwable> condition) {
-        return throwing(a(condition));
+    /**
+     * Check of a code, which should throw an exception (throwable) of expected type.
+     * The created check will actually run the code passed to test, and return true if the code throws exception of the
+     * required type.
+     *
+     * @param expectedType Expected type of the thrown exception.
+     * @return ThrowingCheck applicable on provided code, allowing to build further criteria.
+     */
+    public static ThrowingCheck throwing(Class<? extends Throwable> expectedType) {
+        return throwing(a(expectedType));
     }
+
+
+    /* ------------------------------------------------------------------------------------------------------
+     * Builders and other helpers.
+     * ------------------------------------------------------------------------------------------------------ */
 
     public static <D> Check<D> createBuilder() {
         return new Anything<>();
@@ -397,6 +519,10 @@ public final class BasicChecks {
 
     public static <D> Check<D> softCheck(Check<D> check) {
         return new SoftCheck<>(check);
+    }
+
+    public static <D> Check<D> customResultFactory(Check<D> check, ResultFactory customResultFactory) {
+        return new CustomResultFactoryCheck<>(check, customResultFactory);
     }
 
 }

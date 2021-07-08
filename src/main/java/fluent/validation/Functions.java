@@ -34,7 +34,8 @@ import java.util.concurrent.BlockingQueue;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
-public class Functions {
+public final class Functions {
+    private Functions() {}
 
     @SafeVarargs
     public static <D> Set<D> setOf(D... values) {
@@ -52,10 +53,35 @@ public class Functions {
         return setOf(value.split(splitter));
     }
 
+    /* --------------------------------------------------------------------------------------------------------
+     * Set of functions used to transform various inputs to Iterator, so any Check<Iterator<?>> can be applied.
+     * -------------------------------------------------------------------------------------------------------- */
+
+    /**
+     * Transform Iterable to Iterator (simply by calling it's iterator() method).
+     * Keep in mind the difference between iterator() and queueIterator applied on Queue.
+     * iterator will iterate current collection in the queue, and throw exception on content change, but
+     * queueIterator takes into account new elements added to the queue while iterating.
+     *
+     * @param iterable Any iterable.
+     * @param <D> Type of the elements in the iterable.
+     * @return Iterator.
+     */
     public static <D> Iterator<D> iterator(Iterable<D> iterable) {
         return iterable.iterator();
     }
 
+    /**
+     * Transform Queue to Iterator. It provides custom implementation, that takes into account changes (new elements
+     * added) during the iteration.
+     * Keep in mind the difference between iterator() and queueIterator applied on Queue.
+     * iterator will iterate current collection in the queue, and throw exception on content change, but
+     * queueIterator takes into account new elements added to the queue while iterating.
+     *
+     * @param queue Any iterable.
+     * @param <D> Type of the elements in the iterable.
+     * @return Iterator.
+     */
     public static <D> Iterator<D> queueIterator(Queue<D> queue) {
         return new Iterator<D>() {
             @Override
@@ -70,17 +96,19 @@ public class Functions {
         };
     }
 
-    private static <D> D poll(BlockingQueue<D> queue, long timeout) {
-        try {
-            return queue.poll(timeout, MILLISECONDS);
-        } catch (InterruptedException e) {
-            throw new UncheckedInterruptedException("", e);
-        }
-    }
-
+    /**
+     * Adapt BlockingQueue to Iterator. It uses blocking poll() when attempt to get next element, so it allows testing
+     * of asynchronous streams, making the iterable check to wait for future updates within given timeout.
+     *
+     * @param queue Blocking queue.
+     * @param timeout timeout in milliseconds indicating end of the queue.
+     * @param <D> Type of the elements in the iterable.
+     * @return Iterator.
+     */
     public static <D> Iterator<D> blockingQueueIterator(BlockingQueue<D> queue, long timeout) {
         return new Iterator<D>() {
-            private D data = poll(queue, timeout);
+            private D data = poll(timeout);
+
             @Override
             public boolean hasNext() {
                 return data != null;
@@ -89,9 +117,18 @@ public class Functions {
             @Override
             public D next() {
                 D last = data;
-                data = poll(queue, timeout);
+                data = poll(timeout);
                 return last;
             }
+
+            private D poll(long timeout) {
+                try {
+                    return queue.poll(timeout, MILLISECONDS);
+                } catch (InterruptedException e) {
+                    throw new UncheckedInterruptedException(e, e);
+                }
+            }
+
         };
     }
 

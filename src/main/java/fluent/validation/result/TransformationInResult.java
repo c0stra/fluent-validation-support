@@ -29,15 +29,30 @@
 
 package fluent.validation.result;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import static fluent.validation.result.Result.NAMESPACE;
+
+@XmlRootElement(namespace = NAMESPACE)
 final class TransformationInResult extends Result {
 
+    @XmlAttribute
     private final Object name;
+
+    @XmlElement
     private final Result result;
 
     TransformationInResult(Object name, Result result, boolean value) {
         super(value);
         this.name = name;
         this.result = result;
+    }
+
+    @SuppressWarnings("unused")
+    private TransformationInResult() {
+        this(null, null, false);
     }
 
     @Override

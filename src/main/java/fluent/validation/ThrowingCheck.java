@@ -36,7 +36,7 @@ import static fluent.validation.BasicChecks.allOf;
 import static fluent.validation.BasicChecks.equalTo;
 import static fluent.validation.BasicChecks.has;
 
-class ThrowingCheck extends Check<Runnable> {
+public final class ThrowingCheck extends Check<ThrowingRunnable> {
 
     private final Check<? super Throwable> check;
 
@@ -45,7 +45,7 @@ class ThrowingCheck extends Check<Runnable> {
     }
 
     @Override
-    public Result evaluate(Runnable data, ResultFactory factory) {
+    public Result evaluate(ThrowingRunnable data, ResultFactory factory) {
         try {
             data.run();
             return factory.expectation("no exception thrown", false);

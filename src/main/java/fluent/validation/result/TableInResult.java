@@ -31,13 +31,27 @@ package fluent.validation.result;
 
 import fluent.validation.Check;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
+import static fluent.validation.result.Result.NAMESPACE;
+import static java.util.Collections.emptyList;
+
+@XmlRootElement(namespace = NAMESPACE)
 public class TableInResult extends Result {
 
+    @XmlAttribute
     private final Object prefix;
+
+    @XmlElement
     private final List<Check<?>> rows;
+
+    @XmlElement
     private final List<?> columns;
+
+    @XmlElement
     private final List<Cell> results;
 
     public TableInResult(Object prefix, List<Check<?>> rows, List<?> columns, List<Cell> results, boolean result) {
@@ -46,6 +60,11 @@ public class TableInResult extends Result {
         this.rows = rows;
         this.columns = columns;
         this.results = results;
+    }
+
+    @SuppressWarnings("unused")
+    private TableInResult() {
+        this(null, emptyList(), emptyList(), emptyList(), false);
     }
 
     @Override

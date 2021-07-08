@@ -29,7 +29,15 @@
 
 package fluent.validation.result;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import static fluent.validation.result.Result.NAMESPACE;
+
+@XmlRootElement(namespace = NAMESPACE)
 final class InvertFailureIndicatorInResult extends Result {
+
+    @XmlElement
     private final Result cause;
 
     InvertFailureIndicatorInResult(Result cause) {
@@ -41,4 +49,5 @@ final class InvertFailureIndicatorInResult extends Result {
     public void accept(ResultVisitor visitor) {
         visitor.invert(cause);
     }
+
 }

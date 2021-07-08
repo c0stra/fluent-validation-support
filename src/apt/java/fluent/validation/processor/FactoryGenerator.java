@@ -29,8 +29,6 @@
 
 package fluent.validation.processor;
 
-import fluent.validation.Check;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -45,7 +43,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -66,7 +63,7 @@ public class FactoryGenerator extends AbstractProcessor {
         if(factories.isEmpty()) {
             return false;
         }
-        try(PrintWriter out = new PrintWriter(processingEnv.getFiler().createSourceFile(Check.class.getCanonicalName() + "s").openWriter())) {
+        try(PrintWriter out = new PrintWriter(processingEnv.getFiler().createSourceFile("fluent.validation.Checks").openWriter())) {
             out.println("/*\n" +
                     " * BSD 2-Clause License\n" +
                     " *\n" +
