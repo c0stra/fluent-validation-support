@@ -116,7 +116,7 @@ public class FactoryGenerator extends AbstractProcessor {
                 if(nonNull(comment)) {
                     Stream.of(comment.split("\\R")).forEach(line -> out.println("\t *" + line));
                 }
-                out.println("\t * @see " + type(method.getEnclosingElement(), false) + "#" + sig(method, (p, i) -> raw(p)));
+                out.println("\t * @see " + type(method.getEnclosingElement(), false) + "#" + sig(method, (p, i) -> type(p, false)));
                 out.println("\t */");
                 method.getAnnotationMirrors().forEach(a -> out.println("\t@" + type(a.getAnnotationType())));
                 out.println("\tpublic static " + gen(method) + type(method.getReturnType()) + " " + sig(method, (p, i) -> type(p, i) + " " + p) + " {");
@@ -137,57 +137,6 @@ public class FactoryGenerator extends AbstractProcessor {
 
     private String type(Element element, boolean isVararg) {
         return isVararg ? type(((ArrayType)element.asType()).getComponentType()) + "..." : type(element.asType());
-    }
-
-    private String raw(Element element) {
-        return raw(element.asType());
-    }
-
-    private String raw(TypeMirror type) {
-        return new TypeVisitor<String, Void>() {
-            @Override public String visit(TypeMirror t, Void unused) {
-                return t.accept(this, null);
-            }
-            @Override public String visit(TypeMirror t) {
-                return visit(t, null);
-            }
-            @Override public String visitPrimitive(PrimitiveType t, Void unused) {
-                return t.toString();
-            }
-            @Override public String visitNull(NullType t, Void unused) {
-                return t.toString();
-            }
-            @Override public String visitArray(ArrayType t, Void unused) {
-                return raw(t.getComponentType()) + "[]";
-            }
-            @Override public String visitDeclared(DeclaredType t, Void unused) {
-                return t.asElement().toString();
-            }
-            @Override public String visitError(ErrorType t, Void unused) {
-                return t.toString();
-            }
-            @Override public String visitTypeVariable(TypeVariable t, Void unused) {
-                return raw(t.getUpperBound());
-            }
-            @Override public String visitWildcard(WildcardType t, Void unused) {
-                return raw(t.getExtendsBound());
-            }
-            @Override public String visitExecutable(ExecutableType t, Void unused) {
-                return t.toString();
-            }
-            @Override public String visitNoType(NoType t, Void unused) {
-                return t.toString();
-            }
-            @Override public String visitUnknown(TypeMirror t, Void unused) {
-                return t.toString();
-            }
-            @Override public String visitUnion(UnionType t, Void unused) {
-                return t.toString();
-            }
-            @Override public String visitIntersection(IntersectionType t, Void unused) {
-                return t.toString();
-            }
-        }.visit(type);
     }
 
     private String stripPkg(String pkg, String type) {

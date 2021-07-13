@@ -57,6 +57,7 @@ public abstract class Check<T> {
     /**
      * Abstract method to delegate implementation of specific check logic to subclasses.
      * @param data Tested data.
+     * @param factory Result factory responsible for creating result tree from current node.
      * @return representation of outcome of the test.
      */
     protected abstract Result evaluate(T data, ResultFactory factory);

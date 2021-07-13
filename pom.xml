@@ -42,6 +42,9 @@
         <testng.version>7.1.0</testng.version>
         <mockito.version>2.18.3</mockito.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <apt.source.directory>${project.basedir}/src/apt/java</apt.source.directory>
     </properties>
 
     <dependencies>
@@ -81,10 +84,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${compiler.plugin.version}</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
                 <executions>
                     <execution>
                         <id>default-compile</id>
@@ -92,7 +91,7 @@
                         <goals><goal>compile</goal></goals>
                         <configuration>
                             <compileSourceRoots>
-                                <compileSourceRoot>${project.basedir}/src/apt/java</compileSourceRoot>
+                                <compileSourceRoot>${apt.source.directory}</compileSourceRoot>
                             </compileSourceRoots>
                         </configuration>
                     </execution>
@@ -127,6 +126,9 @@
                 <version>3.0.1</version>
                 <executions>
                     <execution>
+                        <configuration>
+                            <sourcepath>${apt.source.directory};${project.build.sourceDirectory}</sourcepath>
+                        </configuration>
                         <id>attach-javadocs</id>
                         <goals>
                             <goal>jar</goal>

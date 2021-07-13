@@ -80,7 +80,7 @@ public final class BasicChecks {
      * If requirement is not met, then error contains description of it's mismatch.
      * If requirement is met, then error contains only mismatch of the "actual" check, while requirement stays silent.
      *
-     * The behavior is like Java's && operator, which doesn't evaluate second operand if first one is false.
+     * The behavior is like Java's and operator, which doesn't evaluate second operand if first one is false.
      * The and() operator check as opposed to this one, evaluates always both operands to get mismatch details from
      * both of them. Keep that in mind and properly decide, in which situation to use which operator.
      *

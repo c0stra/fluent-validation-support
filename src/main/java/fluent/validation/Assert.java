@@ -48,6 +48,7 @@ public final class Assert {
      * @param data Tested data.
      * @param check Check to be applied.
      * @param <T> Type of the tested data.
+     * @return The tested data, if the assertion passed.
      */
     public static <T> T that(T data, Check<? super T> check) {
         return that(data, check, new FailedResultVisitor());
@@ -61,6 +62,7 @@ public final class Assert {
      * @param check Check to be applied.
      * @param visitor Result visitor used to interpret the detailed information about check evaluation.
      * @param <T> Type of the tested data.
+     * @return The tested data, if the assertion passed.
      */
     public static <T> T that(T data, Check<? super T> check, ResultVisitor visitor) {
         if(!Check.that(data, check, visitor)) {
