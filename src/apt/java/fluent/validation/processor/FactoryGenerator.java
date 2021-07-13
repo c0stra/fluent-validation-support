@@ -117,7 +117,7 @@ public class FactoryGenerator extends AbstractProcessor {
                 if(nonNull(comment)) {
                     Stream.of(comment.split("\\R")).forEach(line -> out.println("\t *" + line));
                 }
-                out.println("\t * @see " + type(method.getEnclosingElement(), false) + "#" + sig(method, (p, i) -> type(p, false)));
+                out.println("\t * @see " + type(method.getEnclosingElement(), false) + "#" + sig(method, (p, i) -> raw(p)));
                 out.println("\t */");
                 method.getAnnotationMirrors().forEach(a -> out.println("\t@" + type(a.getAnnotationType())));
                 out.println("\tpublic static " + gen(method) + type(method.getReturnType()) + " " + sig(method, (p, i) -> type(p, i) + " " + p) + " {");
@@ -138,6 +138,11 @@ public class FactoryGenerator extends AbstractProcessor {
 
     private String type(Element element, boolean isVararg) {
         return isVararg ? type(((ArrayType)element.asType()).getComponentType()) + "..." : type(element.asType());
+    }
+
+    private String raw(Element element) {
+        Element typeElement = processingEnv.getTypeUtils().asElement(element.asType());
+        return typeElement == null ? element.asType().toString() : typeElement.toString();
     }
 
     private String stripPkg(String pkg, String type) {
