@@ -347,7 +347,7 @@ public final class BasicChecks {
 
     /**
      * General AND operator of multiple checks.
-     * The created check returns true if all of the provided operands (checks) returns true on the tested data,
+     * The created check returns true if all the provided operands (checks) return true on the tested data,
      * and if any of the operands returns false, then the resulting check returns false.
      *
      * Corner case:
@@ -363,7 +363,7 @@ public final class BasicChecks {
 
     /**
      * General AND operator of multiple checks.
-     * The created check returns true if all of the provided operands (checks) returns true on the tested data,
+     * The created check returns true if all the provided operands (checks) return true on the tested data,
      * and if any of the operands returns false, then the resulting check returns false.
      *
      * Corner case:
