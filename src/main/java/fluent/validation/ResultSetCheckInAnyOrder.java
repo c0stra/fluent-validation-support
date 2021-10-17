@@ -40,7 +40,7 @@ import java.util.*;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.IntStream.range;
 
-final class ResultSetCheckInAnyOrder extends Check<ResultSet> {
+final class ResultSetCheckInAnyOrder implements Check<ResultSet> {
 
     private final ArrayList<Check<? super ResultSet>> checks;
     private final boolean full;

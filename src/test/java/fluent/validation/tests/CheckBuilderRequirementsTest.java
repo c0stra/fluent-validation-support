@@ -7,7 +7,7 @@ import java.time.Month;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-public class CheckDslRequirementsTest extends Requirements {{
+public class CheckBuilderRequirementsTest extends Requirements {{
 
     ZonedDateTime time = ZonedDateTime.of(2021, 5, 10, 8, 0, 21, 5332, ZoneId.of("GMT"));
     ZonedDateTime NULL = null;

@@ -32,7 +32,7 @@ package fluent.validation;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-final class SoftCheck<D> extends Check<D> {
+final class SoftCheck<D> implements Check<D> {
 
     private final Check<D> check;
 
@@ -41,7 +41,7 @@ final class SoftCheck<D> extends Check<D> {
     }
 
     @Override
-    protected Result evaluate(D data, ResultFactory factory) {
+    public Result evaluate(D data, ResultFactory factory) {
         return factory.soft(check.evaluate(data, factory));
     }
 

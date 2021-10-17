@@ -33,7 +33,7 @@ import fluent.validation.result.Aggregator;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-final class Quantifier<D> extends Check<Iterable<D>> {
+final class Quantifier<D> implements Check<Iterable<D>> {
 
     private final String elementName;
     private final Type type;

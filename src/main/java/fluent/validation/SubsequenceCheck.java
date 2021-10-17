@@ -45,7 +45,7 @@ import java.util.ListIterator;
  *
  * @param <D> Type of the items in the collection.
  */
-final class SubsequenceCheck<D> extends Check<Iterator<D>> {
+final class SubsequenceCheck<D> implements Check<Iterator<D>> {
 
     private final String elementName;
     private final List<Check<? super D>> checks;

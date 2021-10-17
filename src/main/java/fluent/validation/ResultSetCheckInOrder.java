@@ -41,7 +41,7 @@ import java.sql.SQLException;
  *   1st item matches 1st check, 2nd item matches 2nd check, etc. and there must not be any item missing or
  *   extra (length of actual collection needs to match length of collection of conditions).
  */
-final class ResultSetCheckInOrder extends Check<ResultSet> {
+final class ResultSetCheckInOrder implements Check<ResultSet> {
 
     private final Iterable<Check<? super ResultSet>> checks;
     private final boolean full;

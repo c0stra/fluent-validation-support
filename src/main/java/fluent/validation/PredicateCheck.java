@@ -32,7 +32,7 @@ package fluent.validation;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-final class PredicateCheck<D> extends Check<D> {
+final class PredicateCheck<D> implements Check<D> {
 
     private final Object expectation;
     private final Predicate<D> predicate;
@@ -48,7 +48,7 @@ final class PredicateCheck<D> extends Check<D> {
     }
 
     @Override
-    protected Result evaluate(D data, ResultFactory factory) {
+    public Result evaluate(D data, ResultFactory factory) {
         try {
             return factory.expectation(expectation, predicate.test(data));
         } catch (UncheckedInterruptedException interrupted) {

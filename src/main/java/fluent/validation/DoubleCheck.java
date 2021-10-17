@@ -32,7 +32,7 @@ package fluent.validation;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-final class DoubleCheck<D> extends Check<D> {
+final class DoubleCheck<D> implements Check<D> {
 
     private final Check<? super D> requirement;
     private final Check<? super D> check;

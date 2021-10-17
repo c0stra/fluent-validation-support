@@ -52,7 +52,7 @@ import fluent.validation.result.ResultVisitor;
  *
  * @param <T> Type of the data to be tested using this check.
  */
-public abstract class Check<T> {
+public interface Check<T> {
 
     /**
      * Abstract method to delegate implementation of specific check logic to subclasses.
@@ -60,13 +60,8 @@ public abstract class Check<T> {
      * @param factory Result factory responsible for creating result tree from current node.
      * @return representation of outcome of the test.
      */
-    protected abstract Result evaluate(T data, ResultFactory factory);
-
-    /**
-     * Enforce to implement toString() in every subclass.
-     * @return String representation of the check.
-     */
-    public abstract String toString();
+    @End(message = "Check is not used. Pass it either to Assert.that(), Check.that() or Check.evaluate().")
+    Result evaluate(T data, ResultFactory factory);
 
     /**
      * Compose this check with another one using logical AND operator.
@@ -75,7 +70,7 @@ public abstract class Check<T> {
      * @param <U> Type of the data tested by other check. It may cause up-cast.
      * @return Composed check.
      */
-    public <U extends T> Check<U> and(Check<? super U> operand) {
+    default <U extends T> Check<U> and(Check<? super U> operand) {
         return new And<>(this, operand);
     }
 
@@ -86,7 +81,7 @@ public abstract class Check<T> {
      * @param <U> Type of the data tested by other check. It may cause up-cast.
      * @return Composed check.
      */
-    public <U extends T> Check<U> or(Check<? super U> operand) {
+    default <U extends T> Check<U> or(Check<? super U> operand) {
         return new Or<>(this, operand);
     }
 
@@ -98,17 +93,17 @@ public abstract class Check<T> {
      * @param <T> Type of the tested data.
      */
     @End(message = "Check is not used. Pass it either to Assert.that(), Check.that() or Check.evaluate().")
-    public static <T> boolean that(T data, Check<? super T> check) {
+    static <T> boolean that(T data, Check<? super T> check) {
         return evaluate(data, check).passed();
     }
 
-    public static <T> boolean that(T data, Check<? super T> check, ResultVisitor visitor) {
+    static <T> boolean that(T data, Check<? super T> check, ResultVisitor visitor) {
         Result result = evaluate(data, check);
         visitor.visit(result);
         return result.passed();
     }
 
-    public static <T> Result evaluate(T data, Check<? super T> check) {
+    static <T> Result evaluate(T data, Check<? super T> check) {
         return ResultFactory.DEFAULT.actual(data, check.evaluate(data, ResultFactory.DEFAULT));
     }
 

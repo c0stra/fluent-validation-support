@@ -39,7 +39,7 @@ import java.util.stream.IntStream;
 import static java.util.stream.Collectors.*;
 import static java.util.stream.IntStream.range;
 
-final class AnyOrderCheck<D> extends Check<Iterator<D>> {
+final class AnyOrderCheck<D> implements Check<Iterator<D>> {
 
     private final String elementName;
     private final ArrayList<Check<? super D>> checks;

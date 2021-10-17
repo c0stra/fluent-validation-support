@@ -36,7 +36,7 @@ import static fluent.validation.BasicChecks.allOf;
 import static fluent.validation.BasicChecks.equalTo;
 import static fluent.validation.BasicChecks.has;
 
-public final class ThrowingCheck extends Check<ThrowingRunnable> {
+public final class ThrowingCheck implements Check<ThrowingRunnable> {
 
     private final Check<? super Throwable> check;
 

@@ -509,8 +509,8 @@ public final class BasicChecks {
         return createBuilderWith(check);
     }
 
-    public static <D> CheckDsl<D> dsl() {
-        return new CheckDsl<>();
+    public static <D> CheckBuilder<D> dsl() {
+        return new CheckBuilder<>();
     }
 
     public static <D> Value<D> value() {

@@ -42,7 +42,7 @@ import java.util.Iterator;
  *
  * @param <D> Type of the items in the collection.
  */
-final class SameOrderCheck<D> extends Check<Iterator<D>> {
+final class SameOrderCheck<D> implements Check<Iterator<D>> {
 
     private final String elementName;
     private final Iterable<Check<? super D>> checks;

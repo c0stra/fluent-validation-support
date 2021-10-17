@@ -32,7 +32,7 @@ package fluent.validation;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-public final class CustomResultFactoryCheck<T> extends Check<T> {
+public final class CustomResultFactoryCheck<T> implements Check<T> {
 
     private final Check<T> check;
     private final ResultFactory resultFactory;
@@ -43,7 +43,7 @@ public final class CustomResultFactoryCheck<T> extends Check<T> {
     }
 
     @Override
-    protected Result evaluate(T data, ResultFactory originalResultFactory) {
+    public Result evaluate(T data, ResultFactory originalResultFactory) {
         return check.evaluate(data, resultFactory);
     }
 

@@ -29,28 +29,14 @@
 
 package fluent.validation;
 
-import fluent.validation.result.Result;
-import fluent.validation.result.ResultFactory;
+public final class CheckBuilder<D> extends AbstractCheckDsl<CheckBuilder<D>, D> {
 
-final class NamedCheck<D> implements Check<D> {
-
-    private final String name;
-    private final Check<D> check;
-
-    NamedCheck(String name, Check<D> check) {
-        this.name = name;
-        this.check = check;
+    CheckBuilder(Check<? super D> check) {
+        super(check, CheckBuilder::new);
     }
 
-    @Override
-    public Result evaluate(D data, ResultFactory factory) {
-        Result result = check.evaluate(data, factory);
-        return factory.named(name, result, result.passed());
-    }
-
-    @Override
-    public String toString() {
-        return name + " " + check;
+    public CheckBuilder() {
+        super(CheckBuilder::new);
     }
 
 }

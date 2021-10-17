@@ -32,7 +32,7 @@ package fluent.validation;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-final class NegativeCheck<D> extends Check<D> {
+final class NegativeCheck<D> implements Check<D> {
 
     private final Check<D> check;
 
@@ -41,7 +41,7 @@ final class NegativeCheck<D> extends Check<D> {
     }
 
     @Override
-    protected Result evaluate(D data, ResultFactory factory) {
+    public Result evaluate(D data, ResultFactory factory) {
         Result result = check.evaluate(data, factory);
         return factory.named("not", factory.invert(result), result.failed());
     }

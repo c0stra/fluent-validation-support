@@ -30,6 +30,7 @@
 package fluent.validation.data;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -47,12 +48,16 @@ import java.util.stream.Stream;
  *     A.stream().flatMap(combineWith(B)).flatMap(combineWith(C)).iterator();
  * }
  */
-public class Combinator {
+public class Data {
 
     private static Object[] mergeArrays(Object[] a, Object[] b) {
-        Object[] c = new Object[a.length + b.length];
-        System.arraycopy(a, 0, c, 0, a.length);
-        System.arraycopy(b, 0, c, a.length, b.length);
+        return writeArrays(a, b, a.length + b.length, a.length);
+    }
+
+    private static Object[] writeArrays(Object[] a, Object[] b, int l, int s) {
+        Object[] c = new Object[l];
+        System.arraycopy(a, 0, c, 0, s);
+        System.arraycopy(b, 0, c, s, b.length);
         return c;
     }
 
@@ -67,7 +72,7 @@ public class Combinator {
      * @param <C> Type of the representation of a combination.
      * @return Function, that implements the combination, to be used as parameter of input stream's flatMap() method.
      */
-    public static <A, B, C> Function<? super A, ? extends Stream<C>> combineWith(Collection<B> collection, BiFunction<A, B, C> byFunction) {
+    public static <A, B, C> Function<A, Stream<C>> combineWith(Collection<B> collection, BiFunction<A, B, C> byFunction) {
         return a -> collection.stream().map(b -> byFunction.apply(a, b));
     }
 
@@ -78,8 +83,21 @@ public class Combinator {
      * @param collection Collection of arrays.
      * @return Implementation of combination of original stream with provided collection.
      */
-    public static Function<? super Object[], ? extends Stream<Object[]>> combineWith(Collection<Object[]> collection) {
-        return a -> collection.stream().map(b -> mergeArrays(a, b));
+    public static Function<Object[], Stream<Object[]>> combineWith(Collection<Object[]> collection) {
+        return combineWith(collection, Data::mergeArrays);
+    }
+
+    /**
+     * Expansion algorithm allowing definition of data as sparse array representing a tree.
+     *
+     * Sparse array definition is missing leading elements, which are common with previous records.
+     *
+     * @param definition Stream of data rows represented as sparse array.
+     * @return Stream of records expanded to full length.
+     */
+    public static Stream<Object[]> expand(Stream<Object[]> definition) {
+        AtomicReference<Object[]> last = new AtomicReference<>();
+        return definition.map(o -> last.accumulateAndGet(o, (p, c) -> p == null ? c : writeArrays(p, c, p.length, p.length - c.length)));
     }
 
 }

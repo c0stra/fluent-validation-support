@@ -36,7 +36,7 @@ import java.util.Map;
 
 import static fluent.validation.BasicChecks.*;
 
-public class MapCheckBuilder<K, V> extends Check<Map<K, V>> {
+public class MapCheckBuilder<K, V> implements Check<Map<K, V>> {
 
     private final Check<? super Map<K, V>> check;
 
@@ -49,7 +49,7 @@ public class MapCheckBuilder<K, V> extends Check<Map<K, V>> {
     }
 
     @Override
-    protected Result evaluate(Map<K, V> data, ResultFactory factory) {
+    public Result evaluate(Map<K, V> data, ResultFactory factory) {
         return check.evaluate(data, factory);
     }
 

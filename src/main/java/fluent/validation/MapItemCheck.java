@@ -34,7 +34,7 @@ import fluent.validation.result.ResultFactory;
 
 import java.util.Map;
 
-final class MapItemCheck<K, V> extends Check<Map<K, V>> {
+final class MapItemCheck<K, V> implements Check<Map<K, V>> {
 
     private final K key;
     private final Check<? super V> check;
@@ -45,7 +45,7 @@ final class MapItemCheck<K, V> extends Check<Map<K, V>> {
     }
 
     @Override
-    protected Result evaluate(Map<K, V> data, ResultFactory factory) {
+    public Result evaluate(Map<K, V> data, ResultFactory factory) {
         V value = data.get(key);
         Result result = check.evaluate(value, factory);
         return factory.named(key, result, result.passed());

@@ -58,7 +58,7 @@ public class Value<D> {
     public final Check<D> storeWhen(Check<? super D> condition) {
         return new Check<D>() {
             @Override
-            protected Result evaluate(D data, ResultFactory factory) {
+            public Result evaluate(D data, ResultFactory factory) {
                 Result result = condition.evaluate(data, factory);
                 if(result.passed()) {
                     values.add(data);

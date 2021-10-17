@@ -36,10 +36,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
-import static fluent.validation.data.Combinator.combineWith;
+import static fluent.validation.data.Data.combineWith;
 import static java.util.stream.Collectors.toList;
 
-public class CombinatorTest {
+public class DataTest {
 
     @Test
     public void testCombineArrays() {
@@ -66,6 +66,36 @@ public class CombinatorTest {
         Assert.assertTrue(iterator.hasNext());
         Assert.assertEquals(iterator.next(), new Object[] {3,4,"C","D",7,8});
         Assert.assertFalse(iterator.hasNext());
+    }
+
+    @Test
+    public void testExpandArrays() {
+        Iterator<Object[]> iterator = Data.expand(Stream.of(new Object[][]{
+                {1, 1, 1, 1},
+                {         2},
+                {      2, 1},
+                {         2},
+                {2, 1, 1, 1},
+                {   2, 1, 1},
+                {   3, 1, 1},
+        })).iterator();
+
+        Assert.assertTrue(iterator.hasNext());
+        Assert.assertEquals(iterator.next(), new Object[] {1, 1, 1, 1});
+        Assert.assertTrue(iterator.hasNext());
+        Assert.assertEquals(iterator.next(), new Object[] {1, 1, 1, 2});
+        Assert.assertTrue(iterator.hasNext());
+        Assert.assertEquals(iterator.next(), new Object[] {1, 1, 2, 1});
+        Assert.assertTrue(iterator.hasNext());
+        Assert.assertEquals(iterator.next(), new Object[] {1, 1, 2, 2});
+        Assert.assertTrue(iterator.hasNext());
+        Assert.assertEquals(iterator.next(), new Object[] {2, 1, 1, 1});
+        Assert.assertTrue(iterator.hasNext());
+        Assert.assertEquals(iterator.next(), new Object[] {2, 2, 1, 1});
+        Assert.assertTrue(iterator.hasNext());
+        Assert.assertEquals(iterator.next(), new Object[] {2, 3, 1, 1});
+        Assert.assertFalse(iterator.hasNext());
+
     }
 
 }

@@ -32,7 +32,7 @@ package fluent.validation;
 import fluent.validation.result.Result;
 import fluent.validation.result.ResultFactory;
 
-final class TransformedCheck<D, V> extends Check<D> {
+final class TransformedCheck<D, V> implements Check<D> {
 
     private final Transformation<? super D, V> transformation;
     private final Check<? super V> check;
@@ -43,7 +43,7 @@ final class TransformedCheck<D, V> extends Check<D> {
     }
 
     @Override
-    protected Result evaluate(D data, ResultFactory factory) {
+    public Result evaluate(D data, ResultFactory factory) {
         V value;
         try {
             value = transformation.apply(data);

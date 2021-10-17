@@ -34,7 +34,7 @@ import fluent.validation.result.ResultFactory;
 
 import static java.util.Arrays.asList;
 
-final class And<D> extends Check<D> {
+final class And<D> implements Check<D> {
 
     private final Check<? super D> left;
     private final Check<? super D> right;
