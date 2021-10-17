@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static fluent.validation.CollectionChecks.*;
+import static fluent.validation.Items.items;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 

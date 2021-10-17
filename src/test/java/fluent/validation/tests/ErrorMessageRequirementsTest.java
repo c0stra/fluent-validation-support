@@ -3,6 +3,7 @@ package fluent.validation.tests;
 import fluent.validation.utils.Requirements;
 
 import static fluent.validation.Checks.*;
+import static fluent.validation.Items.items;
 import static fluent.validation.StringChecks.startsWith;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;

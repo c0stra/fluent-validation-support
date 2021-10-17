@@ -36,10 +36,10 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 
 import static fluent.validation.BasicChecks.*;
+import static fluent.validation.Items.checks;
+import static fluent.validation.Items.itemsMatching;
 import static fluent.validation.Repeater.repeat;
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
 
 @Factory
 public final class CollectionChecks {
@@ -51,18 +51,8 @@ public final class CollectionChecks {
      * ------------------------------------------------------------------------------------------------------
      */
 
-    @SafeVarargs
-    public static <T> Collection<Check<? super T>> items(T... expectedValues) {
-        return stream(expectedValues).map(BasicChecks::equalTo).collect(toList());
-    }
-
-    @SafeVarargs
-    public static <T> Collection<Check<? super T>> itemsMatching(Check<? super T>... expectedValues) {
-        return asList(expectedValues);
-    }
-
     public static <D> Check<Iterable<D>> exists(String elementName, Check<? super D> check) {
-        return collection(contains(elementName, Collections.singleton(check)));
+        return collection(contains(elementName, itemsMatching(check)));
     }
 
     public static <D> Check<Iterable<D>> every(String elementName, Check<? super D> check) {
@@ -77,60 +67,60 @@ public final class CollectionChecks {
         return has("Try max " + max + " times", (D i) -> repeat(i, max, delay)).matching(exists("Attempt", itemCheck));
     }
 
-    public static <T> Check<Iterator<T>> startsWith(String elementName, Iterable<Check<? super T>> prefix) {
-        return new SameOrderCheck<>(elementName, prefix, false, true);
+    public static <T> Check<Iterator<T>> startsWith(String elementName, Items<T> prefix) {
+        return new SameOrderCheck<>(elementName, checks(prefix), false, true);
     }
 
-    public static <T> Check<Iterator<T>> contains(String elementName, Iterable<Check<? super T>> elementChecks) {
-        return new SameOrderCheck<>(elementName, elementChecks, false, false);
+    public static <T> Check<Iterator<T>> contains(String elementName, Items<T> elementChecks) {
+        return new SameOrderCheck<>(elementName, checks(elementChecks), false, false);
     }
 
-    public static <T> Check<Iterator<T>> equalTo(String elementName, Iterable<Check<? super T>> elementChecks) {
-        return new SameOrderCheck<>(elementName, elementChecks, true, true);
+    public static <T> Check<Iterator<T>> equalTo(String elementName, Items<T> elementChecks) {
+        return new SameOrderCheck<>(elementName, checks(elementChecks), true, true);
     }
 
-    public static <T> Check<Iterator<T>> startsWith(Iterable<Check<? super T>> prefix) {
+    public static <T> Check<Iterator<T>> startsWith(Items<T> prefix) {
         return startsWith("Item", prefix);
     }
 
-    public static <T> Check<Iterator<T>> contains(Iterable<Check<? super T>> elementChecks) {
+    public static <T> Check<Iterator<T>> contains(Items<T> elementChecks) {
         return contains("Item", elementChecks);
     }
 
-    public static <T> Check<Iterator<T>> equalTo(Iterable<Check<? super T>> elementChecks) {
+    public static <T> Check<Iterator<T>> equalTo(Items<T> elementChecks) {
         return equalTo("Item", elementChecks);
     }
 
 
-    public static <T> Check<Iterator<T>> startsInAnyOrderWith(String elementName, Collection<Check<? super T>> prefixElementChecks) {
-        return new AnyOrderCheck<>(elementName, prefixElementChecks, false, true, false);
+    public static <T> Check<Iterator<T>> startsInAnyOrderWith(String elementName, Items<T> prefixElementChecks) {
+        return new AnyOrderCheck<>(elementName, checks(prefixElementChecks), false, true, false);
     }
 
-    public static <T> Check<Iterator<T>> containsInAnyOrder(String elementName, Collection<Check<? super T>> elementChecks) {
-        return new AnyOrderCheck<>(elementName, elementChecks, false, false, false);
+    public static <T> Check<Iterator<T>> containsInAnyOrder(String elementName, Items<T> elementChecks) {
+        return new AnyOrderCheck<>(elementName, checks(elementChecks), false, false, false);
     }
 
-    public static <T> Check<Iterator<T>> containsInAnyOrderOnly(String elementName, Collection<Check<? super T>> elementChecks) {
-        return new AnyOrderCheck<>(elementName, elementChecks, false, false, true);
+    public static <T> Check<Iterator<T>> containsInAnyOrderOnly(String elementName, Items<T> elementChecks) {
+        return new AnyOrderCheck<>(elementName, checks(elementChecks), false, false, true);
     }
 
-    public static <T> Check<Iterator<T>> equalInAnyOrderTo(String elementName, Collection<Check<? super T>> elementChecks) {
-        return new AnyOrderCheck<>(elementName, elementChecks, true, true, false);
+    public static <T> Check<Iterator<T>> equalInAnyOrderTo(String elementName, Items<T> elementChecks) {
+        return new AnyOrderCheck<>(elementName, checks(elementChecks), true, true, false);
     }
 
-    public static <T> Check<Iterator<T>> startsInAnyOrderWith(Collection<Check<? super T>> prefixElementChecks) {
+    public static <T> Check<Iterator<T>> startsInAnyOrderWith(Items<T> prefixElementChecks) {
         return startsInAnyOrderWith("Item", prefixElementChecks);
     }
 
-    public static <T> Check<Iterator<T>> containsInAnyOrder(Collection<Check<? super T>> elementChecks) {
+    public static <T> Check<Iterator<T>> containsInAnyOrder(Items<T> elementChecks) {
         return containsInAnyOrder("Item", elementChecks);
     }
 
-    public static <T> Check<Iterator<T>> containsInAnyOrderOnly(Collection<Check<? super T>> elementChecks) {
+    public static <T> Check<Iterator<T>> containsInAnyOrderOnly(Items<T> elementChecks) {
         return containsInAnyOrderOnly("Item", elementChecks);
     }
 
-    public static <T> Check<Iterator<T>> equalInAnyOrderTo(Collection<Check<? super T>> elementChecks) {
+    public static <T> Check<Iterator<T>> equalInAnyOrderTo(Items<T> elementChecks) {
         return equalInAnyOrderTo("Item", elementChecks);
     }
 

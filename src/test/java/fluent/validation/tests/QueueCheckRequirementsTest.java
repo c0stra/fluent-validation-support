@@ -3,6 +3,7 @@ package fluent.validation.tests;
 import fluent.validation.utils.Requirements;
 
 import static fluent.validation.CollectionChecks.*;
+import static fluent.validation.Items.items;
 import static fluent.validation.utils.Mocks.asQueue;
 
 public class QueueCheckRequirementsTest extends Requirements {{

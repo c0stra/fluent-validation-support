@@ -36,6 +36,7 @@ import fluent.validation.Value;
 import org.testng.annotations.Test;
 
 import static fluent.validation.Checks.*;
+import static fluent.validation.Items.items;
 
 public class ValueTest {
 

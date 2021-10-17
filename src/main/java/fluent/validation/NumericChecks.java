@@ -105,26 +105,77 @@ public final class NumericChecks {
         return check(data -> expectedValue.subtract(data).abs().compareTo(precision) < 0, expectedValue + " ±" + precision);
     }
 
+    /**
+     * Specific overloaded method for "tolerant" equalTo implementation for Double floating point values.
+     * It's implemented using closeTo() with default tolerance, which is by default 0.000001, but can be specified
+     * via system property to different value.
+     *
+     * @param expectedValue Expected value, from which the actual shouldn't differ more, than by the default tolerance.
+     * @return Check of the double equality.
+     * @see #closeTo(double, double)
+     * @see #DEFAULT_TOLERANCE
+     */
     public static Check<Double> equalTo(Double expectedValue) {
         return expectedValue == null ? sameInstance(null) : closeTo(expectedValue, DEFAULT_TOLERANCE);
     }
 
+    /**
+     * Specific overloaded method for "tolerant" equalTo implementation for Float floating point values.
+     * It's implemented using closeTo() with default tolerance, which is by default 0.000001, but can be specified
+     * via system property to different value.
+     *
+     * @param expectedValue Expected value, from which the actual shouldn't differ more, than by the default tolerance.
+     * @return Check of the float equality.
+     * @see #closeTo(float, float)
+     * @see #DEFAULT_TOLERANCE
+     */
     public static Check<Float> equalTo(Float expectedValue) {
         return expectedValue == null ? sameInstance(null) : closeTo(expectedValue, DEFAULT_TOLERANCE.floatValue());
     }
 
+    /**
+     * Specific overloaded method for "tolerant" equalTo implementation for BigDecimal real number values.
+     * It's implemented using closeTo() with default tolerance, which is by default 0.000001, but can be specified
+     * via system property to different value.
+     *
+     * @param expectedValue Expected value, from which the actual shouldn't differ more, than by the default tolerance.
+     * @return Check of the BigDecimal equality.
+     * @see #closeTo(BigDecimal, BigDecimal)
+     * @see #DEFAULT_TOLERANCE
+     */
     public static Check<BigDecimal> equalTo(BigDecimal expectedValue) {
         return expectedValue == null ? sameInstance(null) : closeTo(expectedValue, BigDecimal.valueOf(DEFAULT_TOLERANCE));
     }
 
+    /**
+     * Check of the string containing double number implemented by composition of parsing double from string and
+     * application of check of the Double value.
+     *
+     * @param check Check of the double value.
+     * @return Check applicable on String.
+     */
     public static Check<String> parseDouble(Check<? super Double> check) {
         return compose(dontTransformNull(Double::parseDouble), check);
     }
 
+    /**
+     * Check of the string containing double number implemented by composition of parsing double from string and
+     * expected Double value.
+     *
+     * @param expectedValue Expected double value.
+     * @return Check applicable on String.
+     */
     public static Check<String> parseDouble(Double expectedValue) {
         return parseDouble(equalTo(expectedValue));
     }
 
+    /**
+     * Check of the string containing double number implemented by composition of parsing double from string and
+     * expected Double value.
+     *
+     * @param expectedValue Expected double value.
+     * @return Check applicable on String.
+     */
     public static Check<String> parseDouble(double expectedValue) {
         return parseDouble(equalTo(expectedValue));
     }

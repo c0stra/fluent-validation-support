@@ -46,10 +46,12 @@ public final class XmlStreamResultVisitor implements ResultVisitor {
     @Override
     public void actual(Object actualValue, Result result) {
         try {
+            builder.writeStartElement("check");
             builder.writeStartElement("actual");
             builder.writeCharacters(actualValue.toString());
             builder.writeEndElement();
             result.accept(this);
+            builder.writeEndElement();
         } catch (XMLStreamException e) {
             e.printStackTrace();
         }

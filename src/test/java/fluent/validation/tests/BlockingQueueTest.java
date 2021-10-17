@@ -10,6 +10,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import static fluent.validation.CollectionChecks.*;
+import static fluent.validation.Items.items;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

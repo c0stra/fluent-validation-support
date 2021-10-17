@@ -29,15 +29,22 @@
 
 package fluent.validation.result;
 
+import fluent.validation.Check;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.stream.XMLStreamException;
 
 import java.io.StringWriter;
+import java.time.LocalDateTime;
+
+import static fluent.validation.Checks.*;
+import static fluent.validation.Items.items;
+import static java.util.Collections.singletonList;
+import static javax.xml.stream.XMLOutputFactory.newFactory;
 
 public class XmlStreamResultVisitorTest {
 
@@ -51,4 +58,20 @@ public class XmlStreamResultVisitorTest {
         Assert.assertEquals(stringWriter.toString(), "CCC");
     }
 
+    @Test(enabled = false)
+    public void testXmlWriter() throws XMLStreamException {
+        StringWriter stringWriter = new StringWriter();
+        XmlStreamResultVisitor visitor = new XmlStreamResultVisitor(newFactory().createXMLStreamWriter(stringWriter));
+        Check.that("AAA", contains("A"), visitor);
+        Assert.assertEquals(stringWriter.toString(), "FF");
+    }
+
+    @Test(enabled = false)
+    public void testTable() throws XMLStreamException {
+        StringWriter stringWriter = new StringWriter();
+        XmlStreamResultVisitor visitor = new XmlStreamResultVisitor(newFactory().createXMLStreamWriter(stringWriter));
+        Check.that(singletonList(LocalDateTime.now()), collection(containsInAnyOrder(items())), visitor);
+        Assert.assertEquals(stringWriter.toString(), "FF");
+
+    }
 }
