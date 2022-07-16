@@ -47,15 +47,15 @@ public final class ZonedDateTimeCheck extends AbstractCheckDsl<ZonedDateTimeChec
     }
 
     public ZonedDateTimeCheck date(Check<? super LocalDate> check) {
-        return withField(ZonedDateTime::toLocalDate).matching(check);
+        return has(ZonedDateTime::toLocalDate).matching(check);
     }
 
     public ZonedDateTimeCheck time(Check<? super LocalTime> check) {
-        return withField(ZonedDateTime::toLocalTime).matching(check);
+        return has(ZonedDateTime::toLocalTime).matching(check);
     }
 
     public ZonedDateTimeCheck year(Check<? super Integer> check) {
-        return withField(ZonedDateTime::getYear).matching(check);
+        return has(ZonedDateTime::getYear).matching(check);
     }
 
     public ZonedDateTimeCheck year(int expectedValue) {
@@ -63,7 +63,7 @@ public final class ZonedDateTimeCheck extends AbstractCheckDsl<ZonedDateTimeChec
     }
 
     public ZonedDateTimeCheck month(Check<? super Month> check) {
-        return withField(ZonedDateTime::getMonth).matching(check);
+        return has(ZonedDateTime::getMonth).matching(check);
     }
 
     public ZonedDateTimeCheck month(Month expectedValue) {
@@ -71,7 +71,7 @@ public final class ZonedDateTimeCheck extends AbstractCheckDsl<ZonedDateTimeChec
     }
 
     public ZonedDateTimeCheck monthValue(Check<? super Integer> check) {
-        return withField(ZonedDateTime::getMonthValue).matching(check);
+        return has(ZonedDateTime::getMonthValue).matching(check);
     }
 
     public ZonedDateTimeCheck month(int expectedValue) {
@@ -79,7 +79,7 @@ public final class ZonedDateTimeCheck extends AbstractCheckDsl<ZonedDateTimeChec
     }
 
     public ZonedDateTimeCheck day(Check<? super Integer> check) {
-        return withField(ZonedDateTime::getDayOfMonth).matching(check);
+        return has(ZonedDateTime::getDayOfMonth).matching(check);
     }
 
     public ZonedDateTimeCheck day(int expectedValue) {
@@ -87,7 +87,7 @@ public final class ZonedDateTimeCheck extends AbstractCheckDsl<ZonedDateTimeChec
     }
 
     public ZonedDateTimeCheck dayOfYear(Check<? super Integer> check) {
-        return withField(ZonedDateTime::getDayOfYear).matching(check);
+        return has(ZonedDateTime::getDayOfYear).matching(check);
     }
 
     public ZonedDateTimeCheck dayOfYear(int expectedValue) {
@@ -95,7 +95,7 @@ public final class ZonedDateTimeCheck extends AbstractCheckDsl<ZonedDateTimeChec
     }
 
     public ZonedDateTimeCheck dayOfWeek(Check<? super DayOfWeek> check) {
-        return withField(ZonedDateTime::getDayOfWeek).matching(check);
+        return has(ZonedDateTime::getDayOfWeek).matching(check);
     }
 
     public ZonedDateTimeCheck dayOfWeek(DayOfWeek expectedValue) {
@@ -103,7 +103,7 @@ public final class ZonedDateTimeCheck extends AbstractCheckDsl<ZonedDateTimeChec
     }
 
     public ZonedDateTimeCheck hour(Check<? super Integer> check) {
-        return withField(ZonedDateTime::getHour).matching(check);
+        return has(ZonedDateTime::getHour).matching(check);
     }
 
     public ZonedDateTimeCheck hour(int expectedValue) {
@@ -111,7 +111,7 @@ public final class ZonedDateTimeCheck extends AbstractCheckDsl<ZonedDateTimeChec
     }
 
     public ZonedDateTimeCheck minute(Check<? super Integer> check) {
-        return withField(ZonedDateTime::getMinute).matching(check);
+        return has(ZonedDateTime::getMinute).matching(check);
     }
 
     public ZonedDateTimeCheck minute(int expectedValue) {
@@ -119,7 +119,7 @@ public final class ZonedDateTimeCheck extends AbstractCheckDsl<ZonedDateTimeChec
     }
 
     public ZonedDateTimeCheck second(Check<? super Integer> check) {
-        return withField(ZonedDateTime::getSecond).matching(check);
+        return has(ZonedDateTime::getSecond).matching(check);
     }
 
     public ZonedDateTimeCheck second(int expectedValue) {
@@ -127,7 +127,7 @@ public final class ZonedDateTimeCheck extends AbstractCheckDsl<ZonedDateTimeChec
     }
 
     public ZonedDateTimeCheck nano(Check<? super Integer> check) {
-        return withField(ZonedDateTime::getNano).matching(check);
+        return has(ZonedDateTime::getNano).matching(check);
     }
 
     public ZonedDateTimeCheck nano(int expectedValue) {

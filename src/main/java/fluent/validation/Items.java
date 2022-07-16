@@ -53,7 +53,7 @@ public final class Items<T> {
 
     @SafeVarargs
     public static <T> Items<T> itemsMatching(Check<? super T>... expectations) {
-        return new Items<>(asList(expectations));
+        return new Items<T>(asList(expectations));
     }
 
 }

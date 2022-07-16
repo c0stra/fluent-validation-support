@@ -62,16 +62,16 @@ public final class XmlChecks {
         return BasicChecks.check(xml -> TRUE.equals(xPathExpression.evaluate(xml, XPathConstants.BOOLEAN)), xPath);
     }
 
-    public static TransformationBuilder<Object, Check<Object>> hasNode(String xPath, QName type) {
+    public static TransformationBuilder<Object, CheckBuilder<Object>> hasNode(String xPath, QName type) {
         XPathExpression xPathExpression = compile(xPath);
         return BasicChecks.has(xPath, xml -> xPathExpression.evaluate(xml, type));
     }
 
-    public static TransformationBuilder<Object, Check<Object>> hasNode(String xPath) {
+    public static TransformationBuilder<Object, CheckBuilder<Object>> hasNode(String xPath) {
         return hasNode(xPath, XPathConstants.NODE);
     }
 
-    public static TransformationBuilder<Object, Check<String>> hasTextContent(String xPath) {
+    public static TransformationBuilder<Object, CheckBuilder<String>> hasTextContent(String xPath) {
         XPathExpression xPathExpression = compile(xPath);
         return BasicChecks.has(xPath, xPathExpression::evaluate);
     }

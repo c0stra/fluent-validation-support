@@ -47,15 +47,15 @@ public final class LocalDateTimeCheck extends AbstractCheckDsl<LocalDateTimeChec
     }
 
     public LocalDateTimeCheck date(Check<? super LocalDate> check) {
-        return withField(LocalDateTime::toLocalDate).matching(check);
+        return has(LocalDateTime::toLocalDate).matching(check);
     }
 
     public LocalDateTimeCheck time(Check<? super LocalTime> check) {
-        return withField(LocalDateTime::toLocalTime).matching(check);
+        return has(LocalDateTime::toLocalTime).matching(check);
     }
 
     public LocalDateTimeCheck year(Check<? super Integer> check) {
-        return withField(LocalDateTime::getYear).matching(check);
+        return has(LocalDateTime::getYear).matching(check);
     }
 
     public LocalDateTimeCheck year(int expectedValue) {
@@ -63,7 +63,7 @@ public final class LocalDateTimeCheck extends AbstractCheckDsl<LocalDateTimeChec
     }
 
     public LocalDateTimeCheck month(Check<? super Month> check) {
-        return withField(LocalDateTime::getMonth).matching(check);
+        return has(LocalDateTime::getMonth).matching(check);
     }
 
     public LocalDateTimeCheck month(Month expectedValue) {
@@ -71,7 +71,7 @@ public final class LocalDateTimeCheck extends AbstractCheckDsl<LocalDateTimeChec
     }
 
     public LocalDateTimeCheck monthValue(Check<? super Integer> check) {
-        return withField(LocalDateTime::getMonthValue).matching(check);
+        return has(LocalDateTime::getMonthValue).matching(check);
     }
 
     public LocalDateTimeCheck month(int expectedValue) {
@@ -79,7 +79,7 @@ public final class LocalDateTimeCheck extends AbstractCheckDsl<LocalDateTimeChec
     }
 
     public LocalDateTimeCheck day(Check<? super Integer> check) {
-        return withField(LocalDateTime::getDayOfMonth).matching(check);
+        return has(LocalDateTime::getDayOfMonth).matching(check);
     }
 
     public LocalDateTimeCheck day(int expectedValue) {
@@ -87,7 +87,7 @@ public final class LocalDateTimeCheck extends AbstractCheckDsl<LocalDateTimeChec
     }
 
     public LocalDateTimeCheck dayOfYear(Check<? super Integer> check) {
-        return withField(LocalDateTime::getDayOfYear).matching(check);
+        return has(LocalDateTime::getDayOfYear).matching(check);
     }
 
     public LocalDateTimeCheck dayOfYear(int expectedValue) {
@@ -95,7 +95,7 @@ public final class LocalDateTimeCheck extends AbstractCheckDsl<LocalDateTimeChec
     }
 
     public LocalDateTimeCheck dayOfWeek(Check<? super DayOfWeek> check) {
-        return withField(LocalDateTime::getDayOfWeek).matching(check);
+        return has(LocalDateTime::getDayOfWeek).matching(check);
     }
 
     public LocalDateTimeCheck dayOfWeek(DayOfWeek expectedValue) {
@@ -103,7 +103,7 @@ public final class LocalDateTimeCheck extends AbstractCheckDsl<LocalDateTimeChec
     }
 
     public LocalDateTimeCheck hour(Check<? super Integer> check) {
-        return withField(LocalDateTime::getHour).matching(check);
+        return has(LocalDateTime::getHour).matching(check);
     }
 
     public LocalDateTimeCheck hour(int expectedValue) {
@@ -111,7 +111,7 @@ public final class LocalDateTimeCheck extends AbstractCheckDsl<LocalDateTimeChec
     }
 
     public LocalDateTimeCheck minute(Check<? super Integer> check) {
-        return withField(LocalDateTime::getMinute).matching(check);
+        return has(LocalDateTime::getMinute).matching(check);
     }
 
     public LocalDateTimeCheck minute(int expectedValue) {
@@ -119,7 +119,7 @@ public final class LocalDateTimeCheck extends AbstractCheckDsl<LocalDateTimeChec
     }
 
     public LocalDateTimeCheck second(Check<? super Integer> check) {
-        return withField(LocalDateTime::getSecond).matching(check);
+        return has(LocalDateTime::getSecond).matching(check);
     }
 
     public LocalDateTimeCheck second(int expectedValue) {
@@ -127,7 +127,7 @@ public final class LocalDateTimeCheck extends AbstractCheckDsl<LocalDateTimeChec
     }
 
     public LocalDateTimeCheck nano(Check<? super Integer> check) {
-        return withField(LocalDateTime::getNano).matching(check);
+        return has(LocalDateTime::getNano).matching(check);
     }
 
     public LocalDateTimeCheck nano(int expectedValue) {

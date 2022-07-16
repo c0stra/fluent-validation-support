@@ -35,7 +35,6 @@ import fluent.validation.result.ResultFactory;
 import java.util.function.Function;
 
 import static fluent.validation.BasicChecks.anything;
-import static fluent.validation.BasicChecks.has;
 
 public abstract class AbstractCheckDsl<L, D> implements CheckDsl<L, D> {
 
@@ -58,13 +57,13 @@ public abstract class AbstractCheckDsl<L, D> implements CheckDsl<L, D> {
     }
 
     @Override
-    public <V> TransformationBuilder<V, L> withField(String name, Transformation<? super D, V> transformation) {
-        return condition -> with(has(name, transformation).matching(condition));
+    public <V> TransformationBuilder<V, L> has(String name, Transformation<? super D, V> transformation) {
+        return condition -> with(BasicChecks.has(name, transformation).matching(condition));
     }
 
     @Override
-    public <V> TransformationBuilder<V, L> withField(Transformation<? super D, V> transformation) {
-        return withField(transformation.getMethodName(), transformation);
+    public <V> TransformationBuilder<V, L> has(Transformation<? super D, V> transformation) {
+        return has(transformation.getMethodName(), transformation);
     }
 
     @Override

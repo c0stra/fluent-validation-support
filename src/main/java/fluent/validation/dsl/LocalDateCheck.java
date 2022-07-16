@@ -47,7 +47,7 @@ public final class LocalDateCheck extends AbstractCheckDsl<LocalDateCheck, Local
     }
 
     public LocalDateCheck year(Check<? super Integer> check) {
-        return withField(LocalDate::getYear).matching(check);
+        return has(LocalDate::getYear).matching(check);
     }
 
     public LocalDateCheck year(int expectedValue) {
@@ -55,7 +55,7 @@ public final class LocalDateCheck extends AbstractCheckDsl<LocalDateCheck, Local
     }
 
     public LocalDateCheck month(Check<? super Month> check) {
-        return withField(LocalDate::getMonth).matching(check);
+        return has(LocalDate::getMonth).matching(check);
     }
 
     public LocalDateCheck month(Month expectedValue) {
@@ -63,7 +63,7 @@ public final class LocalDateCheck extends AbstractCheckDsl<LocalDateCheck, Local
     }
 
     public LocalDateCheck monthValue(Check<? super Integer> check) {
-        return withField(LocalDate::getMonthValue).matching(check);
+        return has(LocalDate::getMonthValue).matching(check);
     }
 
     public LocalDateCheck month(int expectedValue) {
@@ -71,7 +71,7 @@ public final class LocalDateCheck extends AbstractCheckDsl<LocalDateCheck, Local
     }
 
     public LocalDateCheck day(Check<? super Integer> check) {
-        return withField(LocalDate::getDayOfMonth).matching(check);
+        return has(LocalDate::getDayOfMonth).matching(check);
     }
 
     public LocalDateCheck day(int expectedValue) {
@@ -79,7 +79,7 @@ public final class LocalDateCheck extends AbstractCheckDsl<LocalDateCheck, Local
     }
 
     public LocalDateCheck dayOfYear(Check<? super Integer> check) {
-        return withField(LocalDate::getDayOfYear).matching(check);
+        return has(LocalDate::getDayOfYear).matching(check);
     }
 
     public LocalDateCheck dayOfYear(int expectedValue) {
@@ -87,7 +87,7 @@ public final class LocalDateCheck extends AbstractCheckDsl<LocalDateCheck, Local
     }
 
     public LocalDateCheck dayOfWeek(Check<? super DayOfWeek> check) {
-        return withField(LocalDate::getDayOfWeek).matching(check);
+        return has(LocalDate::getDayOfWeek).matching(check);
     }
 
     public LocalDateCheck dayOfWeek(DayOfWeek expectedValue) {

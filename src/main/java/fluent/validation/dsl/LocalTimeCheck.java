@@ -47,7 +47,7 @@ public final class LocalTimeCheck extends AbstractCheckDsl<LocalTimeCheck, Local
     }
 
     public LocalTimeCheck hour(Check<? super Integer> check) {
-        return withField(LocalTime::getHour).matching(check);
+        return has(LocalTime::getHour).matching(check);
     }
 
     public LocalTimeCheck hour(int expectedValue) {
@@ -55,7 +55,7 @@ public final class LocalTimeCheck extends AbstractCheckDsl<LocalTimeCheck, Local
     }
 
     public LocalTimeCheck minute(Check<? super Integer> check) {
-        return withField(LocalTime::getMinute).matching(check);
+        return has(LocalTime::getMinute).matching(check);
     }
 
     public LocalTimeCheck minute(int expectedValue) {
@@ -63,7 +63,7 @@ public final class LocalTimeCheck extends AbstractCheckDsl<LocalTimeCheck, Local
     }
 
     public LocalTimeCheck second(Check<? super Integer> check) {
-        return withField(LocalTime::getSecond).matching(check);
+        return has(LocalTime::getSecond).matching(check);
     }
 
     public LocalTimeCheck second(int expectedValue) {
@@ -71,7 +71,7 @@ public final class LocalTimeCheck extends AbstractCheckDsl<LocalTimeCheck, Local
     }
 
     public LocalTimeCheck nano(Check<? super Integer> check) {
-        return withField(LocalTime::getNano).matching(check);
+        return has(LocalTime::getNano).matching(check);
     }
 
     public LocalTimeCheck nano(int expectedValue) {

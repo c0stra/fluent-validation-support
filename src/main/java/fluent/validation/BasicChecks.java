@@ -425,19 +425,19 @@ public final class BasicChecks {
         return new NamedCheck<>(transformation.getMethodName(), transform(transformation, check));
     }
 
-    public static <D, V> TransformationBuilder<V, Check<D>> has(String name, Transformation<? super D, V> transformation) {
-        return condition -> requireNotNull(compose(name, transformation, condition));
+    public static <D, V> TransformationBuilder<V, CheckBuilder<D>> has(String name, Transformation<? super D, V> transformation) {
+        return condition -> new CheckBuilder.Impl<>(requireNotNull(compose(name, transformation, condition)));
     }
 
-    public static <D, V> TransformationBuilder<V, Check<D>> has(Transformation<? super D, V> transformation) {
-        return condition -> requireNotNull(compose(transformation.getMethodName(), transformation, condition));
+    public static <D, V> TransformationBuilder<V, CheckBuilder<D>> has(Transformation<? super D, V> transformation) {
+        return has(transformation.getMethodName(), transformation);
     }
 
-    public static <D, V> TransformationBuilder<V, Check<D>> nullableHas(String name, Transformation<? super D, V> transformation) {
-        return condition -> compose(name, dontTransformNull(transformation), condition);
+    public static <D, V> TransformationBuilder<V, CheckBuilder<D>> nullableHas(String name, Transformation<? super D, V> transformation) {
+        return condition -> new CheckBuilder.Impl<>(compose(name, dontTransformNull(transformation), condition));
     }
 
-    public static <D, V> TransformationBuilder<V, Check<D>> nullableHas(Transformation<? super D, V> transformation) {
+    public static <D, V> TransformationBuilder<V, CheckBuilder<D>> nullableHas(Transformation<? super D, V> transformation) {
         return nullableHas(transformation.getMethodName(), transformation);
     }
 
@@ -510,7 +510,7 @@ public final class BasicChecks {
     }
 
     public static <D> CheckBuilder<D> dsl() {
-        return new CheckBuilder<>();
+        return new CheckBuilder.Impl<>();
     }
 
     public static <D> Value<D> value() {

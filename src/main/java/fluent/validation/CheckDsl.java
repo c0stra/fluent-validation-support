@@ -1,7 +1,7 @@
 /*
  * BSD 2-Clause License
  *
- * Copyright (c) 2021, Ondrej Fischer
+ * Copyright (c) 2022, Ondrej Fischer
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,10 @@ public interface CheckDsl<L, D> extends Check<D> {
      * @param <V> Type of the transformed value.
      * @return The fluent DSL allowing further building of the check.
      */
-    <V> TransformationBuilder<V, L> withField(String name, Transformation<? super D, V> transformation);
+    @Deprecated
+    default <V> TransformationBuilder<V, L> withField(String name, Transformation<? super D, V> transformation) {
+        return has(name, transformation);
+    }
 
     /**
      * Add a check of a transformed value, e.g. field access. This variant will try to "guess" the name of the
@@ -66,7 +69,30 @@ public interface CheckDsl<L, D> extends Check<D> {
      * @param <V> Type of the transformed value.
      * @return The fluent DSL allowing further building of the check.
      */
-    <V> TransformationBuilder<V, L> withField(Transformation<? super D, V> transformation);
+    @Deprecated
+    default <V> TransformationBuilder<V, L> withField(Transformation<? super D, V> transformation) {
+        return has(transformation);
+    }
+
+    /**
+     * Add a check of a transformed value, e.g. field access.
+     *
+     * @param name Name of the transformation / field
+     * @param transformation Transformation function to apply in order to check the result.
+     * @param <V> Type of the transformed value.
+     * @return The fluent DSL allowing further building of the check.
+     */
+    <V> TransformationBuilder<V, L> has(String name, Transformation<? super D, V> transformation);
+
+    /**
+     * Add a check of a transformed value, e.g. field access. This variant will try to "guess" the name of the
+     * transformation / field.
+     *
+     * @param transformation Transformation function to apply in order to check the result.
+     * @param <V> Type of the transformed value.
+     * @return The fluent DSL allowing further building of the check.
+     */
+    <V> TransformationBuilder<V, L> has(Transformation<? super D, V> transformation);
 
     /**
      * Allow chaining of checks using logical or. Keep in mind that sequence of directly chained field checks are always

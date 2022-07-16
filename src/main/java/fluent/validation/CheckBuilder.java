@@ -29,14 +29,18 @@
 
 package fluent.validation;
 
-public final class CheckBuilder<D> extends AbstractCheckDsl<CheckBuilder<D>, D> {
+public interface CheckBuilder<D> extends CheckDsl<CheckBuilder<D>, D> {
 
-    CheckBuilder(Check<? super D> check) {
-        super(check, CheckBuilder::new);
+    class Impl<D> extends AbstractCheckDsl<CheckBuilder<D>, D> implements CheckBuilder<D> {
+
+        Impl(Check<? super D> check) {
+            super(check, Impl::new);
+        }
+
+        public Impl() {
+            super(Impl::new);
+        }
+
+
     }
-
-    public CheckBuilder() {
-        super(CheckBuilder::new);
-    }
-
 }
